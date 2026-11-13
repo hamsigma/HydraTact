@@ -1,0 +1,197 @@
+# ==============================================================================
+# HydraTact Monorepo - Comprehensive .gitignore
+# Stack: Turborepo / pnpm, Next.js / TypeScript, Flutter / Android / iOS,
+#        PostgreSQL / PostGIS, Docker, Python Tools, Local AI Caches
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. Operating System & System Cache
+# ------------------------------------------------------------------------------
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+*.lnk
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon\r\r
+._*
+.Spotlight-V100
+.Trashes
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+
+# ------------------------------------------------------------------------------
+# 2. IDEs & Editors
+# ------------------------------------------------------------------------------
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+.history/
+*.sublime-project
+*.sublime-workspace
+
+# JetBrains / Android Studio
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# ------------------------------------------------------------------------------
+# 3. Environment Variables & Credentials
+# ------------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+!.env.template
+*.env
+*.local
+*.pem
+*.key
+*.cert
+*.crt
+*.pfx
+*.p12
+
+# ------------------------------------------------------------------------------
+# 4. Logs, Debug & Runtime Files
+# ------------------------------------------------------------------------------
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ------------------------------------------------------------------------------
+# 5. Node.js, pnpm, Turborepo & Web Frontends (Next.js)
+# ------------------------------------------------------------------------------
+node_modules/
+.pnpm-store/
+.pnpm-debug.log*
+.npm/
+.yarn/
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# Turborepo cache
+.turbo/
+
+# Next.js build output
+.next/
+out/
+build/
+dist/
+
+# TypeScript & Test Caches
+*.tsbuildinfo
+.eslintcache
+.stylelintcache
+coverage/
+.nyc_output/
+
+# ------------------------------------------------------------------------------
+# 6. Flutter & Mobile (Android / iOS)
+# ------------------------------------------------------------------------------
+# Flutter engine / tool caches
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+
+# Android build artifacts & local properties
+android/.gradle/
+android/app/build/
+android/local.properties
+android/key.properties
+*.keystore
+*.jks
+android/captures/
+.externalNativeBuild/
+.cxx/
+
+# iOS build artifacts
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/Generated.xcconfig
+ios/Flutter/app.framework
+ios/Flutter/engine.framework
+ios/Flutter/flutter_assets/
+ios/ServiceDefinitions.json
+DerivedData/
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.xcuserstate
+project.xcworkspace/xcuserdata/
+xcuserdata/
+
+# Package outputs
+*.apk
+*.aab
+*.ipa
+*.app
+
+# ------------------------------------------------------------------------------
+# 7. Database, Docker & Large Spatial Assets
+# ------------------------------------------------------------------------------
+postgres_data/
+*.sqlite
+*.sqlite3
+*.sqlite-journal
+*.db
+
+# MBTiles / Large Raw Spatial Data (Generated binaries)
+*.mbtiles
+*.tar.gz
+*.zip
+*.7z
+
+# ------------------------------------------------------------------------------
+# 8. Python & AI Agent Artifacts
+# ------------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+
+# Knowledge Graph & Agent Workspace Artifacts
+graphify-out/
+.gemini/
+.claude/
+# Cloned agent skill libraries (project rules remain tracked under .agents/rules)
+.agents/skills/
