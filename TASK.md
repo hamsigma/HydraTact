@@ -98,7 +98,7 @@ flowchart TD
 | Task ID | Pri | Modul | Assignee | Nama Tugas & Cabang Branch | Acceptance Criteria / Output | Status |
 | :--- | :---: | :--- | :--- | :--- | :--- | :---: |
 | **`TASK-302`** | `P0` | `pwa` | `@Hervino` | `feat/TASK-302-citizen-pwa-zero-auth` | Halaman pelaporan warga tanpa login (*Zero-Auth*) dengan kunci geolokasi GPS otomatis. | `To Do` |
-| **`TASK-303`** | `P0` | `pwa` | `@Ariyadi` & `@Hervino` | `feat/TASK-303-haptic-press-and-hold` | Tombol darurat Haptic Press-and-Hold ($2,0\text{ detik}$) dengan cincin progres visual dan getar. | `To Do` |
+| **`TASK-303`** | `P0` | `pwa` | `@Ariyadi` & `@Hervino` | `feat/TASK-303-haptic-press-and-hold` | Tombol darurat Haptic Press-and-Hold ($2,0\text{ detik}$) dengan cincin progres visual dan getar. | `Done` |
 | **`TASK-304`** | `P1` | `pwa` | `@Hervino` | `feat/TASK-304-citizen-consensus-card` | Kartu status konsensus waktu nyata yang mengabarkan verifikasi otomatis kepada warga sekitar. | `To Do` |
 | **`TASK-305`** | `P0` | `web` | `@Hervino` | `feat/TASK-305-web-command-leaflet-dark` | Kanvas Leaflet.js tema gelap di Dasbor Posko: titik api, Sungai Karang Mumus, dan sumber air. | `To Do` |
 | **`TASK-306`** | `P0` | `web` | `@Hervino` | `feat/TASK-306-auto-split-barricade-panel` | Visualisasi pembagian unit `ATTACKER`/`FEEDER` serta garis barikade selang fuchsia (`LineString`). | `To Do` |

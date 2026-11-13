@@ -27,7 +27,7 @@
 ### Sprint 3 / Hari 3: Tombol Haptic PWA, Map-Matching & Aksi Taktis 1-Tap
 | Task ID | Pri | Modul | Nama Tugas & Cabang Branch | Acceptance Criteria / Output | Status |
 | :--- | :---: | :--- | :--- | :--- | :---: |
-| **`TASK-303`** | `P0` | `pwa` | `feat/TASK-303-haptic-press-and-hold` *(Collab @Hervino)* | Desain & implementasi tombol darurat Haptic Press-and-Hold ($2,0\text{ detik}$) dengan cincin progres visual dan getaran haptic. | `[ ]` |
+| **`TASK-303`** | `P0` | `pwa` | `feat/TASK-303-haptic-press-and-hold` *(Collab @Hervino)* | Desain & implementasi tombol darurat Haptic Press-and-Hold ($2,0\text{ detik}$) dengan cincin progres visual dan getaran haptic. | `[x]` |
 | **`TASK-402`** | `P1` | `mobile` | `feat/TASK-402-map-matching-snapping` *(Collab @Ilham)* | Client-Side Map-Matching Snapping untuk mengunci GPS mentah ke gang jika deviasi multipath $\le 25\text{ m}$. | `[x]` |
 | **`TASK-404`** | `P0` | `mobile` | `feat/TASK-404-nearest-water-sources-ui` | Modul 3 Sumber Air Terdekat menggunakan Haversine lokal dan filter status (`READY` / `LOW_DISCHARGE`). | `[x]` |
 | **`TASK-405`** | `P0` | `mobile` | `feat/TASK-405-tap-water-barricade-actions` | Aksi 1-Tap status air dan sakelar Hose Barricade dengan target sentuh ramah sarung tangan ($\ge 48\text{ dp}$). | `[x]` |
