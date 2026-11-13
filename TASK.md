@@ -64,9 +64,9 @@ flowchart TD
 | **`TASK-101`** | `P0` | `infra` | `@Hervino` | `chore/TASK-101-monorepo-setup` | Workspace `pnpm` + `Turborepo` + Python virtualenv aktif, scripts `lint`, `test`, `build` terkonfigurasi. | `Done` |
 | **`TASK-102`** | `P0` | `infra` | `@Hervino` & `@Ilham` | `chore/TASK-102-supabase-local-stack` | Supabase CLI local stack aktif (`supabase init`) untuk PostgreSQL 15/16 + PostGIS 3.4, Auth & Studio. | `To Do` |
 | **`TASK-103`** | `P0` | `contract` | `@Hervino` | `feat/TASK-103-pydantic-openapi-spec` | Model Pydantic v2 FastAPI mengekspor dokumen OpenAPI v3 (`openapi.yaml`) untuk seluruh endpoint. | `Done` |
-| **`TASK-104`** | `P1` | `contract` | `@Hervino` & `@Ariyadi` | `feat/TASK-104-codegen-ts-dart` | Skrip generate otomatis dari kontrak OpenAPI ke TypeScript client (Web) dan Dart client (Flutter). | `To Do` |
-| **`TASK-105`** | `P0` | `database` | `@Ilham` | `feat/TASK-105-supabase-postgis-ddl` | Skrip migrasi DDL Supabase PostGIS, tipe ENUM, indeks GiST, dan publikasi replikasi `supabase_realtime`. | `To Do` |
-| **`TASK-106`** | `P0` | `database` | `@Ilham` | `feat/TASK-106-seeding-samarinda-data` | Seeding `supabase/seed.sql`: posko Balakarcana, 30 titik hidran/tandon, dan skenario uji Jl. Pelita Gg. 4. | `To Do` |
+| **`TASK-104`** | `P1` | `contract` | `@Hervino` & `@Ariyadi` | `feat/TASK-104-codegen-ts-dart` | Skrip generate otomatis dari kontrak OpenAPI ke TypeScript client (Web) dan Dart client (Flutter). | `Done` |
+| **`TASK-105`** | `P0` | `database` | `@Ilham` | `feat/TASK-105-supabase-postgis-ddl` | Skrip migrasi DDL Supabase PostGIS, tipe ENUM, indeks GiST, dan publikasi replikasi `supabase_realtime`. | `Done` |
+| **`TASK-106`** | `P0` | `database` | `@Ilham` | `feat/TASK-106-seeding-samarinda-data` | Seeding `supabase/seed.sql`: posko Balakarcana, 30 titik hidran/tandon, dan skenario uji Jl. Pelita Gg. 4. | `Done` |
 | **`TASK-107`** | `P1` | `database` | `@Ilham` | `feat/TASK-107-spatial-queries-gist` | Kueri spasial teroptimasi untuk konsensus radius $\le 100\text{ m}$ dan 3 sumber air aktif terdekat (`<->`). | `To Do` |
 | **`TASK-108`** | `P0` | `spatial` | `@Ilham` | `feat/TASK-108-osm-samarinda-extract` | Ekstraksi jalan lingkungan dan gang sempit Samarinda dari OpenStreetMap (`.osm.pbf`). | `To Do` |
 | **`TASK-109`** | `P1` | `spatial` | `@Ilham` | `feat/TASK-109-tippecanoe-mbtiles` | Kompilasi Tippecanoe zoom 14--18 menghasilkan `samarinda_dense.mbtiles` ($\le 45\text{ MB}$, Jl. Pelita Gg. 4 akurat). | `To Do` |
@@ -79,7 +79,7 @@ flowchart TD
 
 | Task ID | Pri | Modul | Assignee | Nama Tugas & Cabang Branch | Acceptance Criteria / Output | Status |
 | :--- | :---: | :--- | :--- | :--- | :--- | :---: |
-| **`TASK-201`** | `P0` | `backend` | `@Hervino` | `feat/TASK-201-fastapi-server-core` | Struktur dasar peladen REST FastAPI (Python 3.11+) + Pydantic v2 dengan router asinkron & skema validasi. | `To Do` |
+| **`TASK-201`** | `P0` | `backend` | `@Hervino` | `feat/TASK-201-fastapi-server-core` | Struktur dasar peladen REST FastAPI (Python 3.11+) + Pydantic v2 dengan router asinkron & skema validasi. | `Done` |
 | **`TASK-202`** | `P0` | `spatial` | `@Ilham` | `feat/TASK-202-geofencing-consensus` | Mesin konsensus murni di `packages/spatial-core`: evaluasi $\ge 2$ laporan unik ($r \le 100\text{ m}, \Delta t \le 3\text{ mnt}$). | `To Do` |
 | **`TASK-203`** | `P0` | `spatial` | `@Ilham` | `feat/TASK-203-dynamic-role-dispatching` | Logika Auto-Split peran: `FEEDER` ($\ge 3.000\text{ L}$) vs `ATTACKER` ($< 1.000\text{ L}$) pada jalan $< 2,5\text{ m}$. | `To Do` |
 | **`TASK-204`** | `P0` | `backend` | `@Hervino` | `feat/TASK-204-incident-lifecycle-fsm` | Incident Lifecycle FSM (`PENDING_VERIFICATION` $\rightarrow$ `CLOSED`) + fitur *Manual Override* posko. | `To Do` |

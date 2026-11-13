@@ -17,11 +17,11 @@
 - [x] **`TASK-101`** `[P0]` `@Hervino` — Inisialisasi struktur monorepo (`pnpm` + `Turborepo` + Python virtualenv) dengan direktori `apps/backend-api` (FastAPI), `apps/web-command`, `apps/pwa-citizen`, `apps/mobile-volunteer`, `supabase/`, dan `packages/*`.
 - [ ] **`TASK-102`** `[P0]` `@Hervino` & `@Ilham` — Konfigurasi Supabase CLI local stack (`supabase init` / `config.toml`) mencakup PostgreSQL + PostGIS, Supabase Auth, Studio, dan Realtime Engine.
 - [x] **`TASK-103`** `[P0]` `@Hervino` — Susun skema model data Pydantic v2 di FastAPI untuk mengekspor spesifikasi `openapi.yaml` (OpenAPI v3) otomatis mencakup endpoint pelaporan, dispatching, dan outbox sync.
-- [ ] **`TASK-104`** `[P1]` `@Hervino` & `@Ariyadi` — Konfigurasi skrip *code generation* otomatis dari kontrak OpenAPI ke klien TypeScript (Web/PWA) dan Dart (Flutter).
+- [x] **`TASK-104`** `[P1]` `@Hervino` & `@Ariyadi` — Konfigurasi skrip *code generation* otomatis dari kontrak OpenAPI ke klien TypeScript (Web/PWA) dan Dart (Flutter).
 
 ### 1.2 Skema Database Supabase PostGIS & Data Wilayah Samarinda
-- [ ] **`TASK-105`** `[P0]` `@Ilham` — Implementasi skrip migrasi DDL Supabase PostGIS (`supabase/migrations/`), tipe `ENUM` (FSM, peran unit, status air), indeks spasial `GIST`, dan publikasi replikasi `supabase_realtime`.
-- [ ] **`TASK-106`** `[P0]` `@Ilham` — Susun skrip *seeding* data wilayah Kota Samarinda di `supabase/seed.sql` (posko relawan Balakarcana/PMK, 30 titik hidran PDAM, tandon warga, dermaga Sungai Karang Mumus, dan skenario uji Jl. Pelita Gg. 4).
+- [x] **`TASK-105`** `[P0]` `@Ilham` — Implementasi skrip migrasi DDL Supabase PostGIS (`supabase/migrations/`), tipe `ENUM` (FSM, peran unit, status air), indeks spasial `GIST`, dan publikasi replikasi `supabase_realtime`.
+- [x] **`TASK-106`** `[P0]` `@Ilham` — Susun skrip *seeding* data wilayah Kota Samarinda di `supabase/seed.sql` (posko relawan Balakarcana/PMK, 30 titik hidran PDAM, tandon warga, dermaga Sungai Karang Mumus, dan skenario uji Jl. Pelita Gg. 4).
 - [ ] **`TASK-107`** `[P1]` `@Ilham` — Bangun kueri spasial teroptimasi untuk evaluasi radius konsensus ($r \le 100\text{ m}$) dan pencarian 3 sumber air aktif terdekat menggunakan operator jarak PostGIS (`<->`).
 
 ### 1.3 Pipeline Ekstraksi Peta Vektor `.mbtiles`
@@ -34,7 +34,7 @@
 ## SPRINT 2: Mesin Inti Peladen & Algoritma Taktis (`apps/backend-api` & `packages/spatial-core`)
 
 ### 2.1 Mesin Konsensus & Pembagian Peran Otomatis
-- [ ] **`TASK-201`** `[P0]` `@Hervino` — Bangun struktur dasar peladen REST menggunakan **FastAPI (Python 3.11+)** + Pydantic v2 dengan router modular, asinkron (`asyncpg`), dan validasi skema ketat.
+- [x] **`TASK-201`** `[P0]` `@Hervino` — Bangun struktur dasar peladen REST menggunakan **FastAPI (Python 3.11+)** + Pydantic v2 dengan router modular, asinkron (`asyncpg`), dan validasi skema ketat.
 - [ ] **`TASK-202`** `[P0]` `@Ilham` — Implementasi fungsi murni **Geofencing Consensus Engine** di `packages/spatial-core`: verifikasi otomatis insiden jika terdapat $\ge 2$ laporan unik dalam radius $\le 100\text{ m}$ dan selang waktu $\le 3\text{ menit}$.
 - [ ] **`TASK-203`** `[P0]` `@Ilham` — Implementasi algoritma **Dynamic Role Dispatching (*Auto-Split*)**:
   * Tetapkan `FEEDER` untuk armada berkapasitas $\ge 3.000\text{ L}$ jika lebar jalan $< 2,5\text{ m}$.

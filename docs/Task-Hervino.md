@@ -16,12 +16,12 @@
 | **`TASK-101`** | `P0` | `infra` | `chore/TASK-101-monorepo-setup` | Workspace `pnpm` + `Turborepo` + Python virtualenv aktif, skrip `lint`, `typecheck`, `test`, `build` terkonfigurasi. | `[x]` |
 | **`TASK-102`** | `P0` | `infra` | `chore/TASK-102-supabase-local-stack` *(Collab @Ilham)* | Supabase CLI local stack (`supabase init`) aktif untuk PostgreSQL 15/16 + PostGIS 3.4, Auth & Studio. | `[ ]` |
 | **`TASK-103`** | `P0` | `contract` | `feat/TASK-103-pydantic-openapi-spec` | Model Pydantic v2 FastAPI mengekspor dokumen OpenAPI v3 (`openapi.yaml`) untuk seluruh endpoint. | `[x]` |
-| **`TASK-104`** | `P1` | `contract` | `feat/TASK-104-codegen-ts-dart` *(Collab @Ariyadi)* | Skrip generate otomatis dari kontrak OpenAPI ke TypeScript client (Web) dan Dart client (Flutter). | `[ ]` |
+| **`TASK-104`** | `P1` | `contract` | `feat/TASK-104-codegen-ts-dart` *(Collab @Ariyadi)* | Skrip generate otomatis dari kontrak OpenAPI ke TypeScript client (Web) dan Dart client (Flutter). | `[x]` |
 
 ### Sprint 2 / Hari 2: Mesin Inti Peladen & FSM Siklus Hidup Insiden
 | Task ID | Pri | Modul | Nama Tugas & Cabang Branch | Acceptance Criteria / Output | Status |
 | :--- | :---: | :--- | :--- | :--- | :---: |
-| **`TASK-201`** | `P0` | `backend` | `feat/TASK-201-fastapi-server-core` | Struktur dasar peladen REST FastAPI (Python 3.11+) + Pydantic v2 dengan router modular, `asyncpg`, dan validasi skema. | `[ ]` |
+| **`TASK-201`** | `P0` | `backend` | `feat/TASK-201-fastapi-server-core` | Struktur dasar peladen REST FastAPI (Python 3.11+) + Pydantic v2 dengan router modular, `asyncpg`, dan validasi skema. | `[x]` |
 | **`TASK-204`** | `P0` | `backend` | `feat/TASK-204-incident-lifecycle-fsm` | Incident Lifecycle FSM (`PENDING_VERIFICATION` $\rightarrow$ `CLOSED`) di `packages/spatial-core/` + fitur Manual Override posko. | `[ ]` |
 | **`TASK-205`** | `P0` | `backend` | `feat/TASK-205-fastapi-outbox-batch` | Endpoint FastAPI `POST /api/v1/sync/outbox-batch` dengan pengecekan kunci idempotensi (`mutation_uuid`). | `[ ]` |
 | **`TASK-207`** | `P1` | `backend` | `feat/TASK-207-supabase-realtime-channels` | Konfigurasi Supabase Realtime CDC Channels untuk siaran instan status insiden, armada, dan barikade. | `[ ]` |
