@@ -204,3 +204,5 @@ graphify-out/
 .scratch/
 # Cloned agent skill libraries (project rules remain tracked under .agents/rules)
 .agents/skills/
+
+*.dll

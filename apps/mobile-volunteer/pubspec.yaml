@@ -13,8 +13,10 @@ dependencies:
   flutter_map_mbtiles: 1.0.4
   vector_map_tiles: 8.0.0
   vector_map_tiles_mbtiles: 1.2.0
+  vector_tile_renderer: ^5.2.1
   mbtiles: 0.4.2
   latlong2: ^0.9.1
+  path_provider: ^2.1.2
   supabase_flutter: ^2.8.0
   http: ^1.2.0
 

@@ -36,7 +36,7 @@ class _TacticalScreenState extends State<TacticalScreen> {
   late TacticalRole _currentRole;
   bool _isPressureRequested = false;
   bool _isBarricadeActive = false;
-  String _syncStatusText = 'ONLINE (TERHUBUNG)';
+  final String _syncStatusText = 'ONLINE (TERHUBUNG)';
 
   // Skenario Jl. Pelita Gg. 4
   static const LatLng _fireIncidentPoint = LatLng(-0.4942, 117.1441);
