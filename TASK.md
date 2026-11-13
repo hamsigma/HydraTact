@@ -70,7 +70,7 @@ flowchart TD
 | **`TASK-107`** | `P1` | `database` | `@Ilham` | `feat/TASK-107-spatial-queries-gist` | Kueri spasial teroptimasi untuk konsensus radius $\le 100\text{ m}$ dan 3 sumber air aktif terdekat (`<->`). | `Done` |
 | **`TASK-108`** | `P0` | `spatial` | `@Ilham` | `feat/TASK-108-osm-samarinda-extract` | Ekstraksi jalan lingkungan dan gang sempit Samarinda dari OpenStreetMap (`.osm.pbf`). | `Done` |
 | **`TASK-109`** | `P1` | `spatial` | `@Ilham` | `feat/TASK-109-tippecanoe-mbtiles` | Kompilasi Tippecanoe zoom 14--18 menghasilkan `samarinda_dense.mbtiles` ($\le 45\text{ MB}$, Jl. Pelita Gg. 4 akurat). | `Done` |
-| **`TASK-301`** | `P0` | `ui/ux` | `@Ariyadi` | `feat/TASK-301-tactical-design-tokens` | Token desain taktis tema gelap (`#07090E` s.d. `#141923`), kontras $\ge 7:1$ (WCAG AAA), angka `tabular-nums`. | `To Do` |
+| **`TASK-301`** | `P0` | `ui/ux` | `@Ariyadi` | `feat/TASK-301-tactical-design-tokens` | Token desain taktis tema gelap (`#07090E` s.d. `#141923`), kontras $\ge 7:1$ (WCAG AAA), angka `tabular-nums`. | `Done` |
 | **`TASK-401`** | `P0` | `mobile` | `@Ariyadi` | `feat/TASK-401-flutter-mbtiles-renderer` | Proyek Flutter Android disiapkan, aset `.mbtiles` terbundel dan dirender via `flutter_map_mbtiles` ($< 500\text{ ms}$). | `To Do` |
 
 ---
