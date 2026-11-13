@@ -67,7 +67,7 @@ flowchart TD
 | **`TASK-104`** | `P1` | `contract` | `@Hervino` & `@Ariyadi` | `feat/TASK-104-codegen-ts-dart` | Skrip generate otomatis dari kontrak OpenAPI ke TypeScript client (Web) dan Dart client (Flutter). | `Done` |
 | **`TASK-105`** | `P0` | `database` | `@Ilham` | `feat/TASK-105-supabase-postgis-ddl` | Skrip migrasi DDL Supabase PostGIS, tipe ENUM, indeks GiST, dan publikasi replikasi `supabase_realtime`. | `Done` |
 | **`TASK-106`** | `P0` | `database` | `@Ilham` | `feat/TASK-106-seeding-samarinda-data` | Seeding `supabase/seed.sql`: posko Balakarcana, 30 titik hidran/tandon, dan skenario uji Jl. Pelita Gg. 4. | `Done` |
-| **`TASK-107`** | `P1` | `database` | `@Ilham` | `feat/TASK-107-spatial-queries-gist` | Kueri spasial teroptimasi untuk konsensus radius $\le 100\text{ m}$ dan 3 sumber air aktif terdekat (`<->`). | `To Do` |
+| **`TASK-107`** | `P1` | `database` | `@Ilham` | `feat/TASK-107-spatial-queries-gist` | Kueri spasial teroptimasi untuk konsensus radius $\le 100\text{ m}$ dan 3 sumber air aktif terdekat (`<->`). | `Done` |
 | **`TASK-108`** | `P0` | `spatial` | `@Ilham` | `feat/TASK-108-osm-samarinda-extract` | Ekstraksi jalan lingkungan dan gang sempit Samarinda dari OpenStreetMap (`.osm.pbf`). | `To Do` |
 | **`TASK-109`** | `P1` | `spatial` | `@Ilham` | `feat/TASK-109-tippecanoe-mbtiles` | Kompilasi Tippecanoe zoom 14--18 menghasilkan `samarinda_dense.mbtiles` ($\le 45\text{ MB}$, Jl. Pelita Gg. 4 akurat). | `To Do` |
 | **`TASK-301`** | `P0` | `ui/ux` | `@Ariyadi` | `feat/TASK-301-tactical-design-tokens` | Token desain taktis tema gelap (`#07090E` s.d. `#141923`), kontras $\ge 7:1$ (WCAG AAA), angka `tabular-nums`. | `To Do` |

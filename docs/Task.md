@@ -22,7 +22,7 @@
 ### 1.2 Skema Database Supabase PostGIS & Data Wilayah Samarinda
 - [x] **`TASK-105`** `[P0]` `@Ilham` — Implementasi skrip migrasi DDL Supabase PostGIS (`supabase/migrations/`), tipe `ENUM` (FSM, peran unit, status air), indeks spasial `GIST`, dan publikasi replikasi `supabase_realtime`.
 - [x] **`TASK-106`** `[P0]` `@Ilham` — Susun skrip *seeding* data wilayah Kota Samarinda di `supabase/seed.sql` (posko relawan Balakarcana/PMK, 30 titik hidran PDAM, tandon warga, dermaga Sungai Karang Mumus, dan skenario uji Jl. Pelita Gg. 4).
-- [ ] **`TASK-107`** `[P1]` `@Ilham` — Bangun kueri spasial teroptimasi untuk evaluasi radius konsensus ($r \le 100\text{ m}$) dan pencarian 3 sumber air aktif terdekat menggunakan operator jarak PostGIS (`<->`).
+- [x] **`TASK-107`** `[P1]` `@Ilham` — Bangun kueri spasial teroptimasi untuk evaluasi radius konsensus ($r \le 100\text{ m}$) dan pencarian 3 sumber air aktif terdekat menggunakan operator jarak PostGIS (`<->`).
 
 ### 1.3 Pipeline Ekstraksi Peta Vektor `.mbtiles`
 - [ ] **`TASK-108`** `[P0]` `@Ilham` — Ekstraksi data jaringan jalan lingkungan dan gang sempit (`highway=residential`, `living_street`, `alley`, `footway`) Kota Samarinda dari OpenStreetMap (`.osm.pbf`).
