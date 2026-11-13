@@ -7,3 +7,5 @@ export * from "./haversine.ts";
 export * from "./consensus.ts";
 export * from "./dispatch.ts";
 export * from "./snapping.ts";
+export * from "./incident_fsm.ts";
+

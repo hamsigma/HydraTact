@@ -81,6 +81,23 @@ class FSMTransitionRequest(BaseModel):
     operator_notes: Optional[str] = Field(None, description="Catatan komando lapangan")
 
 
+class ManualOverrideRequest(BaseModel):
+    """Permintaan verifikasi paksa / override darurat oleh operator posko induk."""
+    target_status: IncidentFSMStatus = Field(
+        default=IncidentFSMStatus.VERIFIED,
+        description="Status target hasil override (biasanya VERIFIED)",
+    )
+    override_reason: str = Field(
+        ...,
+        min_length=5,
+        description="Alasan verifikasi paksa (misal: verifikasi HT Balakarcana, pelapor tunggal tengah malam)",
+        examples=["Dikonfirmasi via radio HT Posko Balakarcana Jl. Pelita, pelapor tunggal dini hari sah."],
+    )
+    road_width_meters: Optional[float] = Field(None, ge=0.5, le=50.0, description="Koreksi lebar jalan gang oleh operator posko")
+    operator_notes: Optional[str] = Field(None, description="Catatan komando operasional lapangan")
+
+
+
 class FSMTransitionData(BaseModel):
     """Data hasil pembaruan transisi status insiden."""
     incident_id: UUID = Field(..., description="UUID insiden yang diubah")
