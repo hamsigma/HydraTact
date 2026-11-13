@@ -1,0 +1,19 @@
+name: mobile_volunteer
+description: "HydraTact Volunteer Mobile Field Android App (Offline-First MBTiles & Isar DB)"
+version: 1.0.0+1
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  isar: ^3.1.0
+  isar_flutter_libs: ^3.1.0
+  flutter_map: ^7.0.0
+  latlong2: ^0.9.1
+  supabase_flutter: ^2.8.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0

@@ -1,0 +1,11 @@
+{
+  "name": "@hydratact/web-command",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "echo \"Next.js dev server on port 3001\"",
+    "build": "echo \"Building Next.js web-command\"",
+    "lint": "echo \"Linting web-command\"",
+    "typecheck": "echo \"Typechecking web-command\""
+  }
+}

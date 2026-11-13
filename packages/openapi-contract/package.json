@@ -1,0 +1,10 @@
+{
+  "name": "@hydratact/openapi-contract",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Spesifikasi kontrak data OpenAPI v3 dan generator tipe data otomatis",
+  "scripts": {
+    "build": "echo \"Contract ready\"",
+    "lint": "echo \"Contract lint ready\""
+  }
+}

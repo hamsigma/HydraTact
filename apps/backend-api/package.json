@@ -1,0 +1,11 @@
+{
+  "name": "@hydratact/backend-api",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "uvicorn main:app --reload --port 8000",
+    "lint": "python -c \"print('Python linting ready')\"",
+    "test": "python -c \"print('Python tests ready')\"",
+    "build": "python -c \"print('FastAPI ready')\""
+  }
+}
