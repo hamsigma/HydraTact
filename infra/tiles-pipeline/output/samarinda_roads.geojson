@@ -1,0 +1,171 @@
+{
+  "type": "FeatureCollection",
+  "name": "samarinda_roads_dense",
+  "bbox": [
+    117.13,
+    -0.505,
+    117.16,
+    -0.48
+  ],
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "osm_id": 1001,
+        "name": "Jl. Pelita Utama",
+        "highway": "residential",
+        "road_width_meters": 6.0,
+        "surface": "asphalt",
+        "emergency_accessible": true
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            117.143,
+            -0.495
+          ],
+          [
+            117.1438,
+            -0.4945
+          ],
+          [
+            117.1446,
+            -0.4936
+          ],
+          [
+            117.1458,
+            -0.4931
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "osm_id": 1002,
+        "name": "Jl. Pelita Gang 4",
+        "highway": "living_street",
+        "road_width_meters": 1.8,
+        "surface": "concrete",
+        "emergency_accessible": true,
+        "tactical_constraint": "NARROW_ALLEY_UNDER_2_5M"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            117.1438,
+            -0.4945
+          ],
+          [
+            117.144,
+            -0.4944
+          ],
+          [
+            117.1441,
+            -0.4942
+          ],
+          [
+            117.1442,
+            -0.494
+          ],
+          [
+            117.1444,
+            -0.4938
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "osm_id": 1003,
+        "name": "Jl. Pelita Gang 2",
+        "highway": "living_street",
+        "road_width_meters": 2.1,
+        "surface": "paving",
+        "emergency_accessible": true,
+        "tactical_constraint": "NARROW_ALLEY_UNDER_2_5M"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            117.1446,
+            -0.4936
+          ],
+          [
+            117.1448,
+            -0.4933
+          ],
+          [
+            117.145,
+            -0.493
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "osm_id": 1004,
+        "name": "Jl. Lambung Mangkurat",
+        "highway": "secondary",
+        "road_width_meters": 10.0,
+        "surface": "asphalt",
+        "emergency_accessible": true
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            117.146,
+            -0.4975
+          ],
+          [
+            117.147,
+            -0.496
+          ],
+          [
+            117.148,
+            -0.4945
+          ],
+          [
+            117.149,
+            -0.493
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "osm_id": 1005,
+        "name": "Gang Pelita Buntu (Samping RT 14)",
+        "highway": "footway",
+        "road_width_meters": 1.2,
+        "surface": "dirt",
+        "emergency_accessible": false,
+        "tactical_constraint": "NO_VEHICLE_ACCESS"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            117.1441,
+            -0.4942
+          ],
+          [
+            117.1443,
+            -0.4943
+          ],
+          [
+            117.1445,
+            -0.4944
+          ]
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "type": "FeatureCollection",
+  "name": "samarinda_waterways",
+  "bbox": [
+    117.13,
+    -0.505,
+    117.16,
+    -0.48
+  ],
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "osm_id": 2001,
+        "name": "Sungai Karang Mumus",
+        "waterway": "river",
+        "width_meters": 35.0,
+        "tidal_water_source": true
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            117.1415,
+            -0.4915
+          ],
+          [
+            117.1432,
+            -0.4948
+          ],
+          [
+            117.144,
+            -0.497
+          ],
+          [
+            117.1455,
+            -0.499
+          ]
+        ]
+      }
+    }
+  ]
+}

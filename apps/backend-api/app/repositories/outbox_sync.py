@@ -234,3 +234,4 @@ async def _log_mutation(
         json.dumps(item.payload),
         item.client_timestamp,
     )
+
