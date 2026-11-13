@@ -14,7 +14,7 @@
 | Task ID | Pri | Modul | Nama Tugas & Cabang Branch | Acceptance Criteria / Output | Status |
 | :--- | :---: | :--- | :--- | :--- | :---: |
 | **`TASK-104`** | `P1` | `contract` | `feat/TASK-104-codegen-ts-dart` *(Collab @Hervino)* | Skrip generate otomatis dari kontrak OpenAPI ke Dart client (Flutter). | `[x]` |
-| **`TASK-301`** | `P0` | `ui/ux` | `feat/TASK-301-tactical-design-tokens` | Token desain taktis tema gelap (`#07090E` s.d. `#141923`), kontras $\ge 7:1$ (WCAG AAA), angka `tabular-nums`, bebas pill chips. | `[ ]` |
+| **`TASK-301`** | `P0` | `ui/ux` | `feat/TASK-301-tactical-design-tokens` | Token desain taktis tema gelap (`#07090E` s.d. `#141923`), kontras $\ge 7:1$ (WCAG AAA), angka `tabular-nums`, bebas pill chips. | `[x]` |
 | **`TASK-401`** | `P0` | `mobile` | `feat/TASK-401-flutter-mbtiles-renderer` | Proyek Flutter Android disiapkan, aset `.mbtiles` terbundel dan dirender via `flutter_map_mbtiles` ($< 500\text{ ms}$). | `[ ]` |
 
 ### Sprint 2 / Hari 2: Antarmuka Peran Taktis, Isar DB & Outbox Queue

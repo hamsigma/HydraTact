@@ -52,7 +52,7 @@
 ## SPRINT 3: Aplikasi Klien Web (PWA Warga & Dasbor Komando Posko)
 
 ### 3.1 Sistem Desain & Ergonomi Kondisi Darurat
-- [ ] **`TASK-301`** `[P0]` `@Ariyadi` — Susun token desain taktis tema gelap (*dark mode* `#07090E` -- `#141923`) dengan rasio kontras teks minimal $7:1$ (WCAG AAA) dan tipografi angka `tabular-nums`.
+- [x] **`TASK-301`** `[P0]` `@Ariyadi` — Susun token desain taktis tema gelap (*dark mode* `#07090E` -- `#141923`) dengan rasio kontras teks minimal $7:1$ (WCAG AAA) dan tipografi angka `tabular-nums`.
 
 ### 3.2 PWA Pelaporan Darurat Warga (`apps/pwa-citizen`)
 - [ ] **`TASK-302`** `[P0]` `@Hervino` — Bangun halaman pelaporan tanpa login (*Zero-Auth*) dengan kunci geolokasi GPS otomatis dan indikator akurasi koordinat.
