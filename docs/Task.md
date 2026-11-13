@@ -96,4 +96,4 @@
 ### 5.2 Uji Kegunaan Pengguna & Penyusunan Luaran KMM AST-PTMA 2026
 - [x] **`TASK-504`** `[P1]` `@Ariyadi` & `@Hervino` — Lakukan pengujian kegunaan (*System Usability Scale* / SUS) terhadap 5 skenario kritis bersama 15 personel relawan pemadam kebakaran di Kota Samarinda (target skor SUS $\ge 75$).
 - [x] **`TASK-505`** `[P0]` `@Hervino`, `@Ilham`, `@Ariyadi` — Rekam dan sunting video demonstrasi perangkat lunak berdurasi maksimal 5 menit (`04:20`) sesuai naskah skenario Jl. Pelita Gg. 4 dan unggah ke YouTube sesuai format penamaan panitia.
-- [ ] **`TASK-506`** `[P0]` `@Hervino`, `@Ilham`, `@Ariyadi` — Finalisasi laporan teknis, berkas `PRD.md`, `ARSITEKTUR.md`, `DATABASE.md`, dan tautan repositori kode sumber untuk pengumpulan akhir.
+- [x] **`TASK-506`** `[P0]` `@Hervino`, `@Ilham`, `@Ariyadi` — Finalisasi laporan teknis, berkas `PRD.md`, `ARSITEKTUR.md`, `DATABASE.md`, dan tautan repositori kode sumber untuk pengumpulan akhir.

@@ -38,7 +38,7 @@
 | **`TASK-502`** | `P0` | `test` | `test/TASK-502-airplane-mode-stress-test` | Pengujian offline fisik Android: simulasikan 10 mutasi luring, restart aplikasi, dan verifikasi antrean sinkronisasi utuh. | `[x]` |
 | **`TASK-504`** | `P1` | `test` | `docs/TASK-504-sus-evaluation-report` *(Collab @Hervino)* | Pengujian System Usability Scale (SUS) 5 skenario bersama 15 relawan Balakarcana (target skor $\ge 75$). | `[x]` |
 | **`TASK-505`** | `P0` | `media` | `chore/TASK-505-video-demo-kmm` *(Collab Tim)* | Rekam dan edit video demo 5 menit (`04:20`) skenario Jl. Pelita Gg. 4 untuk YouTube panitia KMM. | `[x]` |
-| **`TASK-506`** | `P0` | `docs` | `docs/TASK-506-final-technical-report` *(Collab Tim)* | Finalisasi dokumen teknis, repositori publik bersih, dan tautan luaran untuk pengumpulan akhir KMM. | `[ ]` |
+| **`TASK-506`** | `P0` | `docs` | `docs/TASK-506-final-technical-report` *(Collab Tim)* | Finalisasi dokumen teknis, repositori publik bersih, dan tautan luaran untuk pengumpulan akhir KMM. | `[x]` |
 
 ---
 
