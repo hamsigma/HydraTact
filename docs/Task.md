@@ -74,7 +74,7 @@
 - [x] **`TASK-402`** `[P1]` `@Ariyadi` & `@Ilham` — Implementasi **Client-Side Map-Matching Snapping** untuk mengunci titik GPS mentah ke garis jaringan gang terdekat jika terjadi *multipath drift* ($\le 25\text{ m}$).
 
 ### 4.2 Antarmuka Peran Taktis & Manajemen Logistik Air
-- [ ] **`TASK-403`** `[P0]` `@Ariyadi` — Bangun tampilan adaptif berbasis peran penugasan:
+- [x] **`TASK-403`** `[P0]` `@Ariyadi` — Bangun tampilan adaptif berbasis peran penugasan:
   * **Mode `ATTACKER` (Aksen Merah):** Navigasi lorong menuju titik api, penghitung jarak meter, dan tombol besar ($64\text{ dp}$) *Minta Tekanan Air*.
   * **Mode `FEEDER` (Aksen Amber/Kuning):** Titik parkir aman di jalan utama, pemantau kapasitas tangki, dan sakelar barikade selang jalan.
 - [ ] **`TASK-404`** `[P0]` `@Ariyadi` — Bangun modul **3 Sumber Air Terdekat** menggunakan kalkulasi jarak Haversine lokal dan filter status (`READY` / `LOW_DISCHARGE`).
