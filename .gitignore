@@ -162,13 +162,15 @@ xcuserdata/
 *.app
 
 # ------------------------------------------------------------------------------
-# 7. Database, Docker & Large Spatial Assets
+# 7. Database, Supabase, Docker & Large Spatial Assets
 # ------------------------------------------------------------------------------
 postgres_data/
 *.sqlite
 *.sqlite3
 *.sqlite-journal
 *.db
+.supabase/.temp
+.supabase/pooler
 
 # MBTiles / Large Raw Spatial Data (Generated binaries)
 *.mbtiles
@@ -188,6 +190,12 @@ env/
 venv/
 .venv/
 ENV/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
 
 # Knowledge Graph & Agent Workspace Artifacts
 graphify-out/

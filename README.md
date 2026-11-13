@@ -26,12 +26,13 @@ HydraTact adalah sistem terpadu lintas platform (Web Komando Posko, Aplikasi Mob
 
 ## 🏗️ Arsitektur & Tech Stack
 
-Sistem dikelola dalam struktur **Monorepo** (`pnpm` + `Turborepo`) berbasis kontrak **OpenAPI v3**:
+Sistem dikelola dalam struktur **Monorepo** (`pnpm` + `Turborepo` + Python) berbasis kontrak **OpenAPI v3**:
 
-* **Web Command Center & Citizen PWA:** Next.js, TypeScript, Tailwind CSS, Leaflet.js
-* **Field Mobile App:** Flutter (Android), Isar DB, `flutter_map_mbtiles`
-* **Backend & Spatial Engine:** Node.js / TypeScript, PostgreSQL 16 + PostGIS (SRID 4326)
-* **Data Spasial:** OpenStreetMap Samarinda road networks + DEM Badan Informasi Geospasial
+* **Web Command Center & Citizen PWA:** Next.js 14, TypeScript, Tailwind CSS, Leaflet.js
+* **Field Mobile App:** Flutter 3.x (Android), Isar DB, `flutter_map_mbtiles`, `supabase_flutter`
+* **Backend & Spatial Core:** Python 3.11+, FastAPI, Pydantic v2, Shapely, GeoAlchemy2
+* **BaaS & Spatial Persistence:** Supabase (PostgreSQL 15/16 + PostGIS SRID 4326, Supabase Realtime CDC, Supabase Auth)
+* **Data Spasial Lapangan:** OpenStreetMap Samarinda road networks + DEM Badan Informasi Geospasial + Tippecanoe `.mbtiles`
 
 ---
 
@@ -40,13 +41,18 @@ Sistem dikelola dalam struktur **Monorepo** (`pnpm` + `Turborepo`) berbasis kont
 ```text
 HydraTact/
 ├── .agents/             # Rule dan workflow agen AI proyek
-├── docs/                # Dokumentasi PRD, Arsitektur, dan Desain Basis Data
-│   ├── Architecture.md
-│   ├── Database.md
-│   └── product_requirements_document_prd_hydratact.md
+├── apps/
+│   ├── backend-api/     # FastAPI Python 3.11+ Core Spasial & REST API
+│   ├── web-command/     # Next.js 14 Dasbor Komando Posko
+│   ├── pwa-citizen/     # Next.js 14 PWA Lapor Warga
+│   └── mobile-volunteer/# Flutter Android Lapangan
+├── supabase/            # Migrasi DDL PostGIS, RLS, & Seeding Supabase
+├── docs/                # Dokumentasi PRD, Arsitektur, Basis Data, & Kontrak API
 ├── Proposal KMM/        # Berkas proposal dan panduan kompetisi AST-PTMA
 ├── .gitattributes       # Normalisasi line-ending lintas platform
 ├── .gitignore           # Konfigurasi ignore komprehensif monorepo
+├── CONTRIBUTING.md      # Panduan branch, commit, dan alur PR
+├── TASK.md              # Peta tugas 4 hari eksekusi intensif
 └── README.md
 ```
 

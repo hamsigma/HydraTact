@@ -14,14 +14,14 @@
 ## SPRINT 1: Fondasi Monorepo, Basis Data Spasial, & Peta Luring
 
 ### 1.1 Inisialisasi Repositori & Kontrak API
-- [ ] **`TASK-101`** `[P0]` `@Hervino` — Inisialisasi struktur monorepo menggunakan `pnpm workspaces` dan `Turborepo` (`apps/api-server`, `apps/web-command`, `apps/pwa-citizen`, `apps/mobile-volunteer`, `packages/*`).
-- [ ] **`TASK-102`** `[P0]` `@Hervino` — Konfigurasi `docker-compose.yml` untuk layanan lokal PostgreSQL 16 + PostGIS 3.4 dan Redis.
-- [ ] **`TASK-103`** `[P0]` `@Hervino` — Susun spesifikasi `openapi.yaml` (OpenAPI v3) untuk seluruh *endpoint* pelaporan, *dispatching*, sumber air, dan sinkronisasi *outbox*.
-- [ ] **`TASK-104`** `[P1]` `@Hervino` & `@Ariyadi` — Konfigurasi skrip *code generation* otomatis dari `openapi-contract` ke klien TypeScript (Web/PWA) dan Dart (Flutter).
+- [ ] **`TASK-101`** `[P0]` `@Hervino` — Inisialisasi struktur monorepo (`pnpm` + `Turborepo` + Python virtualenv) dengan direktori `apps/backend-api` (FastAPI), `apps/web-command`, `apps/pwa-citizen`, `apps/mobile-volunteer`, `supabase/`, dan `packages/*`.
+- [ ] **`TASK-102`** `[P0]` `@Hervino` & `@Ilham` — Konfigurasi Supabase CLI local stack (`supabase init` / `config.toml`) mencakup PostgreSQL + PostGIS, Supabase Auth, Studio, dan Realtime Engine.
+- [ ] **`TASK-103`** `[P0]` `@Hervino` — Susun skema model data Pydantic v2 di FastAPI untuk mengekspor spesifikasi `openapi.yaml` (OpenAPI v3) otomatis mencakup endpoint pelaporan, dispatching, dan outbox sync.
+- [ ] **`TASK-104`** `[P1]` `@Hervino` & `@Ariyadi` — Konfigurasi skrip *code generation* otomatis dari kontrak OpenAPI ke klien TypeScript (Web/PWA) dan Dart (Flutter).
 
-### 1.2 Skema Database PostGIS & Data Wilayah Samarinda
-- [ ] **`TASK-105`** `[P0]` `@Ilham` — Implementasi skrip migrasi DDL PostgreSQL + PostGIS (`SRID 4326`), tipe `ENUM` (FSM, peran unit, status air), dan indeks spasial `GIST` sesuai `DATABASE.md`.
-- [ ] **`TASK-106`** `[P0]` `@Ilham` — Susun skrip *seeding* data wilayah Kota Samarinda (posko relawan Balakarcana/PMK, 30 titik hidran PDAM, tandon warga, dermaga Sungai Karang Mumus, dan skenario uji Jl. Pelita Gg. 4).
+### 1.2 Skema Database Supabase PostGIS & Data Wilayah Samarinda
+- [ ] **`TASK-105`** `[P0]` `@Ilham` — Implementasi skrip migrasi DDL Supabase PostGIS (`supabase/migrations/`), tipe `ENUM` (FSM, peran unit, status air), indeks spasial `GIST`, dan publikasi replikasi `supabase_realtime`.
+- [ ] **`TASK-106`** `[P0]` `@Ilham` — Susun skrip *seeding* data wilayah Kota Samarinda di `supabase/seed.sql` (posko relawan Balakarcana/PMK, 30 titik hidran PDAM, tandon warga, dermaga Sungai Karang Mumus, dan skenario uji Jl. Pelita Gg. 4).
 - [ ] **`TASK-107`** `[P1]` `@Ilham` — Bangun kueri spasial teroptimasi untuk evaluasi radius konsensus ($r \le 100\text{ m}$) dan pencarian 3 sumber air aktif terdekat menggunakan operator jarak PostGIS (`<->`).
 
 ### 1.3 Pipeline Ekstraksi Peta Vektor `.mbtiles`
@@ -31,10 +31,10 @@
 
 ---
 
-## SPRINT 2: Mesin Inti Peladen & Algoritma Taktis (`api-server` & `spatial-core`)
+## SPRINT 2: Mesin Inti Peladen & Algoritma Taktis (`apps/backend-api` & `packages/spatial-core`)
 
 ### 2.1 Mesin Konsensus & Pembagian Peran Otomatis
-- [ ] **`TASK-201`** `[P0]` `@Hervino` — Bangun struktur dasar peladen REST & WebSocket menggunakan Fastify + TypeScript dengan validasi skema ketat.
+- [ ] **`TASK-201`** `[P0]` `@Hervino` — Bangun struktur dasar peladen REST menggunakan **FastAPI (Python 3.11+)** + Pydantic v2 dengan router modular, asinkron (`asyncpg`), dan validasi skema ketat.
 - [ ] **`TASK-202`** `[P0]` `@Ilham` — Implementasi fungsi murni **Geofencing Consensus Engine** di `packages/spatial-core`: verifikasi otomatis insiden jika terdapat $\ge 2$ laporan unik dalam radius $\le 100\text{ m}$ dan selang waktu $\le 3\text{ menit}$.
 - [ ] **`TASK-203`** `[P0]` `@Ilham` — Implementasi algoritma **Dynamic Role Dispatching (*Auto-Split*)**:
   * Tetapkan `FEEDER` untuk armada berkapasitas $\ge 3.000\text{ L}$ jika lebar jalan $< 2,5\text{ m}$.
@@ -42,10 +42,10 @@
 - [ ] **`TASK-204`** `[P0]` `@Hervino` — Implementasi **Incident Lifecycle Finite State Machine (FSM)** (`PENDING_VERIFICATION` $\rightarrow$ `VERIFIED` $\rightarrow$ `DISPATCHING` $\rightarrow$ `SUPPRESSION_ACTIVE` $\rightarrow$ `OVERHAUL_COOLING` $\rightarrow$ `INCIDENT_CLOSED` $\rightarrow$ `ARCHIVED`) beserta fitur *Manual Override* operator.
 
 ### 2.2 Sinkronisasi Outbox & Saluran Waktu Nyata
-- [ ] **`TASK-205`** `[P0]` `@Hervino` — Bangun *endpoint* `POST /api/v1/sync/outbox-batch` dengan pengecekan kunci idempotensi (`mutation_uuid`) pada tabel `telemetry_mutation_logs`.
+- [ ] **`TASK-205`** `[P0]` `@Hervino` — Bangun *endpoint* FastAPI `POST /api/v1/sync/outbox-batch` dengan pengecekan kunci idempotensi (`mutation_uuid`) pada tabel `telemetry_mutation_logs`.
 - [ ] **`TASK-206`** `[P0]` `@Ilham` — Terapkan aturan resolusi konflik **Last-Write-Wins (LWW)** berbasis `client_timestamp` pada pembaruan status sumber air dan barikade jalan.
-- [ ] **`TASK-207`** `[P1]` `@Hervino` — Implementasi *Realtime Event Broadcaster* (WebSocket / SSE) untuk menyiarkan perubahan status insiden, posisi unit, dan garis barikade selang ke seluruh klien aktif.
-- [ ] **`TASK-208`** `[P1]` `@Hervino` — Tambahkan *Rate Limiting* ($3\text{ permintaan/menit}$ per IP) dan validasi *device fingerprint* pada *endpoint* pelaporan publik warga.
+- [ ] **`TASK-207`** `[P1]` `@Hervino` — Konfigurasi **Supabase Realtime (CDC WebSocket Channels)** untuk menyiarkan perubahan status insiden, posisi unit, dan garis barikade selang secara instan ke seluruh klien aktif.
+- [ ] **`TASK-208`** `[P1]` `@Hervino` — Tambahkan *Rate Limiting* (`slowapi`, $3\text{ permintaan/menit}$ per IP) dan validasi *device fingerprint* pada *endpoint* pelaporan publik warga.
 
 ---
 

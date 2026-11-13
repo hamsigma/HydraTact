@@ -2,9 +2,9 @@
 
 **Nama Sistem:** HydraTact Samarinda  
 **Versi Skema:** 1.0.0 (MVP KMM AST-PTMA 2026)  
-**DBMS Peladen:** PostgreSQL 16 + Ekstensi PostGIS 3.4 (SRID 4326 / WGS 84)  
+**DBMS Peladen:** Supabase (PostgreSQL 15/16 + Ekstensi PostGIS 3.4, SRID 4326 / WGS 84)  
 **DBMS Klien Mobile:** Isar Database 3.1 (Embedded NoSQL) + Vektor Lokal `.mbtiles`  
-**Standar Normalisasi:** Bentuk Normal Ketiga (*Third Normal Form* / 3NF) dengan Indeks Spasial R-Tree (`GIST`)
+**Standar Normalisasi:** Bentuk Normal Ketiga (*Third Normal Form* / 3NF) dengan Indeks Spasial R-Tree (`GIST`) & Supabase Realtime CDC
 
 ---
 
@@ -473,4 +473,58 @@ INSERT INTO incidents (id, street_address, epicenter, road_width_meters, fsm_sta
 INSERT INTO incident_units (incident_id, posko_id, unit_code, vehicle_type, water_capacity_liters, assigned_role, current_geom) VALUES
 ('33333333-3333-3333-3333-333333333301', '11111111-1111-1111-1111-111111111101', 'ATK-04', 'THREE_WHEELER_TOSSA', 600, 'ATTACKER', ST_SetSRID(ST_MakePoint(117.1442, -0.4940), 4326)::geography),
 ('33333333-3333-3333-3333-333333333301', '11111111-1111-1111-1111-111111111102', 'FDR-02', 'TANKER_TRUCK', 5000, 'FEEDER', ST_SetSRID(ST_MakePoint(117.1445, -0.4935), 4326)::geography);
+
+---
+
+## 7. Konfigurasi Supabase Realtime & Row Level Security (RLS)
+
+### 7.1 Publikasi Replikasi Supabase Realtime (CDC)
+Untuk menyiarkan mutasi spasial ke Dasbor Web dan Klien Mobile secara seketika (*latency* $< 100\text{ ms}$) tanpa polling:
+
+```sql
+-- Aktifkan replikasi Postgres Change Data Capture (CDC) ke Supabase Realtime engine
+ALTER PUBLICATION supabase_realtime ADD TABLE incidents;
+ALTER PUBLICATION supabase_realtime ADD TABLE incident_units;
+ALTER PUBLICATION supabase_realtime ADD TABLE road_barricades;
+ALTER PUBLICATION supabase_realtime ADD TABLE water_sources;
+
+-- Pastikan full replica identity agar payload CDC menyertakan state sebelum dan sesudah perubahan
+ALTER TABLE incident_units REPLICA IDENTITY FULL;
+ALTER TABLE road_barricades REPLICA IDENTITY FULL;
+ALTER TABLE water_sources REPLICA IDENTITY FULL;
+```
+
+### 7.2 Aturan Row Level Security (RLS)
+Mengamankan data tingkat baris menggunakan token JWT bawaan Supabase Auth:
+
+```sql
+-- Aktifkan RLS pada seluruh tabel inti
+ALTER TABLE incidents ENABLE ROW LEVEL SECURITY;
+ALTER TABLE incident_units ENABLE ROW LEVEL SECURITY;
+ALTER TABLE road_barricades ENABLE ROW LEVEL SECURITY;
+ALTER TABLE water_sources ENABLE ROW LEVEL SECURITY;
+
+-- 1. Siapapun (termasuk anonim / PWA warga) dapat membaca insiden aktif dan sumber air
+CREATE POLICY "Public read active incidents" ON incidents
+    FOR SELECT USING (fsm_status != 'ARCHIVED');
+
+CREATE POLICY "Public read water sources" ON water_sources
+    FOR SELECT USING (true);
+
+CREATE POLICY "Public read active barricades" ON road_barricades
+    FOR SELECT USING (is_active = true);
+
+-- 2. Hanya peran terotentikasi (COMMANDER & VOLUNTEER) yang dapat memperbarui unit dan barikade
+CREATE POLICY "Authenticated operators update units" ON incident_units
+    FOR ALL TO authenticated
+    USING (true)
+    WITH CHECK (true);
+
+CREATE POLICY "Authenticated operators manage barricades" ON road_barricades
+    FOR ALL TO authenticated
+    USING (true)
+    WITH CHECK (true);
+
+-- 3. Layanan FastAPI (Service Role) memiliki akses bypass RLS penuh untuk konsensus spasial
+```
 ```

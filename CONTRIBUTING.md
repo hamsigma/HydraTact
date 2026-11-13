@@ -78,11 +78,11 @@ Pilih lingkup yang sesuai dengan modul yang diubah:
 * `web-command`: Dasbor Komando Posko Induk (Next.js)
 * `pwa-citizen`: Portal Pelaporan Darurat Warga (Next.js PWA)
 * `mobile-volunteer`: Aplikasi Lapangan Android Relawan (Flutter)
-* `api-server`: Backend Fastify / Node.js
+* `backend-api`: Peladen REST & Logika Spasial (FastAPI / Python)
 * `spatial-core`: Paket algoritma spasial murni (Haversine, FSM, Auto-Split)
-* `database`: Skema DDL PostGIS, migrasi, dan Isar DB
+* `supabase`: Skema DDL PostGIS, RLS, replikasi Realtime, & Seeding
 * `deps`: Pembaruan versi paket/pustaka
-* `infra`: Docker compose, pipeline tile Tippecanoe
+* `infra`: Supabase stack, Docker, pipeline tile Tippecanoe
 
 ### 2.4 Kaidah Penulisan Commit
 1. Gunakan kalimat **imperatif waktu sekarang** (*present tense*), bukan bentuk lampau:

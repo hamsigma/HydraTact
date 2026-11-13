@@ -24,7 +24,7 @@ Arsitektur **HydraTact Samarinda** dirancang khusus untuk mengatasi kondisi ekst
 
 ## 2. Topologi & Diagram Arsitektur Menyeluruh
 
-Sistem terdiri dari tiga klien utama yang terhubung ke peladen inti melalui protokol HTTPS (REST API) dan saluran pembaruan waktu nyata (*WebSocket / Server-Sent Events*):
+Sistem terdiri dari tiga klien utama yang terhubung ke peladen FastAPI (Python) untuk kalkulasi bisnis intensif, serta langsung memanfaatkan Supabase Realtime (Websocket / Postgres CDC) dan Supabase Auth:
 
 ```mermaid
 flowchart TB
@@ -55,59 +55,67 @@ flowchart TB
 
     MBTiles -.->|Bundled Asset| MapEngine
 
-    subgraph Backend["Lapisan Peladen Terpusat (Node.js / Fastify)"]
-        Gateway["API Gateway & Rate Limiter"]
-        ConsensusEngine["Mesin Konsensus Geofencing\n(Radius <= 100m)"]
+    subgraph Backend["Lapisan Peladen Inti (FastAPI / Python 3.11+)"]
+        Gateway["FastAPI Gateway & Pydantic v2 Validator"]
+        ConsensusEngine["Mesin Konsensus Geofencing\n(Radius <= 100m, dt <= 3 mnt)"]
         DispatchEngine["Dynamic Role Dispatcher\n(Auto-Split Attacker/Feeder)"]
         FSM["Incident Lifecycle FSM"]
         SyncService["Outbox Batch Processor\n(Idempotency & LWW)"]
-        RealtimeBroker["Realtime Event Broadcaster\n(WebSocket / SSE)"]
     end
 
-    subgraph Storage["Lapisan Persistensi Spasial"]
-        PostGIS[("PostgreSQL 16 + PostGIS 3.4\n(SRID 4326 + Indeks GIST)")]
+    subgraph SupabasePlatform["Platform Supabase (BaaS, Auth & Realtime)"]
+        PostGIS[("PostgreSQL 15/16 + Ekstensi PostGIS\n(SRID 4326 + Indeks GIST)")]
+        SupaAuth["Supabase Auth (JWT & RBAC Posko)"]
+        SupaRealtime["Supabase Realtime (Postgres CDC / WS)\nBroadcaster Posisi, Status Air & Barikade"]
+        SupaRLS["Row Level Security (RLS Policies)"]
     end
 
     PWA -->|POST /incidents/report| Gateway
-    WebCmd <-->|REST + WebSocket| Gateway
+    WebCmd <-->|REST API| Gateway
     OutboxWorker -->|POST /sync/outbox-batch| Gateway
-    UI <-->|REST + Live Telemetry| Gateway
+    UI <-->|REST API| Gateway
+
+    WebCmd <-->|Auth JWT| SupaAuth
+    UI <-->|Auth JWT| SupaAuth
 
     Gateway --> ConsensusEngine
     Gateway --> DispatchEngine
     Gateway --> FSM
     Gateway --> SyncService
 
-    ConsensusEngine <--> PostGIS
-    DispatchEngine <--> PostGIS
-    FSM <--> PostGIS
-    SyncService <--> PostGIS
+    ConsensusEngine <-->|asyncpg / SQLAlchemy PostGIS| PostGIS
+    DispatchEngine <-->|asyncpg / SQLAlchemy PostGIS| PostGIS
+    FSM <-->|asyncpg / SQLAlchemy PostGIS| PostGIS
+    SyncService <-->|asyncpg / SQLAlchemy PostGIS| PostGIS
 
-    PostGIS --> RealtimeBroker
-    RealtimeBroker -.->|Push Alert & State| WebCmd
-    RealtimeBroker -.->|Push Role & Barricade| UI
+    PostGIS -->|WAL / Database Changes| SupaRealtime
+    SupaRealtime -.->|Push Alert & Incident State| WebCmd
+    SupaRealtime -.->|Push Role, Telemetry & Barricade| UI
 ```
 
 ---
 
 ## 3. Struktur Monorepo & Stack Teknologi
 
-### 3.1 Tata Letak Direktori (`pnpm` + `Turborepo`)
+### 3.1 Tata Letak Direktori (`pnpm` + `Turborepo` + Python)
 
 ```text
 hydratact-samarinda/
 ├── apps/
-│   ├── api-server/          # Peladen REST & WebSocket (Fastify + TypeScript)
-│   ├── web-command/         # Dasbor Komando Posko Induk (Next.js + Tailwind + Leaflet)
-│   ├── pwa-citizen/         # Portal Pelaporan Darurat Warga (Next.js PWA)
-│   └── mobile-volunteer/    # Aplikasi Android Lapangan (Flutter + Isar DB)
+│   ├── backend-api/         # Peladen REST & Logika Spasial (FastAPI + Pydantic v2 + Python 3.11+)
+│   ├── web-command/         # Dasbor Komando Posko Induk (Next.js 14 + Tailwind + Leaflet)
+│   ├── pwa-citizen/         # Portal Pelaporan Darurat Warga (Next.js 14 PWA)
+│   └── mobile-volunteer/    # Aplikasi Android Lapangan (Flutter + Isar DB + Supabase Flutter)
 ├── packages/
-│   ├── openapi-contract/    # Spesifikasi OpenAPI v3 & generator klien TS/Dart
-│   ├── spatial-core/        # Pustaka algoritma murni (Role Dispatch, Haversine, FSM)
-│   └── database-migrations/ # Skrip DDL PostgreSQL + PostGIS & data seeding Samarinda
+│   ├── openapi-contract/    # Spesifikasi OpenAPI v3 (diekspor otomatis dari FastAPI) & client TS/Dart
+│   └── spatial-core/        # Algoritma spasial murni & model matematis (Haversine, FSM, Auto-Split)
+├── supabase/
+│   ├── migrations/          # Skrip DDL PostgreSQL + PostGIS, RLS, & trigger replikasi Realtime
+│   ├── seed.sql             # Data awal 30 titik hidran/tandon & posko Balakarcana Samarinda
+│   └── config.toml          # Konfigurasi Supabase CLI lokal
 ├── infra/
-│   ├── tiles-pipeline/      # Skrip ekstraksi OSM & pembuatan samarinda_dense.mbtiles
-│   └── docker-compose.yml   # Orkestrasi kontainer PostgreSQL/PostGIS, Redis, & API
+│   ├── tiles-pipeline/      # Skrip ekstraksi OSM & pipeline Tippecanoe samarinda_dense.mbtiles
+│   └── docker-compose.yml   # Orkestrasi kontainer Supabase local stack & FastAPI development
 ├── package.json
 └── turbo.json
 ```
@@ -116,10 +124,11 @@ hydratact-samarinda/
 
 | Komponen | Teknologi | Justifikasi Arsitektural |
 | :--- | :--- | :--- |
-| **Peladen API** | Node.js 20 + Fastify + TypeScript | Latensi rendah untuk pemrosesan JSON *batch* dan dukungan native tipe data dari kontrak OpenAPI. |
-| **Basis Data Pusat** | PostgreSQL 16 + PostGIS 3.4 | Mendukung tipe geografis `GEOGRAPHY(Point, 4326)` dan indeks spasial `GIST` untuk kalkulasi jarak meter presisi. |
-| **Dasbor Komando & PWA** | Next.js 14 + Tailwind CSS + Leaflet.js | *Rendering* peta vektor ringan dengan tema gelap kustom dan ukuran bundel PWA sangat kecil ($< 150\text{ KB}$). |
-| **Aplikasi Mobile** | Flutter 3.x (Dart) | Performa rendering kanvas peta $60\text{ fps}$ dan dukungan pustaka offline map serta basis data lokal tanpa jembatan (*bridge*) lambat. |
+| **Peladen API** | Python 3.11+ + FastAPI + Pydantic v2 | Performa asinkron tinggi, integrasi komputasi data spasial murni, validasi payload ketat, dan auto-generate OpenAPI v3 schema. |
+| **BaaS & Basis Data Spasial** | Supabase (PostgreSQL 15/16 + PostGIS) | Dukungan penuh tipe geografis PostGIS `GEOGRAPHY(Point, 4326)`, indeks spasial GiST, Row Level Security (RLS), dan Supabase Auth terpadu. |
+| **Saluran Waktu Nyata** | Supabase Realtime (CDC WebSocket) | Replikasi perubahan baris basis data langsung ke Web & Mobile tanpa perlu mengelola broker kustom WebSocket terpisah. |
+| **Dasbor Komando & PWA** | Next.js 14 + Tailwind CSS + Leaflet.js | *Rendering* peta vektor ringan dengan tema gelap kustom, koneksi Supabase Realtime client, dan ukuran bundel PWA sangat kecil ($< 150\text{ KB}$). |
+| **Aplikasi Mobile** | Flutter 3.x (Dart) | Performa rendering kanvas peta $60\text{ fps}$, integrasi `supabase_flutter` & `flutter_map_mbtiles`, serta penyimpanan lokal Isar DB. |
 | **Penyimpanan Luring** | Isar DB + `.mbtiles` (SQLite Vector) | Operasi baca-tulis asinkron super cepat di Android serta penyimpanan petak peta vektor lokal dalam satu berkas portabel. |
 
 ---
@@ -245,7 +254,7 @@ Agar aplikasi lapangan dapat memuat peta detail gang Kota Samarinda tanpa kuota 
 
 * **Perlindungan Penyalahgunaan API (*Anti-Spam & Rate Limiting*):**  
   Titik akhir publik pelaporan warga (`POST /api/v1/incidents/report`) dibatasi maksimal $3\text{ permintaan/menit}$ per alamat IP dan dikombinasikan dengan sidik jari peramban (*device fingerprint*) agar satu perangkat tidak dapat memanipulasi skor konsensus spasial secara mandiri.
-* **Otentikasi Berbasis Peran (RBAC):**  
-  Dasbor Komando dan Aplikasi Mobile menggunakan token JWT berumur pendek (*short-lived access token*) yang terikat pada profil peran (`COMMANDER`, `VOLUNTEER_ATTACKER`, `VOLUNTEER_FEEDER`) dan afiliasi posko relawan.
+* **Otentikasi Berbasis Peran (RBAC) via Supabase Auth:**  
+  Dasbor Komando dan Aplikasi Mobile memanfaatkan **Supabase Auth** dengan token JWT yang memuat klaim peran (`COMMANDER`, `VOLUNTEER_ATTACKER`, `VOLUNTEER_FEEDER`) serta afiliasi posko relawan. Aturan **Row Level Security (RLS)** pada Supabase PostgreSQL mengamankan akses data langsung dari klien.
 * **Topologi Deployment:**  
-  Seluruh layanan peladen dikemas dalam kontainer **Docker** di balik *reverse proxy* dengan enkripsi TLS 1.3. Pencadangan otomatis basis data PostGIS dilakukan setiap hari menggunakan `pg_dump` terkompresi untuk menjamin pemulihan bencana (*disaster recovery*) yang cepat.
+  Peladen **FastAPI** dikemas dalam kontainer Docker ringan (Uvicorn worker). Untuk pengembangan lokal, tumpukan **Supabase CLI** mengelola kontainer PostgreSQL/PostGIS, Supabase Studio, Realtime engine, dan Auth. Pencadangan basis data PostGIS dilakukan secara terkelola di Supabase Cloud atau melalui snapshot `supabase db dump`.

@@ -61,12 +61,12 @@ flowchart TD
 
 | Task ID | Pri | Modul | Assignee | Nama Tugas & Cabang Branch | Acceptance Criteria / Output | Status |
 | :--- | :---: | :--- | :--- | :--- | :--- | :---: |
-| **`TASK-101`** | `P0` | `infra` | `@Hervino` | `chore/TASK-101-monorepo-setup` | Workspace `pnpm` + `Turborepo` berjalan, scripts `lint`, `typecheck`, `test`, `build` terkonfigurasi. | `To Do` |
-| **`TASK-102`** | `P0` | `infra` | `@Hervino` | `chore/TASK-102-docker-compose` | `docker-compose.yml` aktif untuk PostgreSQL 16 + PostGIS 3.4 (`SRID 4326`) dan Redis lokal. | `To Do` |
-| **`TASK-103`** | `P0` | `contract` | `@Hervino` | `feat/TASK-103-openapi-v3-spec` | Dokumen spesifikasi `openapi.yaml` (OpenAPI v3) mencakup titik akhir laporan, dispatch, dan sinkronisasi. | `To Do` |
+| **`TASK-101`** | `P0` | `infra` | `@Hervino` | `chore/TASK-101-monorepo-setup` | Workspace `pnpm` + `Turborepo` + Python virtualenv aktif, scripts `lint`, `test`, `build` terkonfigurasi. | `To Do` |
+| **`TASK-102`** | `P0` | `infra` | `@Hervino` & `@Ilham` | `chore/TASK-102-supabase-local-stack` | Supabase CLI local stack aktif (`supabase init`) untuk PostgreSQL 15/16 + PostGIS 3.4, Auth & Studio. | `To Do` |
+| **`TASK-103`** | `P0` | `contract` | `@Hervino` | `feat/TASK-103-pydantic-openapi-spec` | Model Pydantic v2 FastAPI mengekspor dokumen OpenAPI v3 (`openapi.yaml`) untuk seluruh endpoint. | `To Do` |
 | **`TASK-104`** | `P1` | `contract` | `@Hervino` & `@Ariyadi` | `feat/TASK-104-codegen-ts-dart` | Skrip generate otomatis dari kontrak OpenAPI ke TypeScript client (Web) dan Dart client (Flutter). | `To Do` |
-| **`TASK-105`** | `P0` | `database` | `@Ilham` | `feat/TASK-105-postgis-ddl-migrations` | Skrip migrasi DDL PostgreSQL 16 + PostGIS 3.4, tipe ENUM, dan indeks spasial GiST sesuai `Database.md`. | `To Do` |
-| **`TASK-106`** | `P0` | `database` | `@Ilham` | `feat/TASK-106-seeding-samarinda-data` | Seeding data wilayah Samarinda: posko relawan, 30 titik hidran/tandon, dan skenario uji Jl. Pelita Gg. 4. | `To Do` |
+| **`TASK-105`** | `P0` | `database` | `@Ilham` | `feat/TASK-105-supabase-postgis-ddl` | Skrip migrasi DDL Supabase PostGIS, tipe ENUM, indeks GiST, dan publikasi replikasi `supabase_realtime`. | `To Do` |
+| **`TASK-106`** | `P0` | `database` | `@Ilham` | `feat/TASK-106-seeding-samarinda-data` | Seeding `supabase/seed.sql`: posko Balakarcana, 30 titik hidran/tandon, dan skenario uji Jl. Pelita Gg. 4. | `To Do` |
 | **`TASK-107`** | `P1` | `database` | `@Ilham` | `feat/TASK-107-spatial-queries-gist` | Kueri spasial teroptimasi untuk konsensus radius $\le 100\text{ m}$ dan 3 sumber air aktif terdekat (`<->`). | `To Do` |
 | **`TASK-108`** | `P0` | `spatial` | `@Ilham` | `feat/TASK-108-osm-samarinda-extract` | Ekstraksi jalan lingkungan dan gang sempit Samarinda dari OpenStreetMap (`.osm.pbf`). | `To Do` |
 | **`TASK-109`** | `P1` | `spatial` | `@Ilham` | `feat/TASK-109-tippecanoe-mbtiles` | Kompilasi Tippecanoe zoom 14--18 menghasilkan `samarinda_dense.mbtiles` ($\le 45\text{ MB}$, Jl. Pelita Gg. 4 akurat). | `To Do` |
@@ -79,14 +79,14 @@ flowchart TD
 
 | Task ID | Pri | Modul | Assignee | Nama Tugas & Cabang Branch | Acceptance Criteria / Output | Status |
 | :--- | :---: | :--- | :--- | :--- | :--- | :---: |
-| **`TASK-201`** | `P0` | `backend` | `@Hervino` | `feat/TASK-201-fastify-server-core` | Struktur dasar peladen REST & WebSocket Fastify + TypeScript dengan validasi skema ketat. | `To Do` |
+| **`TASK-201`** | `P0` | `backend` | `@Hervino` | `feat/TASK-201-fastapi-server-core` | Struktur dasar peladen REST FastAPI (Python 3.11+) + Pydantic v2 dengan router asinkron & skema validasi. | `To Do` |
 | **`TASK-202`** | `P0` | `spatial` | `@Ilham` | `feat/TASK-202-geofencing-consensus` | Mesin konsensus murni di `packages/spatial-core`: evaluasi $\ge 2$ laporan unik ($r \le 100\text{ m}, \Delta t \le 3\text{ mnt}$). | `To Do` |
 | **`TASK-203`** | `P0` | `spatial` | `@Ilham` | `feat/TASK-203-dynamic-role-dispatching` | Logika Auto-Split peran: `FEEDER` ($\ge 3.000\text{ L}$) vs `ATTACKER` ($< 1.000\text{ L}$) pada jalan $< 2,5\text{ m}$. | `To Do` |
 | **`TASK-204`** | `P0` | `backend` | `@Hervino` | `feat/TASK-204-incident-lifecycle-fsm` | Incident Lifecycle FSM (`PENDING_VERIFICATION` $\rightarrow$ `CLOSED`) + fitur *Manual Override* posko. | `To Do` |
-| **`TASK-205`** | `P0` | `backend` | `@Hervino` | `feat/TASK-205-outbox-batch-endpoint` | Endpoint `POST /api/v1/sync/outbox-batch` dengan pengecekan kunci idempotensi (`mutation_uuid`). | `To Do` |
+| **`TASK-205`** | `P0` | `backend` | `@Hervino` | `feat/TASK-205-fastapi-outbox-batch` | Endpoint FastAPI `POST /api/v1/sync/outbox-batch` dengan pengecekan kunci idempotensi (`mutation_uuid`). | `To Do` |
 | **`TASK-206`** | `P0` | `backend` | `@Ilham` | `feat/TASK-206-last-write-wins-resolution` | Resolusi konflik Last-Write-Wins (LWW) berbasis `client_timestamp` pada status air dan barikade. | `To Do` |
-| **`TASK-207`** | `P1` | `backend` | `@Hervino` | `feat/TASK-207-realtime-broadcaster` | Saluran WebSocket / SSE untuk siaran pembaruan status insiden, armada, dan barikade selang. | `To Do` |
-| **`TASK-208`** | `P1` | `backend` | `@Hervino` | `feat/TASK-208-rate-limiting-abuse` | Rate limiting ($3\text{ req/mnt}$ per IP) dan validasi *device fingerprint* pada endpoint pelaporan warga. | `To Do` |
+| **`TASK-207`** | `P1` | `backend` | `@Hervino` | `feat/TASK-207-supabase-realtime-channels` | Konfigurasi Supabase Realtime CDC Channels untuk siaran instan status insiden, armada, dan barikade. | `To Do` |
+| **`TASK-208`** | `P1` | `backend` | `@Hervino` | `feat/TASK-208-rate-limiting-abuse` | Rate limiting (`slowapi`, $3\text{ req/mnt}$ per IP) dan validasi *device fingerprint* pada endpoint pelaporan warga. | `To Do` |
 | **`TASK-403`** | `P0` | `mobile` | `@Ariyadi` | `feat/TASK-403-mobile-role-views` | Antarmuka adaptif `ATTACKER` (merah, tombol minta tekanan $64\text{ dp}$) vs `FEEDER` (kuning, parkir & barikade). | `To Do` |
 | **`TASK-406`** | `P0` | `mobile` | `@Ariyadi` | `feat/TASK-406-isar-sync-queue-schema` | Skema Isar DB `SyncQueueItem` & `CachedWaterSource` untuk penyimpanan luring perangkat. | `To Do` |
 | **`TASK-407`** | `P0` | `mobile` | `@Ariyadi` | `feat/TASK-407-outbox-worker-optimistic` | Optimistic UI dan Background Outbox Worker yang mengirim antrean mutasi (FIFO) saat sinyal pulih. | `To Do` |

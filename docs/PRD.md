@@ -112,8 +112,8 @@ Berdasarkan data operasional kebakaran permukiman di Kota Samarinda (48--55 keja
    * Angka metrik (jarak meter, lebar gang, kapasitas tangki, pewaktu durasi) wajib menggunakan tipografi *monospace* berlebar tetap (`tabular-nums`) agar angka tidak bergeser saat berubah.
 2. **Keandalan & Konsistensi Data:**
    * Setiap entri antrean *Outbox* dilengkapi kunci idempotensi (`mutation_uuid`) dan stempel waktu perangkat (`client_timestamp`) sehingga pengiriman ulang akibat koneksi tidak stabil tidak akan menggandakan data di peladen.
-3. **Portabilitas Arsitektur:**
-   * Seluruh kode sumber dikelola dalam struktur **Monorepo** (`pnpm` + `Turborepo`) dengan kontrak pertukaran data terpusat menggunakan spesifikasi **OpenAPI v3** untuk menghasilkan tipe data TypeScript (Web) dan Dart (Mobile) secara otomatis.
+3. **Portabilitas Arsitektur & Realtime BaaS:**
+   * Seluruh kode sumber dikelola dalam struktur **Monorepo** dengan backend spasial berbasis **FastAPI (Python 3.11+)** dan platform **Supabase (PostgreSQL 15/16 + PostGIS + Supabase Realtime CDC)**, serta kontrak pertukaran data terpusat menggunakan spesifikasi **OpenAPI v3** (dihasilkan otomatis dari model Pydantic v2 FastAPI).
 
 ---
 

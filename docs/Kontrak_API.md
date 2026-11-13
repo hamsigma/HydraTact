@@ -11,13 +11,13 @@
 ## 1. Konvensi Dasar & Protokol Komunikasi
 
 * **Base URL:**
-  * Produksi: `https://api.hydratact.id/api/v1`
-  * Pengembangan Lokal: `http://localhost:3000/api/v1`
+  * Produksi: `https://api.hydratact.id/api/v1` (FastAPI Engine) & `https://<project-ref>.supabase.co` (Supabase BaaS)
+  * Pengembangan Lokal: `http://localhost:8000/api/v1` (FastAPI) & `http://localhost:54321` (Supabase Local Stack)
 * **Format Pertukaran Data:** `application/json` (UTF-8) dan geometri standar `GeoJSON` dengan sistem koordinat **WGS 84 (SRID 4326)** dalam urutan `[longitude, latitude]`.
 * **Format Waktu:** Standar ISO-8601 dengan zona waktu eksplisit (`2026-10-15T20:14:22+08:00` / WITA).
 * **Skema Autentikasi:**
-  * **Publik Tanpa Login (`CITIZEN`):** Endpoint pelaporan darurat warga tidak menggunakan token sesi agar bebas hambatan saat kondisi panik, namun dilindungi dengan pembatasan laju permintaan (*rate limiting*), validasi durasi tekan tombol, serta klasterisasi koordinat.
-  * **Bearer JWT (`COMMANDER`, `VOLUNTEER`):** Wajib menyertakan header `Authorization: Bearer <jwt_token>` yang memuat klaim `user_id`, `role`, `unit_id`, dan `posko_name`.
+  * **Publik Tanpa Login (`CITIZEN`):** Endpoint pelaporan darurat warga tidak menggunakan token sesi agar bebas hambatan saat kondisi panik, namun dilindungi dengan pembatasan laju permintaan (*rate limiting* via FastAPI `slowapi`), validasi durasi tekan tombol, serta klasterisasi koordinat.
+  * **Bearer JWT Supabase Auth (`COMMANDER`, `VOLUNTEER`):** Wajib menyertakan header `Authorization: Bearer <jwt_token>` yang diterbitkan oleh Supabase Auth, memuat klaim `sub` (`user_id`), `role`, `unit_id`, dan `posko_name`.
 * **Header Khusus Ketahanan Luring (*Offline-First*):**
   * `X-Idempotency-Key` (UUID v4): Kunci unik per mutasi dari tabel lokal Isar `sync_queue` untuk mencegah duplikasi data apabila koneksi terputus saat pengiriman berlangsung.
   * `X-Client-Timestamp` (ISO-8601): Stempel waktu kejadian riil di perangkat lapangan sebagai dasar penyelesaian konflik *Last-Write-Wins* (mutasi dengan waktu kejadian lapangan terbaru yang dipertahankan, bukan paket yang paling akhir tiba di peladen).
@@ -720,16 +720,41 @@ paths:
 
 ---
 
-## 7. Otomasi Codegen pada Monorepo
+## 7. Saluran Waktu Nyata Supabase Realtime (*Change Data Capture Channels*)
 
-Untuk memastikan tidak ada perbedaan struktur atribut antara aplikasi web Next.js dan aplikasi seluler Flutter, jalankan skrip pembangkit kode otomatis pada berkas `package.json` akar monorepo:
+Menggantikan broker WebSocket kustom, dasbor komando dan aplikasi mobile mendengarkan mutasi basis data secara seketika (*realtime*) melalui klien Supabase (`supabase-js` dan `supabase_flutter`):
+
+| Channel Name | Tabel Basis Data | Filter Event | Payload & Kegunaan |
+| :--- | :--- | :--- | :--- |
+| `realtime:incidents` | `incidents` | `UPDATE` | Siaran transisi status FSM insiden (`VERIFIED`, `DISPATCHING`, `SUPPRESSION_ACTIVE`, `CLOSED`). |
+| `realtime:units` | `incident_units` | `UPDATE`, `INSERT` | Siaran telemetri lokasi armada per 3 detik dan pembaruan peran taktis (`ATTACKER` vs `FEEDER`). |
+| `realtime:barricades` | `road_barricades` | `INSERT`, `UPDATE` | Siaran langsung ruas garis selang fuchsia (`LineString`) untuk menghalau armada lain melindas selang. |
+| `realtime:water_sources`| `water_sources` | `UPDATE` | Pembaruan instan status hidran (`READY`, `LOW_DISCHARGE`, `EMPTY`) hasil verifikasi 1-tap relawan. |
+
+### Contoh Berlangganan Klien (TypeScript / Dart):
+```typescript
+// Next.js Web Command Center: Dengar penambahan barikade selang baru
+supabase
+  .channel('realtime:barricades')
+  .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'road_barricades' }, (payload) => {
+    mapInstance.drawBarricadeLine(payload.new.path_geom, payload.new.road_name);
+  })
+  .subscribe();
+```
+
+---
+
+## 8. Otomasi Codegen pada Monorepo (FastAPI ke TypeScript & Dart)
+
+FastAPI membangkitkan dokumen `openapi.json` secara otomatis dari model Pydantic v2. Skrip berikut mengekspor spesifikasi tersebut ke klien TypeScript (Web/PWA) dan Dart (Flutter):
 
 ```json
 {
   "scripts": {
-    "codegen:web": "openapi-typescript packages/contracts/openapi.yaml -o apps/web/src/types/api.d.ts",
-    "codegen:mobile": "openapi-generator-cli generate -i packages/contracts/openapi.yaml -g dart-dio -o apps/mobile/packages/api_client",
-    "codegen": "pnpm codegen:web && pnpm codegen:mobile"
+    "export:openapi": "python -m apps.backend_api.export_openapi",
+    "codegen:web": "openapi-typescript packages/contracts/openapi.yaml -o apps/web-command/src/types/api.d.ts",
+    "codegen:mobile": "openapi-generator-cli generate -i packages/contracts/openapi.yaml -g dart-dio -o apps/mobile-volunteer/packages/api_client",
+    "codegen": "pnpm export:openapi && pnpm codegen:web && pnpm codegen:mobile"
   }
 }
 ```
