@@ -10,6 +10,7 @@
     "lint": "turbo run lint",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck",
+    "export:openapi": "pnpm --filter @hydratact/backend-api export:openapi",
     "format": "prettier --write \"**/*.{ts,tsx,md,json,yaml,yml}\""
   },
   "devDependencies": {

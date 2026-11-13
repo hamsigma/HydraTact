@@ -1,0 +1,2164 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "HydraTact Samarinda Tactical Coordination API",
+    "description": "Kontrak API terpadu untuk Dasbor Komando Web, Klien Mobile Offline-First, dan PWA Warga dalam penanganan darurat kebakaran permukiman padat tepian Mahakam Samarinda.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.hydratact.id/api/v1",
+      "description": "Production Server"
+    },
+    {
+      "url": "http://localhost:8000/api/v1",
+      "description": "Local Development Server"
+    }
+  ],
+  "paths": {
+    "/api/v1/incidents/report": {
+      "post": {
+        "tags": [
+          "Komando Insiden & Pelaporan"
+        ],
+        "summary": "Kirim laporan darurat warga dan jalankan evaluasi konsensus spasial",
+        "description": "Menerima titik koordinat pelapor (1-tap SOS) dan mengevaluasi konsensus spasial radius 100m serta selang waktu 3 menit.",
+        "operationId": "report_incident_api_v1_incidents_report_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CitizenReportRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncidentReportResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/incidents/{incident_id}": {
+      "get": {
+        "tags": [
+          "Komando Insiden & Pelaporan"
+        ],
+        "summary": "Ambil detail insiden kebakaran aktif",
+        "description": "Mengambil detail insiden aktif, lebar gang terdeteksi, unit teralokasi, dan barikade selang.",
+        "operationId": "get_incident_detail_api_v1_incidents__incident_id__get",
+        "parameters": [
+          {
+            "name": "incident_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "UUID unik insiden kebakaran",
+              "title": "Incident Id"
+            },
+            "description": "UUID unik insiden kebakaran"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncidentDetailResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/incidents/{incident_id}/transition": {
+      "patch": {
+        "tags": [
+          "Komando Insiden & Pelaporan"
+        ],
+        "summary": "Transisi siklus hidup insiden (FSM) oleh operator posko",
+        "description": "Mengatur perpindahan tahap operasi Finite State Machine secara deterministik dan koreksi lebar jalan.",
+        "operationId": "transition_incident_fsm_api_v1_incidents__incident_id__transition_patch",
+        "parameters": [
+          {
+            "name": "incident_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "UUID unik insiden kebakaran",
+              "title": "Incident Id"
+            },
+            "description": "UUID unik insiden kebakaran"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FSMTransitionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FSMTransitionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/incidents/{incident_id}/units/assign": {
+      "post": {
+        "tags": [
+          "Komando Insiden & Pelaporan"
+        ],
+        "summary": "Daftarkan armada dan hitung peran otomatis (Dynamic Role Dispatching)",
+        "description": "Mendaftarkan unit ke insiden dan menghitung peran otomatis ATTACKER vs FEEDER berdasarkan lebar gang dan kapasitas tangki.",
+        "operationId": "assign_unit_to_incident_api_v1_incidents__incident_id__units_assign_post",
+        "parameters": [
+          {
+            "name": "incident_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "UUID unik insiden kebakaran",
+              "title": "Incident Id"
+            },
+            "description": "UUID unik insiden kebakaran"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UnitAssignRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnitAssignResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/units/{unit_id}/pressure-request": {
+      "post": {
+        "tags": [
+          "Koordinasi Armada & Tekanan Air"
+        ],
+        "summary": "Kirim sinyal permintaan tekanan pompa air antar armada",
+        "description": "Mengirim sinyal permintaan tekanan pompa air (misal 5.0 Bar) dari unit ATTACKER ke unit FEEDER terhubung.",
+        "operationId": "request_water_pressure_api_v1_units__unit_id__pressure_request_post",
+        "parameters": [
+          {
+            "name": "unit_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "UUID unit peminta (Attacker)",
+              "title": "Unit Id"
+            },
+            "description": "UUID unit peminta (Attacker)"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PressureRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PressureRequestResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/units/{unit_id}/telemetry": {
+      "post": {
+        "tags": [
+          "Koordinasi Armada & Tekanan Air"
+        ],
+        "summary": "Pembaruan telemetri GPS dan status pompa unit",
+        "description": "Menerima lokasi GPS berkala dan status pompa pemadam unit lapangan untuk disiarkan ke dasbor komando.",
+        "operationId": "update_unit_telemetry_api_v1_units__unit_id__telemetry_post",
+        "parameters": [
+          {
+            "name": "unit_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "UUID unit pelapor",
+              "title": "Unit Id"
+            },
+            "description": "UUID unit pelapor"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UnitTelemetryUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Update Unit Telemetry Api V1 Units  Unit Id  Telemetry Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/water-sources/nearest": {
+      "get": {
+        "tags": [
+          "Logistik & Pasokan Air"
+        ],
+        "summary": "Cari sumber air aktif terdekat menggunakan indeks PostGIS GIST",
+        "description": "Mengambil N sumber air aktif terdekat (hidran PDAM, tandon warga, posko dermaga sungai) menggunakan perhitungan spasial ST_DWithin dan ST_Distance.",
+        "operationId": "get_nearest_water_sources_api_v1_water_sources_nearest_get",
+        "parameters": [
+          {
+            "name": "lat",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "maximum": 90.0,
+              "minimum": -90.0,
+              "description": "Koordinat lintang posisi armada saat ini",
+              "examples": [
+                -0.4945
+              ],
+              "title": "Lat"
+            },
+            "description": "Koordinat lintang posisi armada saat ini"
+          },
+          {
+            "name": "lng",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "maximum": 180.0,
+              "minimum": -180.0,
+              "description": "Koordinat bujur posisi armada saat ini",
+              "examples": [
+                117.1438
+              ],
+              "title": "Lng"
+            },
+            "description": "Koordinat bujur posisi armada saat ini"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 20,
+              "minimum": 1,
+              "description": "Jumlah maksimal rekomendasi sumber air yang ditampilkan",
+              "default": 3,
+              "title": "Limit"
+            },
+            "description": "Jumlah maksimal rekomendasi sumber air yang ditampilkan"
+          },
+          {
+            "name": "include_low_discharge",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Sertakan hidran berdebit rendah (LOW_DISCHARGE)",
+              "default": true,
+              "title": "Include Low Discharge"
+            },
+            "description": "Sertakan hidran berdebit rendah (LOW_DISCHARGE)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NearestWaterResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/water-sources/{source_id}/status": {
+      "patch": {
+        "tags": [
+          "Logistik & Pasokan Air"
+        ],
+        "summary": "Pembaruan 1-ketukan status kondisi sumber air",
+        "description": "Memperbarui status kondisi sumber air di lapangan (READY, LOW_DISCHARGE, EMPTY, DAMAGED) oleh relawan.",
+        "operationId": "update_water_source_status_api_v1_water_sources__source_id__status_patch",
+        "parameters": [
+          {
+            "name": "source_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "UUID unik sumber air",
+              "title": "Source Id"
+            },
+            "description": "UUID unik sumber air"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WaterStatusUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WaterStatusUpdateResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/barricades": {
+      "post": {
+        "tags": [
+          "Barikade Selang Jalan"
+        ],
+        "summary": "Tandai barikade bentangan selang pada ruas jalan",
+        "description": "Menandai ruas jalan yang tertutup bentangan selang aktif (GeoJSON LineString) agar tidak dilindas atau dilalui kendaraan relawan lain.",
+        "operationId": "create_barricade_api_v1_barricades_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BarricadeCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BarricadeResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/barricades/{barricade_id}/deactivate": {
+      "patch": {
+        "tags": [
+          "Barikade Selang Jalan"
+        ],
+        "summary": "Buka kembali akses jalan yang dibarikade",
+        "description": "Menonaktifkan tanda barikade pada peta taktis setelah selang digulung atau operasi pemadaman selesai.",
+        "operationId": "deactivate_barricade_api_v1_barricades__barricade_id__deactivate_patch",
+        "parameters": [
+          {
+            "name": "barricade_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "UUID unik barikade jalan",
+              "title": "Barricade Id"
+            },
+            "description": "UUID unik barikade jalan"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BarricadeDeactivateResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sync/outbox-batch": {
+      "post": {
+        "tags": [
+          "Sinkronisasi Mutasi Luring (Offline-First)"
+        ],
+        "summary": "Sinkronisasi massal mutasi tertunda dari Isar DB saat koneksi pulih",
+        "description": "Menerima seluruh mutasi tertunda dari antrean Isar outbox di perangkat lapangan dan memprosesnya secara deterministik dengan aturan Last-Write-Wins.",
+        "operationId": "sync_outbox_batch_api_v1_sync_outbox_batch_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OutboxBatchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OutboxBatchResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Root",
+        "operationId": "root__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Health Check",
+        "operationId": "health_check_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "BarricadeCreateRequest": {
+        "properties": {
+          "incident_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Incident Id",
+            "description": "UUID insiden terkait"
+          },
+          "road_name": {
+            "type": "string",
+            "title": "Road Name",
+            "description": "Nama ruas jalan atau gang yang terhalang bentangan selang",
+            "examples": [
+              "Mulut Jl. Pelita Gg. 4"
+            ]
+          },
+          "reason": {
+            "$ref": "#/components/schemas/BarricadeReason",
+            "description": "Alasan penutupan ruas jalan",
+            "default": "HOSE_CONNECTED"
+          },
+          "hose_length_meters": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Hose Length Meters",
+            "description": "Panjang bentangan selang dalam meter",
+            "examples": [
+              110
+            ]
+          },
+          "geometry": {
+            "$ref": "#/components/schemas/GeoLineString",
+            "description": "Geometri garis koordinat bentangan selang pada jalan"
+          }
+        },
+        "type": "object",
+        "required": [
+          "incident_id",
+          "road_name",
+          "hose_length_meters",
+          "geometry"
+        ],
+        "title": "BarricadeCreateRequest",
+        "description": "Permintaan penandaan barikade selang pada ruas jalan yang ditutup."
+      },
+      "BarricadeData": {
+        "properties": {
+          "barricade_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Barricade Id",
+            "description": "UUID unik barikade jalan"
+          },
+          "road_name": {
+            "type": "string",
+            "title": "Road Name",
+            "description": "Nama ruas jalan"
+          },
+          "hose_length_meters": {
+            "type": "integer",
+            "title": "Hose Length Meters",
+            "description": "Panjang selang terpasang"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active",
+            "description": "Status aktif barikade (menghalangi kendaraan lain)"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At",
+            "description": "Waktu pemasangan barikade"
+          }
+        },
+        "type": "object",
+        "required": [
+          "barricade_id",
+          "road_name",
+          "hose_length_meters",
+          "is_active",
+          "created_at"
+        ],
+        "title": "BarricadeData",
+        "description": "Informasi status barikade jalan terdaftar."
+      },
+      "BarricadeDeactivateData": {
+        "properties": {
+          "barricade_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Barricade Id",
+            "description": "UUID barikade yang dinonaktifkan"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active",
+            "description": "Status keaktifan barikade (false = jalan dibuka)",
+            "default": false
+          },
+          "deactivated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Deactivated At",
+            "description": "Waktu pembongkaran barikade"
+          }
+        },
+        "type": "object",
+        "required": [
+          "barricade_id",
+          "deactivated_at"
+        ],
+        "title": "BarricadeDeactivateData",
+        "description": "Data hasil pembukaan kembali barikade selang jalan."
+      },
+      "BarricadeDeactivateResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "success",
+            "title": "Status",
+            "default": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/BarricadeDeactivateData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "BarricadeDeactivateResponse",
+        "description": "Respons pembukaan kembali akses jalan."
+      },
+      "BarricadeReason": {
+        "type": "string",
+        "enum": [
+          "HOSE_CONNECTED",
+          "FIRE_SPREAD",
+          "COLLAPSED_DEBRIS",
+          "ACCESS_LOCKED"
+        ],
+        "title": "BarricadeReason",
+        "description": "Alasan penutupan ruas jalan untuk barikade selang."
+      },
+      "BarricadeResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "success",
+            "title": "Status",
+            "default": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/BarricadeData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "BarricadeResponse",
+        "description": "Respons registrasi barikade bentangan selang."
+      },
+      "CitizenReportRequest": {
+        "properties": {
+          "reporter_phone": {
+            "type": "string",
+            "pattern": "^\\+?[0-9]{9,15}$",
+            "title": "Reporter Phone",
+            "description": "Nomor kontak WhatsApp/telepon pelapor",
+            "examples": [
+              "+6281343408542"
+            ]
+          },
+          "location": {
+            "$ref": "#/components/schemas/GeoPoint",
+            "description": "Koordinat lokasi kebakaran WGS 84 [lng, lat]"
+          },
+          "gps_accuracy_meters": {
+            "type": "number",
+            "maximum": 50.0,
+            "minimum": 0.0,
+            "title": "Gps Accuracy Meters",
+            "description": "Akurasi radius GPS dalam meter (maksimal toleransi 50m)",
+            "examples": [
+              4.2
+            ]
+          },
+          "haptic_hold_duration_ms": {
+            "type": "integer",
+            "minimum": 2000.0,
+            "title": "Haptic Hold Duration Ms",
+            "description": "Durasi sentuh tahan tombol SOS dalam milidetik (minimal 2000ms untuk eliminasi panggilan palsu)",
+            "examples": [
+              2050
+            ]
+          },
+          "client_timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Client Timestamp",
+            "description": "Stempel waktu saat penekanan tombol di perangkat klien (ISO-8601)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "reporter_phone",
+          "location",
+          "gps_accuracy_meters",
+          "haptic_hold_duration_ms",
+          "client_timestamp"
+        ],
+        "title": "CitizenReportRequest",
+        "description": "Permintaan pelaporan darurat kebakaran oleh warga (1-tap SOS)."
+      },
+      "ConsensusData": {
+        "properties": {
+          "is_verified": {
+            "type": "boolean",
+            "title": "Is Verified",
+            "description": "Status verifikasi otomatis tercapai (>=2 pelapor independen)"
+          },
+          "unique_reporters_count": {
+            "type": "integer",
+            "title": "Unique Reporters Count",
+            "description": "Jumlah pelapor unik dalam klaster"
+          },
+          "cluster_radius_meters": {
+            "type": "number",
+            "title": "Cluster Radius Meters",
+            "description": "Ambang batas radius klaster konsensus dalam meter",
+            "default": 100.0
+          }
+        },
+        "type": "object",
+        "required": [
+          "is_verified",
+          "unique_reporters_count"
+        ],
+        "title": "ConsensusData",
+        "description": "Status evaluasi konsensus spasial klaster pelaporan."
+      },
+      "FSMTransitionData": {
+        "properties": {
+          "incident_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Incident Id",
+            "description": "UUID insiden yang diubah"
+          },
+          "previous_status": {
+            "$ref": "#/components/schemas/IncidentFSMStatus",
+            "description": "Status sebelum transisi"
+          },
+          "current_status": {
+            "$ref": "#/components/schemas/IncidentFSMStatus",
+            "description": "Status baru setelah transisi"
+          },
+          "dispatch_protocol": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dispatch Protocol",
+            "description": "Protokol dispatch aktif, misal AUTO_SPLIT_NARROW_ALLEY"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At",
+            "description": "Stempel waktu transisi disahkan peladen"
+          }
+        },
+        "type": "object",
+        "required": [
+          "incident_id",
+          "previous_status",
+          "current_status",
+          "updated_at"
+        ],
+        "title": "FSMTransitionData",
+        "description": "Data hasil pembaruan transisi status insiden."
+      },
+      "FSMTransitionRequest": {
+        "properties": {
+          "target_status": {
+            "$ref": "#/components/schemas/IncidentFSMStatus",
+            "description": "Tahap FSM tujuan yang diinginkan"
+          },
+          "road_width_meters": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 50.0,
+                "minimum": 0.5
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Road Width Meters",
+            "description": "Koreksi lebar jalan gang oleh operator posko"
+          },
+          "override_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Override Reason",
+            "description": "Alasan override jika melewati tahapan atau memverifikasi pelapor tunggal"
+          },
+          "operator_notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operator Notes",
+            "description": "Catatan komando lapangan"
+          }
+        },
+        "type": "object",
+        "required": [
+          "target_status"
+        ],
+        "title": "FSMTransitionRequest",
+        "description": "Permintaan transisi tahapan penanganan kebakaran pada FSM."
+      },
+      "FSMTransitionResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "success",
+            "title": "Status",
+            "default": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/FSMTransitionData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "FSMTransitionResponse",
+        "description": "Respons terstandarisasi transisi status FSM."
+      },
+      "GeoLineString": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "LineString",
+            "title": "Type",
+            "default": "LineString"
+          },
+          "coordinates": {
+            "items": {
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array",
+              "maxItems": 2,
+              "minItems": 2
+            },
+            "type": "array",
+            "minItems": 2,
+            "title": "Coordinates",
+            "description": "Larik koordinat garis [longitude, latitude] WGS 84 (SRID 4326)",
+            "examples": [
+              [
+                [
+                  117.1438,
+                  -0.4945
+                ],
+                [
+                  117.144,
+                  -0.4944
+                ],
+                [
+                  117.1441,
+                  -0.4942
+                ]
+              ]
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "coordinates"
+        ],
+        "title": "GeoLineString",
+        "description": "Geometri lintasan garis WGS 84 (SRID 4326) format larik [[longitude, latitude], ...]."
+      },
+      "GeoPoint": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "Point",
+            "title": "Type",
+            "default": "Point"
+          },
+          "coordinates": {
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "type": "array",
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "Coordinates",
+            "description": "Geometri koordinat [longitude, latitude] WGS 84 (SRID 4326)",
+            "examples": [
+              [
+                117.1441,
+                -0.4942
+              ]
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "coordinates"
+        ],
+        "title": "GeoPoint",
+        "description": "Geometri titik koordinat WGS 84 (SRID 4326) format [longitude, latitude]."
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "IncidentDetailData": {
+        "properties": {
+          "incident_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Incident Id",
+            "description": "UUID unik insiden"
+          },
+          "incident_code": {
+            "type": "string",
+            "title": "Incident Code",
+            "description": "Kode registrasi insiden"
+          },
+          "street_address": {
+            "type": "string",
+            "title": "Street Address",
+            "description": "Alamat lokasi kejadian"
+          },
+          "epicenter": {
+            "$ref": "#/components/schemas/GeoPoint",
+            "description": "Titik koordinat episentrum kebakaran"
+          },
+          "road_width_meters": {
+            "type": "number",
+            "title": "Road Width Meters",
+            "description": "Lebar akses jalan masuk terdekat"
+          },
+          "status": {
+            "$ref": "#/components/schemas/IncidentFSMStatus",
+            "description": "Status tahapan FSM terkini"
+          },
+          "reported_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Reported At",
+            "description": "Waktu awal laporan diterima"
+          },
+          "verified_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verified At",
+            "description": "Waktu terverifikasi"
+          },
+          "closed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Closed At",
+            "description": "Waktu insiden resmi ditutup"
+          },
+          "allocated_units": {
+            "items": {
+              "$ref": "#/components/schemas/IncidentUnitItem"
+            },
+            "type": "array",
+            "title": "Allocated Units",
+            "description": "Daftar unit yang telah bergabung"
+          }
+        },
+        "type": "object",
+        "required": [
+          "incident_id",
+          "incident_code",
+          "street_address",
+          "epicenter",
+          "road_width_meters",
+          "status",
+          "reported_at"
+        ],
+        "title": "IncidentDetailData",
+        "description": "Informasi komprehensif insiden untuk dasbor komando dan mobile relawan."
+      },
+      "IncidentDetailResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "success",
+            "title": "Status",
+            "default": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/IncidentDetailData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "IncidentDetailResponse",
+        "description": "Respons detail insiden."
+      },
+      "IncidentFSMStatus": {
+        "type": "string",
+        "enum": [
+          "PENDING_VERIFICATION",
+          "VERIFIED",
+          "DISPATCHING",
+          "SUPPRESSION_ACTIVE",
+          "OVERHAUL_COOLING",
+          "INCIDENT_CLOSED",
+          "ARCHIVED",
+          "CANCELLED_PRANK"
+        ],
+        "title": "IncidentFSMStatus",
+        "description": "Status siklus hidup insiden kebakaran pada Finite State Machine (FSM)."
+      },
+      "IncidentReportData": {
+        "properties": {
+          "incident_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Incident Id",
+            "description": "UUID unik insiden"
+          },
+          "incident_code": {
+            "type": "string",
+            "title": "Incident Code",
+            "description": "Kode registrasi taktis insiden",
+            "examples": [
+              "HT-2026-089"
+            ]
+          },
+          "incident_status": {
+            "$ref": "#/components/schemas/IncidentFSMStatus",
+            "description": "Status terkini siklus insiden"
+          },
+          "consensus": {
+            "$ref": "#/components/schemas/ConsensusData",
+            "description": "Metrik konsensus spasial"
+          },
+          "resolved_address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolved Address",
+            "description": "Alamat terkonversi dari geolokasi"
+          },
+          "detected_road_width_meters": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detected Road Width Meters",
+            "description": "Lebar ruas jalan/gang terdeteksi dari peta OSM"
+          },
+          "nearest_responding_unit": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RespondingUnitSummary"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Armada terdekat pertama"
+          }
+        },
+        "type": "object",
+        "required": [
+          "incident_id",
+          "incident_code",
+          "incident_status",
+          "consensus"
+        ],
+        "title": "IncidentReportData",
+        "description": "Data payload hasil pelaporan kebakaran darurat."
+      },
+      "IncidentReportResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "success",
+            "title": "Status",
+            "default": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/IncidentReportData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "IncidentReportResponse",
+        "description": "Respons terstandarisasi pengiriman laporan insiden."
+      },
+      "IncidentUnitItem": {
+        "properties": {
+          "unit_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Unit Id",
+            "description": "UUID unik unit"
+          },
+          "unit_identifier": {
+            "type": "string",
+            "title": "Unit Identifier",
+            "description": "Kode panggil unit"
+          },
+          "vehicle_type": {
+            "$ref": "#/components/schemas/VehicleType",
+            "description": "Tipe kendaraan"
+          },
+          "water_capacity_liters": {
+            "type": "integer",
+            "title": "Water Capacity Liters",
+            "description": "Kapasitas tangki air dalam liter"
+          },
+          "assigned_role": {
+            "$ref": "#/components/schemas/TacticalRole",
+            "description": "Peran taktis yang diemban"
+          },
+          "current_location": {
+            "$ref": "#/components/schemas/GeoPoint",
+            "description": "Koordinat posisi terkini unit"
+          }
+        },
+        "type": "object",
+        "required": [
+          "unit_id",
+          "unit_identifier",
+          "vehicle_type",
+          "water_capacity_liters",
+          "assigned_role",
+          "current_location"
+        ],
+        "title": "IncidentUnitItem",
+        "description": "Informasi armada yang ditugaskan pada insiden."
+      },
+      "MutationOperation": {
+        "type": "string",
+        "enum": [
+          "UPDATE_WATER_STATUS",
+          "CREATE_BARRICADE",
+          "DEACTIVATE_BARRICADE",
+          "UNIT_TELEMETRY_UPDATE"
+        ],
+        "title": "MutationOperation",
+        "description": "Jenis operasi mutasi yang dapat diantrekan saat kondisi luring (offline-first)."
+      },
+      "MutationResultItem": {
+        "properties": {
+          "mutation_uuid": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Mutation Uuid",
+            "description": "UUID mutasi yang diproses"
+          },
+          "sync_status": {
+            "$ref": "#/components/schemas/MutationSyncStatus",
+            "description": "Status hasil sinkronisasi"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason",
+            "description": "Alasan apabila mutasi diabaikan atau konflik"
+          }
+        },
+        "type": "object",
+        "required": [
+          "mutation_uuid",
+          "sync_status"
+        ],
+        "title": "MutationResultItem",
+        "description": "Hasil pemrosesan per butir mutasi luring."
+      },
+      "MutationSyncStatus": {
+        "type": "string",
+        "enum": [
+          "APPLIED",
+          "STALE_IGNORED",
+          "REJECTED_CONFLICT"
+        ],
+        "title": "MutationSyncStatus",
+        "description": "Status hasil rekonsiliasi mutasi pada basis data pusat."
+      },
+      "NearestWaterResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "success",
+            "title": "Status",
+            "default": "success"
+          },
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/WaterSourceItem"
+            },
+            "type": "array",
+            "title": "Data"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "NearestWaterResponse",
+        "description": "Respons pencarian daftar sumber air terdekat."
+      },
+      "OutboxBatchData": {
+        "properties": {
+          "batch_processed_count": {
+            "type": "integer",
+            "title": "Batch Processed Count",
+            "description": "Jumlah mutasi yang berhasil dievaluasi"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/MutationResultItem"
+            },
+            "type": "array",
+            "title": "Results",
+            "description": "Daftar status pemrosesan per mutasi"
+          }
+        },
+        "type": "object",
+        "required": [
+          "batch_processed_count",
+          "results"
+        ],
+        "title": "OutboxBatchData",
+        "description": "Data hasil rekonsiliasi kumpulan mutasi batch."
+      },
+      "OutboxBatchRequest": {
+        "properties": {
+          "device_id": {
+            "type": "string",
+            "title": "Device Id",
+            "description": "Identitas unik perangkat pengirim",
+            "examples": [
+              "android-unit-atk04"
+            ]
+          },
+          "unit_identifier": {
+            "type": "string",
+            "title": "Unit Identifier",
+            "description": "Kode panggil armada pengirim",
+            "examples": [
+              "ATK-04"
+            ]
+          },
+          "mutations": {
+            "items": {
+              "$ref": "#/components/schemas/OutboxMutationItem"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Mutations",
+            "description": "Larik mutasi tertunda"
+          }
+        },
+        "type": "object",
+        "required": [
+          "device_id",
+          "unit_identifier",
+          "mutations"
+        ],
+        "title": "OutboxBatchRequest",
+        "description": "Permintaan pengiriman kumpulan mutasi luring dari perangkat relawan."
+      },
+      "OutboxBatchResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "success",
+            "title": "Status",
+            "default": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/OutboxBatchData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "OutboxBatchResponse",
+        "description": "Respons pengiriman kumpulan mutasi antrean luring."
+      },
+      "OutboxMutationItem": {
+        "properties": {
+          "mutation_uuid": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Mutation Uuid",
+            "description": "UUID unik mutasi lokal untuk idempotensi"
+          },
+          "operation": {
+            "$ref": "#/components/schemas/MutationOperation",
+            "description": "Tipe operasi mutasi basis data"
+          },
+          "target_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Target Id",
+            "description": "UUID entitas tujuan (insiden/unit/sumber air/barikade)"
+          },
+          "client_timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Client Timestamp",
+            "description": "Stempel waktu saat aksi dilakukan di lapangan (Last-Write-Wins)"
+          },
+          "payload": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Payload",
+            "description": "Payload data mutasi"
+          }
+        },
+        "type": "object",
+        "required": [
+          "mutation_uuid",
+          "operation",
+          "target_id",
+          "client_timestamp",
+          "payload"
+        ],
+        "title": "OutboxMutationItem",
+        "description": "Butir mutasi tunggal dari antrean luring Isar DB di perangkat seluler."
+      },
+      "PressureRequest": {
+        "properties": {
+          "target_bar": {
+            "type": "number",
+            "maximum": 25.0,
+            "minimum": 1.0,
+            "title": "Target Bar",
+            "description": "Target tekanan suplai dalam satuan Bar",
+            "default": 5.0,
+            "examples": [
+              5.0
+            ]
+          },
+          "to_unit_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "To Unit Id",
+            "description": "UUID unit feeder yang memasok air"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes",
+            "description": "Catatan operasional kondisi nozzle/selang"
+          }
+        },
+        "type": "object",
+        "required": [
+          "to_unit_id"
+        ],
+        "title": "PressureRequest",
+        "description": "Sinyal permintaan tekanan pompa air dari unit penyerang (Attacker) ke unit pemasok (Feeder)."
+      },
+      "PressureRequestData": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Request Id",
+            "description": "UUID log permintaan tekanan"
+          },
+          "from_unit_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "From Unit Id",
+            "description": "UUID unit penyerang"
+          },
+          "to_unit_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "To Unit Id",
+            "description": "UUID unit pemasok"
+          },
+          "target_bar": {
+            "type": "number",
+            "title": "Target Bar",
+            "description": "Tekanan yang diminta"
+          },
+          "requested_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Requested At",
+            "description": "Stempel waktu pengiriman sinyal"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "from_unit_id",
+          "to_unit_id",
+          "target_bar",
+          "requested_at"
+        ],
+        "title": "PressureRequestData",
+        "description": "Data konfirmasi pengiriman sinyal tekanan pompa."
+      },
+      "PressureRequestResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "success",
+            "title": "Status",
+            "default": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PressureRequestData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "PressureRequestResponse",
+        "description": "Respons pengiriman sinyal permintaan tekanan pompa."
+      },
+      "RespondingUnitSummary": {
+        "properties": {
+          "unit_identifier": {
+            "type": "string",
+            "title": "Unit Identifier",
+            "description": "Kode panggil armada",
+            "examples": [
+              "ATK-04"
+            ]
+          },
+          "eta_minutes": {
+            "type": "number",
+            "title": "Eta Minutes",
+            "description": "Estimasi waktu tiba dalam menit",
+            "examples": [
+              3.0
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "unit_identifier",
+          "eta_minutes"
+        ],
+        "title": "RespondingUnitSummary",
+        "description": "Ringkasan unit pemadam terdekat yang merespons."
+      },
+      "TacticalRole": {
+        "type": "string",
+        "enum": [
+          "ATTACKER",
+          "FEEDER",
+          "RESERVE_FEEDER",
+          "DIRECT_ATTACK",
+          "UNASSIGNED"
+        ],
+        "title": "TacticalRole",
+        "description": "Peran taktis armada dalam insiden."
+      },
+      "UnitAssignData": {
+        "properties": {
+          "unit_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Unit Id",
+            "description": "UUID penugasan unit"
+          },
+          "unit_identifier": {
+            "type": "string",
+            "title": "Unit Identifier",
+            "description": "Kode panggil armada"
+          },
+          "assigned_role": {
+            "$ref": "#/components/schemas/TacticalRole",
+            "description": "Peran taktis yang ditetapkan (ATTACKER atau FEEDER)"
+          },
+          "dispatch_rationale": {
+            "type": "string",
+            "title": "Dispatch Rationale",
+            "description": "Dasar evaluasi matematis lebar gang vs kapasitas tangki"
+          },
+          "tactical_instruction": {
+            "type": "string",
+            "title": "Tactical Instruction",
+            "description": "Instruksi taktis operasional langsung untuk pengemudi/komandan unit"
+          },
+          "paired_unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paired Unit",
+            "description": "Kode panggil armada pasangan relai (Attacker <-> Feeder)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "unit_id",
+          "unit_identifier",
+          "assigned_role",
+          "dispatch_rationale",
+          "tactical_instruction"
+        ],
+        "title": "UnitAssignData",
+        "description": "Hasil penugasan peran taktis otomatis (Dynamic Role Dispatching)."
+      },
+      "UnitAssignRequest": {
+        "properties": {
+          "unit_identifier": {
+            "type": "string",
+            "title": "Unit Identifier",
+            "description": "Kode panggil armada",
+            "examples": [
+              "FDR-02"
+            ]
+          },
+          "posko_name": {
+            "type": "string",
+            "title": "Posko Name",
+            "description": "Nama posko relawan induk",
+            "examples": [
+              "Balakarcana Posko 02"
+            ]
+          },
+          "vehicle_type": {
+            "$ref": "#/components/schemas/VehicleType",
+            "description": "Tipe fisik kendaraan"
+          },
+          "water_capacity_liters": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Water Capacity Liters",
+            "description": "Kapasitas tampung tangki air unit dalam liter",
+            "examples": [
+              5000
+            ]
+          },
+          "current_location": {
+            "$ref": "#/components/schemas/GeoPoint",
+            "description": "Posisi GPS terkini unit saat mendaftar"
+          }
+        },
+        "type": "object",
+        "required": [
+          "unit_identifier",
+          "posko_name",
+          "vehicle_type",
+          "water_capacity_liters",
+          "current_location"
+        ],
+        "title": "UnitAssignRequest",
+        "description": "Permintaan alokasi armada ke suatu insiden kebakaran."
+      },
+      "UnitAssignResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "success",
+            "title": "Status",
+            "default": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/UnitAssignData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "UnitAssignResponse",
+        "description": "Respons terstandarisasi registrasi peran armada."
+      },
+      "UnitTelemetryUpdateRequest": {
+        "properties": {
+          "coordinates": {
+            "$ref": "#/components/schemas/GeoPoint",
+            "description": "Posisi GPS terkini unit"
+          },
+          "fire_distance_meters": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fire Distance Meters",
+            "description": "Jarak estimasi ke episentrum api"
+          },
+          "pump_active": {
+            "type": "boolean",
+            "title": "Pump Active",
+            "description": "Status aktif pompa pemadam",
+            "default": false
+          },
+          "water_remaining_liters": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Water Remaining Liters",
+            "description": "Estimasi sisa air tangki"
+          }
+        },
+        "type": "object",
+        "required": [
+          "coordinates"
+        ],
+        "title": "UnitTelemetryUpdateRequest",
+        "description": "Pembaruan berkala posisi telemetri GPS dan status pompa unit."
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "VehicleType": {
+        "type": "string",
+        "enum": [
+          "LARGE_TANK",
+          "MEDIUM_TANK",
+          "THREE_WHEELER",
+          "PORTABLE_PUMP"
+        ],
+        "title": "VehicleType",
+        "description": "Kategori armada pemadam kebakaran."
+      },
+      "WaterSourceItem": {
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Source Id",
+            "description": "UUID unik sumber air"
+          },
+          "code": {
+            "type": "string",
+            "title": "Code",
+            "description": "Kode identitas hidran/tandon",
+            "examples": [
+              "HYD-PLT-04"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Nama lokasi sumber air",
+            "examples": [
+              "Hidran PDAM Jl. Pelita"
+            ]
+          },
+          "source_type": {
+            "$ref": "#/components/schemas/WaterSourceType",
+            "description": "Tipe fisik sumber air"
+          },
+          "status": {
+            "$ref": "#/components/schemas/WaterSourceStatus",
+            "description": "Status kesiapan pasokan air terkini"
+          },
+          "pressure_bar": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pressure Bar",
+            "description": "Tekanan air tercatat dalam bar"
+          },
+          "capacity_liters": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Capacity Liters",
+            "description": "Estimasi volume tampungan air jika berbentuk tandon"
+          },
+          "distance_meters": {
+            "type": "number",
+            "title": "Distance Meters",
+            "description": "Jarak spasial langsung dari posisi armada dalam meter"
+          },
+          "estimated_travel_minutes": {
+            "type": "number",
+            "title": "Estimated Travel Minutes",
+            "description": "Estimasi waktu tempuh armada ke sumber air"
+          },
+          "location": {
+            "$ref": "#/components/schemas/GeoPoint",
+            "description": "Koordinat lokasi WGS 84 [lng, lat]"
+          },
+          "last_verified_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Verified At",
+            "description": "Stempel waktu terakhir diverifikasi oleh relawan"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source_id",
+          "code",
+          "name",
+          "source_type",
+          "status",
+          "distance_meters",
+          "estimated_travel_minutes",
+          "location"
+        ],
+        "title": "WaterSourceItem",
+        "description": "Informasi titik pasokan air terdekat."
+      },
+      "WaterSourceStatus": {
+        "type": "string",
+        "enum": [
+          "READY",
+          "LOW_DISCHARGE",
+          "EMPTY",
+          "DAMAGED"
+        ],
+        "title": "WaterSourceStatus",
+        "description": "Kondisi kesiapan pasokan air."
+      },
+      "WaterSourceType": {
+        "type": "string",
+        "enum": [
+          "PDAM_HYDRANT",
+          "COMMUNITY_TOWER",
+          "RIVER_TIDAL_DOCK"
+        ],
+        "title": "WaterSourceType",
+        "description": "Tipe sumber pasokan air di lapangan."
+      },
+      "WaterStatusUpdateData": {
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Source Id",
+            "description": "UUID sumber air yang diperbarui"
+          },
+          "code": {
+            "type": "string",
+            "title": "Code",
+            "description": "Kode identitas sumber air"
+          },
+          "status": {
+            "$ref": "#/components/schemas/WaterSourceStatus",
+            "description": "Status kesiapan terbaru"
+          },
+          "pressure_bar": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pressure Bar",
+            "description": "Tekanan yang tercatat"
+          },
+          "effective_timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Effective Timestamp",
+            "description": "Stempel waktu efektif pembaruan"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source_id",
+          "code",
+          "status",
+          "effective_timestamp"
+        ],
+        "title": "WaterStatusUpdateData",
+        "description": "Data hasil pembaruan status sumber air."
+      },
+      "WaterStatusUpdateRequest": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/WaterSourceStatus",
+            "description": "Status baru kondisi sumber air"
+          },
+          "pressure_bar": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 25.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pressure Bar",
+            "description": "Pengukuran tekanan aktual oleh relawan (bar)"
+          },
+          "reported_by_unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reported By Unit",
+            "description": "Kode panggil armada pelapor",
+            "examples": [
+              "FDR-02"
+            ]
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes",
+            "description": "Catatan kondisi fisik hidran/tandon"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "title": "WaterStatusUpdateRequest",
+        "description": "Pembaruan cepat 1-tap kondisi sumber air di lapangan."
+      },
+      "WaterStatusUpdateResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "success",
+            "title": "Status",
+            "default": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/WaterStatusUpdateData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "WaterStatusUpdateResponse",
+        "description": "Respons terstandarisasi pembaruan status sumber air."
+      }
+    },
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Supabase Auth Bearer JWT token"
+      }
+    }
+  }
+}
