@@ -119,7 +119,7 @@ flowchart TD
 | **`TASK-503`** | `P1` | `test` | `@Hervino` | `test/TASK-503-load-testing-k6` | Load testing 100 permintaan konkuren pada endpoint pelaporan dan sumber air (latensi p95 $< 150\text{ ms}$). | `To Do` |
 | **`TASK-504`** | `P1` | `test` | `@Ariyadi` & `@Hervino` | `docs/TASK-504-sus-evaluation-report` | Pengujian System Usability Scale (SUS) 5 skenario bersama 15 relawan Balakarcana (skor $\ge 75$). | `Done` |
 | **`TASK-505`** | `P0` | `media` | `@Semua` | `chore/TASK-505-video-demo-kmm` | Rekam dan edit video demo 5 menit (`04:20`) skenario Jl. Pelita Gg. 4 untuk YouTube panitia KMM. | `Done` |
-| **`TASK-506`** | `P0` | `docs` | `@Semua` | `docs/TASK-506-final-technical-report` | Finalisasi dokumen teknis, repositori publik bersih, dan tautan luaran untuk pengumpulan akhir KMM. | `To Do` |
+| **`TASK-506`** | `P0` | `docs` | `@Semua` | `docs/TASK-506-final-technical-report` | Finalisasi dokumen teknis, repositori publik bersih, dan tautan luaran untuk pengumpulan akhir KMM. | `Done` |
 
 ---
 
