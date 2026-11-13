@@ -77,7 +77,7 @@
 - [x] **`TASK-403`** `[P0]` `@Ariyadi` — Bangun tampilan adaptif berbasis peran penugasan:
   * **Mode `ATTACKER` (Aksen Merah):** Navigasi lorong menuju titik api, penghitung jarak meter, dan tombol besar ($64\text{ dp}$) *Minta Tekanan Air*.
   * **Mode `FEEDER` (Aksen Amber/Kuning):** Titik parkir aman di jalan utama, pemantau kapasitas tangki, dan sakelar barikade selang jalan.
-- [ ] **`TASK-404`** `[P0]` `@Ariyadi` — Bangun modul **3 Sumber Air Terdekat** menggunakan kalkulasi jarak Haversine lokal dan filter status (`READY` / `LOW_DISCHARGE`).
+- [x] **`TASK-404`** `[P0]` `@Ariyadi` — Bangun modul **3 Sumber Air Terdekat** menggunakan kalkulasi jarak Haversine lokal dan filter status (`READY` / `LOW_DISCHARGE`).
 - [ ] **`TASK-405`** `[P0]` `@Ariyadi` — Implementasi lembar cepat **1-Tap Water Status Update** dan sakelar **Hose Barricade Toggle** dengan target sentuh ramah sarung tangan ($\ge 48\text{ dp}$).
 
 ### 4.3 Penyimpanan Lokal Isar DB & Pekerja Sinkronisasi Outbox

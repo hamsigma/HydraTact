@@ -104,7 +104,7 @@ flowchart TD
 | **`TASK-306`** | `P0` | `web` | `@Hervino` | `feat/TASK-306-auto-split-barricade-panel` | Visualisasi pembagian unit `ATTACKER`/`FEEDER` serta garis barikade selang fuchsia (`LineString`). | `To Do` |
 | **`TASK-307`** | `P1` | `web` | `@Hervino` | `feat/TASK-307-telemetry-stream-fsm-ui` | Panel Telemetry Stream kronologis dan tombol kendali transisi status operasi FSM bagi operator. | `To Do` |
 | **`TASK-402`** | `P1` | `mobile` | `@Ariyadi` & `@Ilham` | `feat/TASK-402-map-matching-snapping` | Client-Side Map-Matching Snapping untuk mengunci GPS mentah ke gang jika deviasi multipath $\le 25\text{ m}$. | `Done` |
-| **`TASK-404`** | `P0` | `mobile` | `@Ariyadi` | `feat/TASK-404-nearest-water-sources-ui` | Modul 3 Sumber Air Terdekat menggunakan Haversine lokal dan filter status (`READY` / `LOW_DISCHARGE`). | `To Do` |
+| **`TASK-404`** | `P0` | `mobile` | `@Ariyadi` | `feat/TASK-404-nearest-water-sources-ui` | Modul 3 Sumber Air Terdekat menggunakan Haversine lokal dan filter status (`READY` / `LOW_DISCHARGE`). | `Done` |
 | **`TASK-405`** | `P0` | `mobile` | `@Ariyadi` | `feat/TASK-405-tap-water-barricade-actions` | Aksi 1-Tap status air dan sakelar Hose Barricade dengan target sentuh ramah sarung tangan ($\ge 48\text{ dp}$). | `To Do` |
 
 ---

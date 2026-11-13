@@ -1,21 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import '../../../../core/database/schemas/cached_water_source.dart';
 import '../../../../core/network/models/enums.dart';
 import '../../../../core/sync/optimistic_mutation_service.dart';
 import '../../../../core/sync/outbox_worker.dart';
 import '../../../../core/theme/tactical_colors.dart';
+import '../../../../core/utils/geo_utils.dart';
 import '../../map/services/mbtiles_service.dart';
 import '../../map/widgets/tactical_map_view.dart';
 import '../../map/widgets/tactical_markers.dart';
 import '../widgets/attacker_action_panel.dart';
 import '../widgets/feeder_action_panel.dart';
+import '../widgets/nearest_water_sources_panel.dart';
+
+enum BottomPanelTab { actions, waterSources }
 
 /// Tactical Screen combining the 60% Offline Map View and 40% Adaptive Action Panel
-/// Sesuai docs/Design.md Bagian 7.2:
+/// Sesuai docs/Design.md Bagian 5 & 7.2 serta TASK-403, TASK-404, TASK-407:
 /// - Area Peta Utama: 60% tinggi layar ponsel
 /// - Panel Kontrol Aksi Bawah: 40% tinggi layar ponsel
 /// - Adaptif terhadap peran ATTACKER vs FEEDER
+/// - Modul 3 Titik Sumber Air Terdekat (Haversine & Filter Status)
 /// - Terhubung dengan OutboxWorker & OptimisticMutationService (TASK-407)
 class TacticalScreen extends StatefulWidget {
   const TacticalScreen({
@@ -26,6 +32,7 @@ class TacticalScreen extends StatefulWidget {
     this.initialRole = TacticalRole.ATTACKER,
     this.initialCenter = const LatLng(-0.4942, 117.1441), // Jl. Pelita Gg. 4
     this.renderVectorTiles = true,
+    this.customWaterSources,
   });
 
   final MbTilesService mbtilesService;
@@ -34,6 +41,7 @@ class TacticalScreen extends StatefulWidget {
   final TacticalRole initialRole;
   final LatLng initialCenter;
   final bool renderVectorTiles;
+  final List<CachedWaterSource>? customWaterSources;
 
   @override
   State<TacticalScreen> createState() => _TacticalScreenState();
@@ -41,9 +49,11 @@ class TacticalScreen extends StatefulWidget {
 
 class _TacticalScreenState extends State<TacticalScreen> {
   late TacticalRole _currentRole;
+  BottomPanelTab _selectedTab = BottomPanelTab.actions;
   bool _isPressureRequested = false;
   bool _isBarricadeActive = false;
   String _syncStatusText = 'ONLINE (TERHUBUNG)';
+  List<WaterSourceWithDistance> _nearestWaterSources = [];
 
   // Skenario Jl. Pelita Gg. 4
   static const LatLng _fireIncidentPoint = LatLng(-0.4942, 117.1441);
@@ -62,6 +72,7 @@ class _TacticalScreenState extends State<TacticalScreen> {
   void initState() {
     super.initState();
     _currentRole = widget.initialRole;
+    _initWaterSources();
 
     // Pantau status konektivitas & antrean sinkronisasi dari OutboxWorker
     final worker = widget.outboxWorker;
@@ -69,6 +80,57 @@ class _TacticalScreenState extends State<TacticalScreen> {
       _syncStatusText = worker.statusNotifier.value.tacticalStatusText;
       worker.statusNotifier.addListener(_onOutboxStatusChanged);
     }
+  }
+
+  void _initWaterSources() {
+    final sources = widget.customWaterSources ?? _createDefaultWaterSources();
+    _nearestWaterSources = GeoUtils.findNearestWaterSources(
+      origin: widget.initialCenter,
+      sources: sources,
+      limit: 3,
+      filterUsableOnly: true,
+    );
+  }
+
+  List<CachedWaterSource> _createDefaultWaterSources() {
+    return [
+      CachedWaterSource()
+        ..serverId = 'ws-pelita-pdam'
+        ..name = 'PDAM Jl. Pelita Gg. 4'
+        ..sourceType = 'PDAM_HYDRANT'
+        ..latitude = -0.4938
+        ..longitude = 117.1448
+        ..operationalStatus = 'READY'
+        ..pressureBar = 4.2
+        ..updatedAt = DateTime.now().toUtc(),
+      CachedWaterSource()
+        ..serverId = 'ws-pelita-tandon'
+        ..name = 'Tandon Komunitas RT 12'
+        ..sourceType = 'COMMUNITY_TOWER'
+        ..latitude = -0.4946
+        ..longitude = 117.1432
+        ..operationalStatus = 'LOW_DISCHARGE'
+        ..pressureBar = 2.1
+        ..updatedAt = DateTime.now().toUtc(),
+      CachedWaterSource()
+        ..serverId = 'ws-pelita-dermaga'
+        ..name = 'Dermaga Pasang Surut SKM'
+        ..sourceType = 'RIVER_TIDAL_DOCK'
+        ..latitude = -0.4955
+        ..longitude = 117.1450
+        ..operationalStatus = 'READY'
+        ..pressureBar = 3.8
+        ..updatedAt = DateTime.now().toUtc(),
+      CachedWaterSource()
+        ..serverId = 'ws-pelita-rusak'
+        ..name = 'Pipa Rusak Ujung Gg. 5'
+        ..sourceType = 'PDAM_HYDRANT'
+        ..latitude = -0.4930
+        ..longitude = 117.1430
+        ..operationalStatus = 'DAMAGED'
+        ..pressureBar = 0.0
+        ..updatedAt = DateTime.now().toUtc(),
+    ];
   }
 
   @override
@@ -88,7 +150,7 @@ class _TacticalScreenState extends State<TacticalScreen> {
 
   void _toggleRole() {
     setState(() {
-      _currentRole = (_currentRole == TacticalRole.ATTACKER)
+      _currentRole = _currentRole == TacticalRole.ATTACKER
           ? TacticalRole.FEEDER
           : TacticalRole.ATTACKER;
     });
@@ -193,6 +255,7 @@ class _TacticalScreenState extends State<TacticalScreen> {
                 ],
               ),
             ),
+
             // Tombol Switch Peran Cepat (untuk pengujian & operasional lapangan)
             Container(
               height: 28.0,
@@ -212,23 +275,115 @@ class _TacticalScreenState extends State<TacticalScreen> {
                 ),
               ),
             ),
+
+            // Tab Selector Bawah: KONTROL PERAN vs 3 TITIK AIR (NO PILL CHIPS)
+            Container(
+              height: 32.0,
+              decoration: const BoxDecoration(
+                color: TacticalColors.surface0,
+                border: Border(
+                  top: BorderSide(color: TacticalColors.borderSubtle, width: 1),
+                  bottom: BorderSide(color: TacticalColors.borderSubtle, width: 1),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: InkWell(
+                      onTap: () => setState(() => _selectedTab = BottomPanelTab.actions),
+                      child: Container(
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: _selectedTab == BottomPanelTab.actions
+                              ? TacticalColors.surface2
+                              : Colors.transparent,
+                          border: Border(
+                            bottom: BorderSide(
+                              color: _selectedTab == BottomPanelTab.actions
+                                  ? (isAttacker ? TacticalColors.attacker : TacticalColors.feeder)
+                                  : Colors.transparent,
+                              width: 2,
+                            ),
+                          ),
+                        ),
+                        child: Text(
+                          'KONTROL $roleTitle',
+                          style: TextStyle(
+                            fontFamily: 'monospace',
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.5,
+                            color: _selectedTab == BottomPanelTab.actions
+                                ? TacticalColors.textPrimary
+                                : TacticalColors.textMuted,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: InkWell(
+                      onTap: () => setState(() => _selectedTab = BottomPanelTab.waterSources),
+                      child: Container(
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: _selectedTab == BottomPanelTab.waterSources
+                              ? TacticalColors.surface2
+                              : Colors.transparent,
+                          border: Border(
+                            bottom: BorderSide(
+                              color: _selectedTab == BottomPanelTab.waterSources
+                                  ? TacticalColors.waterReady
+                                  : Colors.transparent,
+                              width: 2,
+                            ),
+                          ),
+                        ),
+                        child: Text(
+                          'SUMBER AIR (3 TERDEKAT)',
+                          style: TextStyle(
+                            fontFamily: 'monospace',
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.5,
+                            color: _selectedTab == BottomPanelTab.waterSources
+                                ? TacticalColors.textPrimary
+                                : TacticalColors.textMuted,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
             // 40% Panel Kontrol Aksi Bawah (flex: 4)
             Expanded(
               flex: 4,
-              child: isAttacker
-                  ? AttackerActionPanel(
-                      isPressureRequested: _isPressureRequested,
-                      onTogglePressure: _togglePressure,
-                      unitCode: 'ATK-01',
-                      targetPressureBar: 5.0,
+              child: _selectedTab == BottomPanelTab.waterSources
+                  ? SingleChildScrollView(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: NearestWaterSourcesPanel(
+                          items: _nearestWaterSources,
+                        ),
+                      ),
                     )
-                  : FeederActionPanel(
-                      isBarricadeActive: _isBarricadeActive,
-                      onToggleBarricade: _toggleBarricade,
-                      unitCode: 'FDR-01',
-                      arteryRoadName: 'JL. PELITA UTAMA',
-                      remainingWaterLiters: 4200,
-                    ),
+                  : (isAttacker
+                      ? AttackerActionPanel(
+                          isPressureRequested: _isPressureRequested,
+                          onTogglePressure: _togglePressure,
+                          unitCode: 'ATK-01',
+                          targetPressureBar: 5.0,
+                        )
+                      : FeederActionPanel(
+                          isBarricadeActive: _isBarricadeActive,
+                          onToggleBarricade: _toggleBarricade,
+                          unitCode: 'FDR-01',
+                          arteryRoadName: 'JL. PELITA UTAMA',
+                          remainingWaterLiters: 4200,
+                        )),
             ),
           ],
         ),
