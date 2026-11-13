@@ -536,3 +536,4 @@ async def fetch_incident_detail_by_id(
             ],
         )
     return None
+
