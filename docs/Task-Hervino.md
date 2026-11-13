@@ -13,9 +13,9 @@
 ### Sprint 1 / Hari 1: Fondasi Repositori, Kontrak & Backend Skeleton
 | Task ID | Pri | Modul | Nama Tugas & Cabang Branch | Acceptance Criteria / Output | Status |
 | :--- | :---: | :--- | :--- | :--- | :---: |
-| **`TASK-101`** | `P0` | `infra` | `chore/TASK-101-monorepo-setup` | Workspace `pnpm` + `Turborepo` + Python virtualenv aktif, skrip `lint`, `typecheck`, `test`, `build` terkonfigurasi. | `[ ]` |
+| **`TASK-101`** | `P0` | `infra` | `chore/TASK-101-monorepo-setup` | Workspace `pnpm` + `Turborepo` + Python virtualenv aktif, skrip `lint`, `typecheck`, `test`, `build` terkonfigurasi. | `[x]` |
 | **`TASK-102`** | `P0` | `infra` | `chore/TASK-102-supabase-local-stack` *(Collab @Ilham)* | Supabase CLI local stack (`supabase init`) aktif untuk PostgreSQL 15/16 + PostGIS 3.4, Auth & Studio. | `[ ]` |
-| **`TASK-103`** | `P0` | `contract` | `feat/TASK-103-pydantic-openapi-spec` | Model Pydantic v2 FastAPI mengekspor dokumen OpenAPI v3 (`openapi.yaml`) untuk seluruh endpoint. | `[ ]` |
+| **`TASK-103`** | `P0` | `contract` | `feat/TASK-103-pydantic-openapi-spec` | Model Pydantic v2 FastAPI mengekspor dokumen OpenAPI v3 (`openapi.yaml`) untuk seluruh endpoint. | `[x]` |
 | **`TASK-104`** | `P1` | `contract` | `feat/TASK-104-codegen-ts-dart` *(Collab @Ariyadi)* | Skrip generate otomatis dari kontrak OpenAPI ke TypeScript client (Web) dan Dart client (Flutter). | `[ ]` |
 
 ### Sprint 2 / Hari 2: Mesin Inti Peladen & FSM Siklus Hidup Insiden

@@ -14,9 +14,9 @@
 ## SPRINT 1: Fondasi Monorepo, Basis Data Spasial, & Peta Luring
 
 ### 1.1 Inisialisasi Repositori & Kontrak API
-- [ ] **`TASK-101`** `[P0]` `@Hervino` — Inisialisasi struktur monorepo (`pnpm` + `Turborepo` + Python virtualenv) dengan direktori `apps/backend-api` (FastAPI), `apps/web-command`, `apps/pwa-citizen`, `apps/mobile-volunteer`, `supabase/`, dan `packages/*`.
+- [x] **`TASK-101`** `[P0]` `@Hervino` — Inisialisasi struktur monorepo (`pnpm` + `Turborepo` + Python virtualenv) dengan direktori `apps/backend-api` (FastAPI), `apps/web-command`, `apps/pwa-citizen`, `apps/mobile-volunteer`, `supabase/`, dan `packages/*`.
 - [ ] **`TASK-102`** `[P0]` `@Hervino` & `@Ilham` — Konfigurasi Supabase CLI local stack (`supabase init` / `config.toml`) mencakup PostgreSQL + PostGIS, Supabase Auth, Studio, dan Realtime Engine.
-- [ ] **`TASK-103`** `[P0]` `@Hervino` — Susun skema model data Pydantic v2 di FastAPI untuk mengekspor spesifikasi `openapi.yaml` (OpenAPI v3) otomatis mencakup endpoint pelaporan, dispatching, dan outbox sync.
+- [x] **`TASK-103`** `[P0]` `@Hervino` — Susun skema model data Pydantic v2 di FastAPI untuk mengekspor spesifikasi `openapi.yaml` (OpenAPI v3) otomatis mencakup endpoint pelaporan, dispatching, dan outbox sync.
 - [ ] **`TASK-104`** `[P1]` `@Hervino` & `@Ariyadi` — Konfigurasi skrip *code generation* otomatis dari kontrak OpenAPI ke klien TypeScript (Web/PWA) dan Dart (Flutter).
 
 ### 1.2 Skema Database Supabase PostGIS & Data Wilayah Samarinda
