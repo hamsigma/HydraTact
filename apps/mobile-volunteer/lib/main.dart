@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'core/theme/tactical_theme.dart';
-import 'features/map/services/mbtiles_service.dart';
-import 'features/map/widgets/tactical_map_view.dart';
-import 'features/map/widgets/tactical_markers.dart';
 import 'core/network/models/enums.dart';
+import 'features/map/services/mbtiles_service.dart';
+import 'features/tactical_view/screens/tactical_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -50,58 +48,17 @@ class _HydraTactVolunteerAppState extends State<HydraTactVolunteerApp> {
       title: 'HydraTact Mobile Volunteer',
       debugShowCheckedModeBanner: false,
       theme: TacticalTheme.darkTheme,
-      home: Scaffold(
-        body: SafeArea(
-          child: _isInitialized
-              ? TacticalMapView(
-                  mbtilesService: _mbtilesService,
-                  roleTitle: 'MODE ATTACKER',
-                  isAttacker: true,
-                  syncStatusText: 'ONLINE (TERHUBUNG)',
-                  initialCenter: const LatLng(-0.4942, 117.1441),
-                  initialZoom: 16.0,
-                  markers: const [
-                    Marker(
-                      point: LatLng(-0.4942, 117.1441),
-                      width: 32,
-                      height: 48,
-                      child: IncidentFireMarkerWidget(
-                        label: 'Gg. 4 Pelita',
-                      ),
-                    ),
-                    Marker(
-                      point: LatLng(-0.4935, 117.1445),
-                      width: 32,
-                      height: 48,
-                      child: AttackerMarkerWidget(
-                        unitCode: 'ATK-01',
-                        bearingDegrees: 45.0,
-                      ),
-                    ),
-                    Marker(
-                      point: LatLng(-0.4950, 117.1430),
-                      width: 32,
-                      height: 48,
-                      child: FeederMarkerWidget(
-                        unitCode: 'FDR-01',
-                      ),
-                    ),
-                    Marker(
-                      point: LatLng(-0.4948, 117.1450),
-                      width: 40,
-                      height: 48,
-                      child: WaterSourceMarkerWidget(
-                        status: WaterSourceStatus.READY,
-                        distanceMeters: 85,
-                      ),
-                    ),
-                  ],
-                )
-              : const Center(
-                  child: CircularProgressIndicator(),
-                ),
-        ),
-      ),
+      home: _isInitialized
+          ? TacticalScreen(
+              mbtilesService: _mbtilesService,
+              initialRole: TacticalRole.ATTACKER,
+              initialCenter: const LatLng(-0.4942, 117.1441),
+            )
+          : const Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
     );
   }
 }

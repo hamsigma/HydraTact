@@ -43,6 +43,8 @@ class IncidentFireMarkerWidget extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             label!,
+            maxLines: 1,
+            softWrap: false,
             style: TacticalTypography.labelEyebrow.copyWith(
               color: TacticalColors.attacker,
               fontSize: 10,
@@ -82,6 +84,8 @@ class AttackerMarkerWidget extends StatelessWidget {
         const SizedBox(height: 2),
         Text(
           unitCode,
+          maxLines: 1,
+          softWrap: false,
           style: TacticalTypography.labelEyebrow.copyWith(
             color: TacticalColors.attacker,
             fontSize: 10,
@@ -127,6 +131,8 @@ class FeederMarkerWidget extends StatelessWidget {
         const SizedBox(height: 2),
         Text(
           unitCode,
+          maxLines: 1,
+          softWrap: false,
           style: TacticalTypography.labelEyebrow.copyWith(
             color: TacticalColors.feeder,
             fontSize: 10,
@@ -187,6 +193,8 @@ class WaterSourceMarkerWidget extends StatelessWidget {
         const SizedBox(height: 1),
         Text(
           '${distanceMeters}m',
+          maxLines: 1,
+          softWrap: false,
           style: TacticalTypography.tabularNumeric(
             color: _statusColor,
             fontSize: 10,
