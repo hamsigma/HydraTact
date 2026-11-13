@@ -425,6 +425,8 @@ paths:
       tags:
       - System
       summary: Health Check
+      description: Pemeriksaan kesehatan sistem, latensi koneksi basis data Supabase
+        PostGIS, dan spatial engine.
       operationId: health_check_health_get
       responses:
         '200':

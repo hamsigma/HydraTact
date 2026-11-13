@@ -248,7 +248,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Health Check */
+        /**
+         * Health Check
+         * @description Pemeriksaan kesehatan sistem, latensi koneksi basis data Supabase PostGIS, dan spatial engine.
+         */
         get: operations["health_check_health_get"];
         put?: never;
         post?: never;
