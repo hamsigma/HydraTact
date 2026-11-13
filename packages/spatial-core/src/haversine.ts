@@ -35,3 +35,4 @@ export function haversineDistanceMeters(
   const c = 2.0 * Math.atan2(Math.sqrt(a), Math.sqrt(1.0 - a));
   return Math.round(EARTH_RADIUS_METERS * c * 100) / 100;
 }
+
