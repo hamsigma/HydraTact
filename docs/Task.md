@@ -69,7 +69,7 @@
 ## SPRINT 4: Aplikasi Mobile Relawan Offline-First (`apps/mobile-volunteer`)
 
 ### 4.1 Peta Luring & Koreksi GPS Gang Sempit
-- [ ] **`TASK-401`** `[P0]` `@Ariyadi` — Bundel berkas `samarinda_dense.mbtiles` ke dalam aset Flutter dan konfigurasikan renderer vektor luring (`flutter_map_mbtiles`).
+- [x] **`TASK-401`** `[P0]` `@Ariyadi` — Bundel berkas `samarinda_dense.mbtiles` ke dalam aset Flutter dan konfigurasikan renderer vektor luring (`flutter_map_mbtiles`).
   * *Kriteria Selesai:* Peta terender dalam $< 500\text{ ms}$ saat ponsel dalam *Airplane Mode*.
 - [x] **`TASK-402`** `[P1]` `@Ariyadi` & `@Ilham` — Implementasi **Client-Side Map-Matching Snapping** untuk mengunci titik GPS mentah ke garis jaringan gang terdekat jika terjadi *multipath drift* ($\le 25\text{ m}$).
 
