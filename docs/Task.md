@@ -82,7 +82,7 @@
 
 ### 4.3 Penyimpanan Lokal Isar DB & Pekerja Sinkronisasi Outbox
 - [x] **`TASK-406`** `[P0]` `@Ariyadi` — Konfigurasi koleksi lokal `SyncQueueItem` dan `CachedWaterSource` menggunakan **Isar Database**.
-- [ ] **`TASK-407`** `[P0]` `@Ariyadi` — Implementasi **Optimistic UI** dan **Background Outbox Worker** yang memantau perubahan status konektivitas dan mengirimkan antrean mutasi secara berurutan (FIFO) begitu sinyal pulih.
+- [x] **`TASK-407`** `[P0]` `@Ariyadi` — Implementasi **Optimistic UI** dan **Background Outbox Worker** yang memantau perubahan status konektivitas dan mengirimkan antrean mutasi secara berurutan (FIFO) begitu sinyal pulih.
 
 ---
 
