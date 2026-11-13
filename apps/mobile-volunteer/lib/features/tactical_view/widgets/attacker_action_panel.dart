@@ -106,7 +106,7 @@ class AttackerActionPanel extends StatelessWidget {
                         ),
                         const SizedBox(height: 4.0),
                         Text(
-                          '${distanceToFireMeters} M',
+                          '$distanceToFireMeters M',
                           style: TacticalTypography.tabularNumeric(
                             fontSize: 20,
                             color: TacticalColors.attacker,

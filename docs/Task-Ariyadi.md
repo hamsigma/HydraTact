@@ -21,7 +21,7 @@
 | Task ID | Pri | Modul | Nama Tugas & Cabang Branch | Acceptance Criteria / Output | Status |
 | :--- | :---: | :--- | :--- | :--- | :---: |
 | **`TASK-403`** | `P0` | `mobile` | `feat/TASK-403-mobile-role-views` | Antarmuka adaptif `ATTACKER` (merah, tombol minta tekanan $64\text{ dp}$) vs `FEEDER` (kuning, parkir & barikade). | `[x]` |
-| **`TASK-406`** | `P0` | `mobile` | `feat/TASK-406-isar-sync-queue-schema` | Skema Isar DB `SyncQueueItem` & `CachedWaterSource` untuk penyimpanan luring perangkat. | `[ ]` |
+| **`TASK-406`** | `P0` | `mobile` | `feat/TASK-406-isar-sync-queue-schema` | Skema Isar DB `SyncQueueItem` & `CachedWaterSource` untuk penyimpanan luring perangkat. | `[x]` |
 | **`TASK-407`** | `P0` | `mobile` | `feat/TASK-407-outbox-worker-optimistic` | Optimistic UI dan Background Outbox Worker yang memantau konektivitas dan mengirim antrean mutasi (FIFO) saat sinyal pulih. | `[ ]` |
 
 ### Sprint 3 / Hari 3: Tombol Haptic PWA, Map-Matching & Aksi Taktis 1-Tap
