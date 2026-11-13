@@ -6,7 +6,7 @@
     "dev": "uvicorn main:app --reload --port 8000",
     "export:openapi": "python export_openapi.py",
     "lint": "python -c \"print('Python linting ready')\"",
-    "test": "python -c \"print('Python tests ready')\"",
+    "test": "python -m unittest discover -s tests",
     "build": "python -c \"print('FastAPI ready')\""
   }
 }
