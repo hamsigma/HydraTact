@@ -81,7 +81,7 @@
 - [ ] **`TASK-405`** `[P0]` `@Ariyadi` — Implementasi lembar cepat **1-Tap Water Status Update** dan sakelar **Hose Barricade Toggle** dengan target sentuh ramah sarung tangan ($\ge 48\text{ dp}$).
 
 ### 4.3 Penyimpanan Lokal Isar DB & Pekerja Sinkronisasi Outbox
-- [ ] **`TASK-406`** `[P0]` `@Ariyadi` — Konfigurasi koleksi lokal `SyncQueueItem` dan `CachedWaterSource` menggunakan **Isar Database**.
+- [x] **`TASK-406`** `[P0]` `@Ariyadi` — Konfigurasi koleksi lokal `SyncQueueItem` dan `CachedWaterSource` menggunakan **Isar Database**.
 - [ ] **`TASK-407`** `[P0]` `@Ariyadi` — Implementasi **Optimistic UI** dan **Background Outbox Worker** yang memantau perubahan status konektivitas dan mengirimkan antrean mutasi secara berurutan (FIFO) begitu sinyal pulih.
 
 ---
