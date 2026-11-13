@@ -68,8 +68,8 @@ flowchart TD
 | **`TASK-105`** | `P0` | `database` | `@Ilham` | `feat/TASK-105-supabase-postgis-ddl` | Skrip migrasi DDL Supabase PostGIS, tipe ENUM, indeks GiST, dan publikasi replikasi `supabase_realtime`. | `Done` |
 | **`TASK-106`** | `P0` | `database` | `@Ilham` | `feat/TASK-106-seeding-samarinda-data` | Seeding `supabase/seed.sql`: posko Balakarcana, 30 titik hidran/tandon, dan skenario uji Jl. Pelita Gg. 4. | `Done` |
 | **`TASK-107`** | `P1` | `database` | `@Ilham` | `feat/TASK-107-spatial-queries-gist` | Kueri spasial teroptimasi untuk konsensus radius $\le 100\text{ m}$ dan 3 sumber air aktif terdekat (`<->`). | `Done` |
-| **`TASK-108`** | `P0` | `spatial` | `@Ilham` | `feat/TASK-108-osm-samarinda-extract` | Ekstraksi jalan lingkungan dan gang sempit Samarinda dari OpenStreetMap (`.osm.pbf`). | `To Do` |
-| **`TASK-109`** | `P1` | `spatial` | `@Ilham` | `feat/TASK-109-tippecanoe-mbtiles` | Kompilasi Tippecanoe zoom 14--18 menghasilkan `samarinda_dense.mbtiles` ($\le 45\text{ MB}$, Jl. Pelita Gg. 4 akurat). | `To Do` |
+| **`TASK-108`** | `P0` | `spatial` | `@Ilham` | `feat/TASK-108-osm-samarinda-extract` | Ekstraksi jalan lingkungan dan gang sempit Samarinda dari OpenStreetMap (`.osm.pbf`). | `Done` |
+| **`TASK-109`** | `P1` | `spatial` | `@Ilham` | `feat/TASK-109-tippecanoe-mbtiles` | Kompilasi Tippecanoe zoom 14--18 menghasilkan `samarinda_dense.mbtiles` ($\le 45\text{ MB}$, Jl. Pelita Gg. 4 akurat). | `Done` |
 | **`TASK-301`** | `P0` | `ui/ux` | `@Ariyadi` | `feat/TASK-301-tactical-design-tokens` | Token desain taktis tema gelap (`#07090E` s.d. `#141923`), kontras $\ge 7:1$ (WCAG AAA), angka `tabular-nums`. | `To Do` |
 | **`TASK-401`** | `P0` | `mobile` | `@Ariyadi` | `feat/TASK-401-flutter-mbtiles-renderer` | Proyek Flutter Android disiapkan, aset `.mbtiles` terbundel dan dirender via `flutter_map_mbtiles` ($< 500\text{ ms}$). | `To Do` |
 
@@ -103,7 +103,7 @@ flowchart TD
 | **`TASK-305`** | `P0` | `web` | `@Hervino` | `feat/TASK-305-web-command-leaflet-dark` | Kanvas Leaflet.js tema gelap di Dasbor Posko: titik api, Sungai Karang Mumus, dan sumber air. | `To Do` |
 | **`TASK-306`** | `P0` | `web` | `@Hervino` | `feat/TASK-306-auto-split-barricade-panel` | Visualisasi pembagian unit `ATTACKER`/`FEEDER` serta garis barikade selang fuchsia (`LineString`). | `To Do` |
 | **`TASK-307`** | `P1` | `web` | `@Hervino` | `feat/TASK-307-telemetry-stream-fsm-ui` | Panel Telemetry Stream kronologis dan tombol kendali transisi status operasi FSM bagi operator. | `To Do` |
-| **`TASK-402`** | `P1` | `mobile` | `@Ariyadi` & `@Ilham` | `feat/TASK-402-map-matching-snapping` | Client-Side Map-Matching Snapping untuk mengunci GPS mentah ke gang jika deviasi multipath $\le 25\text{ m}$. | `To Do` |
+| **`TASK-402`** | `P1` | `mobile` | `@Ariyadi` & `@Ilham` | `feat/TASK-402-map-matching-snapping` | Client-Side Map-Matching Snapping untuk mengunci GPS mentah ke gang jika deviasi multipath $\le 25\text{ m}$. | `Done` |
 | **`TASK-404`** | `P0` | `mobile` | `@Ariyadi` | `feat/TASK-404-nearest-water-sources-ui` | Modul 3 Sumber Air Terdekat menggunakan Haversine lokal dan filter status (`READY` / `LOW_DISCHARGE`). | `To Do` |
 | **`TASK-405`** | `P0` | `mobile` | `@Ariyadi` | `feat/TASK-405-tap-water-barricade-actions` | Aksi 1-Tap status air dan sakelar Hose Barricade dengan target sentuh ramah sarung tangan ($\ge 48\text{ dp}$). | `To Do` |
 

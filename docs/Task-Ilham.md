@@ -17,8 +17,8 @@
 | **`TASK-105`** | `P0` | `database` | `feat/TASK-105-supabase-postgis-ddl` | Skrip migrasi DDL Supabase PostGIS (`supabase/migrations/`), tipe ENUM, indeks GiST, dan replikasi `supabase_realtime`. | `[x]` |
 | **`TASK-106`** | `P0` | `database` | `feat/TASK-106-seeding-samarinda-data` | Seeding data wilayah di `supabase/seed.sql`: posko Balakarcana, 30 titik hidran/tandon, dan skenario uji Jl. Pelita Gg. 4. | `[x]` |
 | **`TASK-107`** | `P1` | `database` | `feat/TASK-107-spatial-queries-gist` | Kueri spasial teroptimasi untuk konsensus radius $\le 100\text{ m}$ dan 3 sumber air aktif terdekat (`<->`). | `[x]` |
-| **`TASK-108`** | `P0` | `spatial` | `feat/TASK-108-osm-samarinda-extract` | Ekstraksi jalan lingkungan dan gang sempit Samarinda dari OpenStreetMap (`.osm.pbf`). | `[ ]` |
-| **`TASK-109`** | `P1` | `spatial` | `feat/TASK-109-tippecanoe-mbtiles` | Kompilasi Tippecanoe zoom 14--18 menghasilkan `samarinda_dense.mbtiles` ($\le 45\text{ MB}$, Jl. Pelita Gg. 4 akurat). | `[ ]` |
+| **`TASK-108`** | `P0` | `spatial` | `feat/TASK-108-osm-samarinda-extract` | Ekstraksi jalan lingkungan dan gang sempit Samarinda dari OpenStreetMap (`.osm.pbf`). | `[x]` |
+| **`TASK-109`** | `P1` | `spatial` | `feat/TASK-109-tippecanoe-mbtiles` | Kompilasi Tippecanoe zoom 14--18 menghasilkan `samarinda_dense.mbtiles` ($\le 45\text{ MB}$, Jl. Pelita Gg. 4 akurat). | `[x]` |
 
 ### Sprint 2 / Hari 2: Mesin Konsensus Geofencing & Dynamic Role Dispatching
 | Task ID | Pri | Modul | Nama Tugas & Cabang Branch | Acceptance Criteria / Output | Status |
@@ -30,7 +30,7 @@
 ### Sprint 3 / Hari 3: Algoritma Map-Matching Snapping
 | Task ID | Pri | Modul | Nama Tugas & Cabang Branch | Acceptance Criteria / Output | Status |
 | :--- | :---: | :--- | :--- | :--- | :---: |
-| **`TASK-402`** | `P1` | `spatial` | `feat/TASK-402-map-matching-snapping` *(Collab @Ariyadi)* | Logika Client-Side Map-Matching Snapping untuk mengunci GPS mentah ke gang jika deviasi multipath $\le 25\text{ m}$. | `[ ]` |
+| **`TASK-402`** | `P1` | `spatial` | `feat/TASK-402-map-matching-snapping` *(Collab @Ariyadi)* | Logika Client-Side Map-Matching Snapping untuk mengunci GPS mentah ke gang jika deviasi multipath $\le 25\text{ m}$. | `[x]` |
 
 ### Sprint 4 & 5 / Hari 4: Unit Testing Spasial & Video Demonstrasi KMM
 | Task ID | Pri | Modul | Nama Tugas & Cabang Branch | Acceptance Criteria / Output | Status |

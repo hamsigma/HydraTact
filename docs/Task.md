@@ -25,8 +25,8 @@
 - [x] **`TASK-107`** `[P1]` `@Ilham` — Bangun kueri spasial teroptimasi untuk evaluasi radius konsensus ($r \le 100\text{ m}$) dan pencarian 3 sumber air aktif terdekat menggunakan operator jarak PostGIS (`<->`).
 
 ### 1.3 Pipeline Ekstraksi Peta Vektor `.mbtiles`
-- [ ] **`TASK-108`** `[P0]` `@Ilham` — Ekstraksi data jaringan jalan lingkungan dan gang sempit (`highway=residential`, `living_street`, `alley`, `footway`) Kota Samarinda dari OpenStreetMap (`.osm.pbf`).
-- [ ] **`TASK-109`** `[P1]` `@Ilham` — Jalankan kompilasi petak vektor menggunakan **Tippecanoe** (*zoom level* 14--18) menjadi berkas `samarinda_dense.mbtiles` dengan ukuran terkompresi $\le 45\text{ MB}$.
+- [x] **`TASK-108`** `[P0]` `@Ilham` — Ekstraksi data jaringan jalan lingkungan dan gang sempit (`highway=residential`, `living_street`, `alley`, `footway`) Kota Samarinda dari OpenStreetMap (`.osm.pbf`).
+- [x] **`TASK-109`** `[P1]` `@Ilham` — Jalankan kompilasi petak vektor menggunakan **Tippecanoe** (*zoom level* 14--18) menjadi berkas `samarinda_dense.mbtiles` dengan ukuran terkompresi $\le 45\text{ MB}$.
   * *Kriteria Selesai:* Berkas berhasil dirender tanpa koneksi internet dan menampilkan lebar serta geometri gang Jl. Pelita Gg. 4 secara akurat.
 
 ---
@@ -71,7 +71,7 @@
 ### 4.1 Peta Luring & Koreksi GPS Gang Sempit
 - [ ] **`TASK-401`** `[P0]` `@Ariyadi` — Bundel berkas `samarinda_dense.mbtiles` ke dalam aset Flutter dan konfigurasikan renderer vektor luring (`flutter_map_mbtiles`).
   * *Kriteria Selesai:* Peta terender dalam $< 500\text{ ms}$ saat ponsel dalam *Airplane Mode*.
-- [ ] **`TASK-402`** `[P1]` `@Ariyadi` & `@Ilham` — Implementasi **Client-Side Map-Matching Snapping** untuk mengunci titik GPS mentah ke garis jaringan gang terdekat jika terjadi *multipath drift* ($\le 25\text{ m}$).
+- [x] **`TASK-402`** `[P1]` `@Ariyadi` & `@Ilham` — Implementasi **Client-Side Map-Matching Snapping** untuk mengunci titik GPS mentah ke garis jaringan gang terdekat jika terjadi *multipath drift* ($\le 25\text{ m}$).
 
 ### 4.2 Antarmuka Peran Taktis & Manajemen Logistik Air
 - [ ] **`TASK-403`** `[P0]` `@Ariyadi` — Bangun tampilan adaptif berbasis peran penugasan:
