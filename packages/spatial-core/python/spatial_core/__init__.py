@@ -95,3 +95,10 @@ def determine_tactical_role(road_width_meters: float, tank_capacity_liters: int)
         else:
             return "RESERVE_FEEDER"
     return "DIRECT_ATTACK"
+
+
+from .snapping import (
+    project_point_to_segment,
+    snap_coordinates_to_road_network,
+)
+
