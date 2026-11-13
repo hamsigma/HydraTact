@@ -9,4 +9,3 @@ out_dir = project_root / "graphify-out"
 out_dir.mkdir(parents=True, exist_ok=True)
 (out_dir / ".graphify_detect.json").write_text(json.dumps(result, ensure_ascii=False), encoding="utf-8")
 print(f"Detected {result['total_files']} files across {project_root}")
-
