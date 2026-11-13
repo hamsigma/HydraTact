@@ -1,0 +1,10 @@
+{
+  "name": "@hydratact/mobile-volunteer",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "lint": "echo \"Flutter analyze mobile-volunteer\"",
+    "test": "echo \"Flutter test mobile-volunteer\"",
+    "build": "echo \"Building Flutter mobile-volunteer\""
+  }
+}

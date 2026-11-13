@@ -1,0 +1,11 @@
+{
+  "name": "@hydratact/spatial-core",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Algoritma spasial murni (Haversine, Auto-Split Role, FSM)",
+  "scripts": {
+    "build": "echo \"Spatial core ready\"",
+    "lint": "echo \"Spatial core lint ready\"",
+    "test": "echo \"Spatial core tests ready\""
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "@hydratact/pwa-citizen",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "echo \"Next.js dev server on port 3002\"",
+    "build": "echo \"Building Next.js pwa-citizen\"",
+    "lint": "echo \"Linting pwa-citizen\"",
+    "typecheck": "echo \"Typechecking pwa-citizen\""
+  }
+}
