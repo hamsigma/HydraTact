@@ -183,6 +183,17 @@ class _TacticalScreenState extends State<TacticalScreen> {
     );
   }
 
+  Future<void> _handleUpdateWaterStatus(CachedWaterSource source, String newStatus) async {
+    setState(() {
+      source.operationalStatus = newStatus;
+    });
+
+    await widget.optimisticMutationService?.updateWaterSourceStatusOptimistic(
+      serverId: source.serverId,
+      newStatus: newStatus,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isAttacker = _currentRole == TacticalRole.ATTACKER;
@@ -367,6 +378,8 @@ class _TacticalScreenState extends State<TacticalScreen> {
                         padding: const EdgeInsets.all(8.0),
                         child: NearestWaterSourcesPanel(
                           items: _nearestWaterSources,
+                          initialExpandedServerId: 'ws-pelita-pdam',
+                          onUpdateStatus: _handleUpdateWaterStatus,
                         ),
                       ),
                     )

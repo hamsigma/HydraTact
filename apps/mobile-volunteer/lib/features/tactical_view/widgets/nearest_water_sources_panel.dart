@@ -2,24 +2,54 @@ import 'package:flutter/material.dart';
 import '../../../core/database/schemas/cached_water_source.dart';
 import '../../../core/theme/tactical_colors.dart';
 import '../../../core/utils/geo_utils.dart';
+import 'water_status_action_sheet.dart';
 
 /// Panel 3 Titik Sumber Air Terdekat untuk Tampilan Taktis Relawan
-/// Sesuai docs/Design.md Bagian 5 & TASK-404:
+/// Sesuai docs/Design.md Bagian 5.4 & TASK-404, TASK-405:
 /// - Menggunakan formula Haversine lokal untuk mengurutkan jarak
 /// - Filter status: READY dan LOW_DISCHARGE
+/// - Fitur Aksi 1-Tap Pembaruan Status Air (Tinggi 52 dp >= 48 dp)
 /// - Strictly NO pill chips / oval badges (hanya border flat 1px, typography monospaced)
 /// - Target sentuhan per baris >= 48 dp (glove-friendly)
-class NearestWaterSourcesPanel extends StatelessWidget {
+class NearestWaterSourcesPanel extends StatefulWidget {
   const NearestWaterSourcesPanel({
     super.key,
     required this.items,
     this.onSelectSource,
+    this.onUpdateStatus,
     this.title = 'SUMBER AIR TERDEKAT',
+    this.initialExpandedServerId,
   });
 
   final List<WaterSourceWithDistance> items;
   final ValueChanged<CachedWaterSource>? onSelectSource;
+  final void Function(CachedWaterSource source, String newStatus)? onUpdateStatus;
   final String title;
+  final String? initialExpandedServerId;
+
+  @override
+  State<NearestWaterSourcesPanel> createState() => _NearestWaterSourcesPanelState();
+}
+
+class _NearestWaterSourcesPanelState extends State<NearestWaterSourcesPanel> {
+  String? _expandedServerId;
+
+  @override
+  void initState() {
+    super.initState();
+    _expandedServerId = widget.initialExpandedServerId;
+  }
+
+  void _handleTapRow(CachedWaterSource source) {
+    setState(() {
+      if (_expandedServerId == source.serverId) {
+        _expandedServerId = null;
+      } else {
+        _expandedServerId = source.serverId;
+      }
+    });
+    widget.onSelectSource?.call(source);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +70,7 @@ class NearestWaterSourcesPanel extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  title,
+                  widget.title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
@@ -54,7 +84,7 @@ class NearestWaterSourcesPanel extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                '${items.length} TITIK SIAP',
+                '${widget.items.length} TITIK SIAP',
                 style: const TextStyle(
                   fontSize: 10,
                   fontFamily: 'monospace',
@@ -68,7 +98,7 @@ class NearestWaterSourcesPanel extends StatelessWidget {
           ),
           const SizedBox(height: 8),
 
-          if (items.isEmpty)
+          if (widget.items.isEmpty)
             Container(
               padding: const EdgeInsets.symmetric(vertical: 16),
               alignment: Alignment.center,
@@ -84,13 +114,32 @@ class NearestWaterSourcesPanel extends StatelessWidget {
           else
             Column(
               children: [
-                for (int i = 0; i < items.length; i++) ...[
+                for (int i = 0; i < widget.items.length; i++) ...[
                   _WaterSourceRow(
                     index: i + 1,
-                    item: items[i],
-                    onTap: () => onSelectSource?.call(items[i].source),
+                    item: widget.items[i],
+                    isExpanded: _expandedServerId == widget.items[i].source.serverId,
+                    onTap: () => _handleTapRow(widget.items[i].source),
                   ),
-                  if (i < items.length - 1)
+                  if (_expandedServerId == widget.items[i].source.serverId) ...[
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: TacticalColors.surface0,
+                        border: Border.all(color: TacticalColors.borderSubtle, width: 1),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                      child: WaterStatus1TapBar(
+                        source: widget.items[i].source,
+                        onSelectStatus: (newStatus) {
+                          widget.onUpdateStatus?.call(widget.items[i].source, newStatus);
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                  if (i < widget.items.length - 1)
                     const Divider(
                       height: 8,
                       thickness: 1,
@@ -110,11 +159,13 @@ class _WaterSourceRow extends StatelessWidget {
     required this.index,
     required this.item,
     required this.onTap,
+    this.isExpanded = false,
   });
 
   final int index;
   final WaterSourceWithDistance item;
   final VoidCallback onTap;
+  final bool isExpanded;
 
   Color _getStatusColor(String status) {
     switch (status.toUpperCase()) {
@@ -176,18 +227,21 @@ class _WaterSourceRow extends StatelessWidget {
                 height: 24,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: TacticalColors.surface2,
-                  border: Border.all(color: TacticalColors.borderSubtle, width: 1),
+                  color: isExpanded ? TacticalColors.borderActive : TacticalColors.surface2,
+                  border: Border.all(
+                    color: isExpanded ? TacticalColors.waterReady : TacticalColors.borderSubtle,
+                    width: 1,
+                  ),
                   borderRadius: BorderRadius.circular(2),
                 ),
                 child: Text(
                   '$index',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
                     fontFamily: 'monospace',
                     fontWeight: FontWeight.bold,
-                    color: TacticalColors.textPrimary,
-                    fontFeatures: [FontFeature.tabularFigures()],
+                    color: isExpanded ? TacticalColors.waterReady : TacticalColors.textPrimary,
+                    fontFeatures: const [FontFeature.tabularFigures()],
                   ),
                 ),
               ),
