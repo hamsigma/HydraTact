@@ -20,16 +20,16 @@ Penamaan branch wajib mengikuti pola deterministik berikut:
 | Bagian | Keterangan | Contoh |
 | :--- | :--- | :--- |
 | `<type>` | Kategori pekerjaan (huruf kecil) | `feat`, `fix`, `refactor`, `perf`, `docs`, `test`, `chore` |
-| `<issue-id>` | ID issue atau task yang sedang dikerjakan | `HT-101`, `HT-204`, `issue-12` |
+| `<issue-id>` | ID issue atau task yang sedang dikerjakan | `TASK-101`, `TASK-204`, `issue-12` |
 | `<short-description>` | Ringkasan deskripsi singkat dengan pemisah tanda hubung (*kebab-case*) | `auto-split-role`, `haversine-sort`, `offline-mbtiles-view` |
 
 #### Contoh Penamaan yang Benar:
-* `feat/HT-101-auto-split-role-dispatcher`
-* `fix/HT-204-haversine-nearest-water-sorting`
-* `refactor/HT-302-outbox-sync-queue-isar`
-* `docs/HT-005-api-contract-specification`
-* `perf/HT-410-gist-spatial-index-query`
-* `chore/HT-001-setup-monorepo-turborepo`
+* `feat/TASK-101-auto-split-role-dispatcher`
+* `fix/TASK-204-haversine-nearest-water-sorting`
+* `refactor/TASK-302-outbox-sync-queue-isar`
+* `docs/TASK-103-api-contract-specification`
+* `perf/TASK-107-gist-spatial-index-query`
+* `chore/TASK-101-setup-monorepo-turborepo`
 
 #### Contoh Penamaan yang Dilarang:
 * ❌ `hervino-branch` (menggunakan nama orang)
@@ -41,7 +41,7 @@ Penamaan branch wajib mengikuti pola deterministik berikut:
 1. Buat branch baru dari `main` versi terbaru:
    ```bash
    git fetch origin main
-   git checkout -b feat/HT-101-auto-split-role origin/main
+   git checkout -b feat/TASK-101-auto-split-role origin/main
    ```
 2. Satu branch hanya boleh menyelesaikan **satu tujuan issue/task**. Hindari mencampuradukkan perbaikan bug dengan pembuatan fitur baru dalam branch yang sama.
 3. Hapus branch lokal dan remote setelah PR berhasil di-merge ke `main`.
@@ -121,7 +121,7 @@ How:
 
 Sertakan pula kaitan issue pada bagian bawah PR:
 ```text
-Closes #HT-101
+Closes #TASK-101
 ```
 
 ### 3.2 Pre-Flight Checklist (Gerbang Mandatori Sebelum Buka PR)
@@ -171,17 +171,17 @@ git checkout main
 git pull origin main
 
 # 2. Buat branch fitur/bugfix baru
-git checkout -b feat/HT-101-role-dispatch
+git checkout -b feat/TASK-101-monorepo-setup
 
 # 3. Kembangkan kode, pastikan gate lokal lolos
 pnpm lint && pnpm test && pnpm build
 
 # 4. Buat commit terstruktur
 git add .
-git commit -m "feat(spatial-core): add dynamic role dispatching rules"
+git commit -m "chore(infra): setup monorepo pnpm and turborepo"
 
 # 5. Push branch ke GitHub
-git push -u origin feat/HT-101-role-dispatch
+git push -u origin feat/TASK-101-monorepo-setup
 
 # 6. Buka PR di GitHub menggunakan template 5W1H
 # 7. Tunggu Review & Approval dari Project Manager (PM)
