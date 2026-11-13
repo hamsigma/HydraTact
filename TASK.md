@@ -83,8 +83,8 @@ flowchart TD
 | **`TASK-202`** | `P0` | `spatial` | `@Ilham` | `feat/TASK-202-geofencing-consensus` | Mesin konsensus murni di `packages/spatial-core`: evaluasi $\ge 2$ laporan unik ($r \le 100\text{ m}, \Delta t \le 3\text{ mnt}$). | `Done` |
 | **`TASK-203`** | `P0` | `spatial` | `@Ilham` | `feat/TASK-203-dynamic-role-dispatching` | Logika Auto-Split peran: `FEEDER` ($\ge 3.000\text{ L}$) vs `ATTACKER` ($< 1.000\text{ L}$) pada jalan $< 2,5\text{ m}$. | `Done` |
 | **`TASK-204`** | `P0` | `backend` | `@Hervino` | `feat/TASK-204-incident-lifecycle-fsm` | Incident Lifecycle FSM (`PENDING_VERIFICATION` $\rightarrow$ `CLOSED`) + fitur *Manual Override* posko. | `To Do` |
-| **`TASK-205`** | `P0` | `backend` | `@Hervino` | `feat/TASK-205-fastapi-outbox-batch` | Endpoint FastAPI `POST /api/v1/sync/outbox-batch` dengan pengecekan kunci idempotensi (`mutation_uuid`). | `To Do` |
-| **`TASK-206`** | `P0` | `backend` | `@Ilham` | `feat/TASK-206-last-write-wins-resolution` | Resolusi konflik Last-Write-Wins (LWW) berbasis `client_timestamp` pada status air dan barikade. | `To Do` |
+| **`TASK-205`** | `P0` | `backend` | `@Hervino` | `feat/TASK-205-fastapi-outbox-batch` | Endpoint FastAPI `POST /api/v1/sync/outbox-batch` dengan pengecekan kunci idempotensi (`mutation_uuid`). | `Done` |
+| **`TASK-206`** | `P0` | `backend` | `@Ilham` | `feat/TASK-206-last-write-wins-resolution` | Resolusi konflik Last-Write-Wins (LWW) berbasis `client_timestamp` pada status air dan barikade. | `Done` |
 | **`TASK-207`** | `P1` | `backend` | `@Hervino` | `feat/TASK-207-supabase-realtime-channels` | Konfigurasi Supabase Realtime CDC Channels untuk siaran instan status insiden, armada, dan barikade. | `To Do` |
 | **`TASK-208`** | `P1` | `backend` | `@Hervino` | `feat/TASK-208-rate-limiting-abuse` | Rate limiting (`slowapi`, $3\text{ req/mnt}$ per IP) dan validasi *device fingerprint* pada endpoint pelaporan warga. | `To Do` |
 | **`TASK-403`** | `P0` | `mobile` | `@Ariyadi` | `feat/TASK-403-mobile-role-views` | Antarmuka adaptif `ATTACKER` (merah, tombol minta tekanan $64\text{ dp}$) vs `FEEDER` (kuning, parkir & barikade). | `To Do` |

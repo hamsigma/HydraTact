@@ -42,8 +42,8 @@
 - [ ] **`TASK-204`** `[P0]` `@Hervino` — Implementasi **Incident Lifecycle Finite State Machine (FSM)** (`PENDING_VERIFICATION` $\rightarrow$ `VERIFIED` $\rightarrow$ `DISPATCHING` $\rightarrow$ `SUPPRESSION_ACTIVE` $\rightarrow$ `OVERHAUL_COOLING` $\rightarrow$ `INCIDENT_CLOSED` $\rightarrow$ `ARCHIVED`) beserta fitur *Manual Override* operator.
 
 ### 2.2 Sinkronisasi Outbox & Saluran Waktu Nyata
-- [ ] **`TASK-205`** `[P0]` `@Hervino` — Bangun *endpoint* FastAPI `POST /api/v1/sync/outbox-batch` dengan pengecekan kunci idempotensi (`mutation_uuid`) pada tabel `telemetry_mutation_logs`.
-- [ ] **`TASK-206`** `[P0]` `@Ilham` — Terapkan aturan resolusi konflik **Last-Write-Wins (LWW)** berbasis `client_timestamp` pada pembaruan status sumber air dan barikade jalan.
+- [x] **`TASK-205`** `[P0]` `@Hervino` — Bangun *endpoint* FastAPI `POST /api/v1/sync/outbox-batch` dengan pengecekan kunci idempotensi (`mutation_uuid`) pada tabel `telemetry_mutation_logs`.
+- [x] **`TASK-206`** `[P0]` `@Ilham` — Terapkan aturan resolusi konflik **Last-Write-Wins (LWW)** berbasis `client_timestamp` pada pembaruan status sumber air dan barikade jalan.
 - [ ] **`TASK-207`** `[P1]` `@Hervino` — Konfigurasi **Supabase Realtime (CDC WebSocket Channels)** untuk menyiarkan perubahan status insiden, posisi unit, dan garis barikade selang secara instan ke seluruh klien aktif.
 - [ ] **`TASK-208`** `[P1]` `@Hervino` — Tambahkan *Rate Limiting* (`slowapi`, $3\text{ permintaan/menit}$ per IP) dan validasi *device fingerprint* pada *endpoint* pelaporan publik warga.
 

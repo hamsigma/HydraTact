@@ -23,7 +23,7 @@
 | :--- | :---: | :--- | :--- | :--- | :---: |
 | **`TASK-201`** | `P0` | `backend` | `feat/TASK-201-fastapi-server-core` | Struktur dasar peladen REST FastAPI (Python 3.11+) + Pydantic v2 dengan router modular, `asyncpg`, dan validasi skema. | `[x]` |
 | **`TASK-204`** | `P0` | `backend` | `feat/TASK-204-incident-lifecycle-fsm` | Incident Lifecycle FSM (`PENDING_VERIFICATION` $\rightarrow$ `CLOSED`) di `packages/spatial-core/` + fitur Manual Override posko. | `[ ]` |
-| **`TASK-205`** | `P0` | `backend` | `feat/TASK-205-fastapi-outbox-batch` | Endpoint FastAPI `POST /api/v1/sync/outbox-batch` dengan pengecekan kunci idempotensi (`mutation_uuid`). | `[ ]` |
+| **`TASK-205`** | `P0` | `backend` | `feat/TASK-205-fastapi-outbox-batch` | Endpoint FastAPI `POST /api/v1/sync/outbox-batch` dengan pengecekan kunci idempotensi (`mutation_uuid`). | `[x]` |
 | **`TASK-207`** | `P1` | `backend` | `feat/TASK-207-supabase-realtime-channels` | Konfigurasi Supabase Realtime CDC Channels untuk siaran instan status insiden, armada, dan barikade. | `[ ]` |
 | **`TASK-208`** | `P1` | `backend` | `feat/TASK-208-rate-limiting-abuse` | Rate limiting (`slowapi`, $3\text{ req/mnt}$ per IP) dan validasi device fingerprint pada endpoint pelaporan warga. | `[ ]` |
 
