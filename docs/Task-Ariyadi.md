@@ -13,7 +13,7 @@
 ### Sprint 1 / Hari 1: Desain Ergonomi Taktis, Scaffold Flutter & Peta Luring
 | Task ID | Pri | Modul | Nama Tugas & Cabang Branch | Acceptance Criteria / Output | Status |
 | :--- | :---: | :--- | :--- | :--- | :---: |
-| **`TASK-104`** | `P1` | `contract` | `feat/TASK-104-codegen-ts-dart` *(Collab @Hervino)* | Skrip generate otomatis dari kontrak OpenAPI ke Dart client (Flutter). | `[ ]` |
+| **`TASK-104`** | `P1` | `contract` | `feat/TASK-104-codegen-ts-dart` *(Collab @Hervino)* | Skrip generate otomatis dari kontrak OpenAPI ke Dart client (Flutter). | `[x]` |
 | **`TASK-301`** | `P0` | `ui/ux` | `feat/TASK-301-tactical-design-tokens` | Token desain taktis tema gelap (`#07090E` s.d. `#141923`), kontras $\ge 7:1$ (WCAG AAA), angka `tabular-nums`, bebas pill chips. | `[ ]` |
 | **`TASK-401`** | `P0` | `mobile` | `feat/TASK-401-flutter-mbtiles-renderer` | Proyek Flutter Android disiapkan, aset `.mbtiles` terbundel dan dirender via `flutter_map_mbtiles` ($< 500\text{ ms}$). | `[ ]` |
 
@@ -28,7 +28,7 @@
 | Task ID | Pri | Modul | Nama Tugas & Cabang Branch | Acceptance Criteria / Output | Status |
 | :--- | :---: | :--- | :--- | :--- | :---: |
 | **`TASK-303`** | `P0` | `pwa` | `feat/TASK-303-haptic-press-and-hold` *(Collab @Hervino)* | Desain & implementasi tombol darurat Haptic Press-and-Hold ($2,0\text{ detik}$) dengan cincin progres visual dan getaran haptic. | `[ ]` |
-| **`TASK-402`** | `P1` | `mobile` | `feat/TASK-402-map-matching-snapping` *(Collab @Ilham)* | Client-Side Map-Matching Snapping untuk mengunci GPS mentah ke gang jika deviasi multipath $\le 25\text{ m}$. | `[ ]` |
+| **`TASK-402`** | `P1` | `mobile` | `feat/TASK-402-map-matching-snapping` *(Collab @Ilham)* | Client-Side Map-Matching Snapping untuk mengunci GPS mentah ke gang jika deviasi multipath $\le 25\text{ m}$. | `[x]` |
 | **`TASK-404`** | `P0` | `mobile` | `feat/TASK-404-nearest-water-sources-ui` | Modul 3 Sumber Air Terdekat menggunakan Haversine lokal dan filter status (`READY` / `LOW_DISCHARGE`). | `[ ]` |
 | **`TASK-405`** | `P0` | `mobile` | `feat/TASK-405-tap-water-barricade-actions` | Aksi 1-Tap status air dan sakelar Hose Barricade dengan target sentuh ramah sarung tangan ($\ge 48\text{ dp}$). | `[ ]` |
 
