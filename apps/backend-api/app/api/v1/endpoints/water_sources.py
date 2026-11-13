@@ -1,6 +1,11 @@
 from uuid import UUID
 from fastapi import APIRouter, Path, Query, status
 
+from app.core.db import get_db_pool
+from app.repositories.spatial import (
+    query_nearest_water_sources,
+    update_water_source_status_in_db,
+)
 from app.schemas.water import (
     NearestWaterResponse,
     WaterStatusUpdateRequest,
@@ -23,8 +28,29 @@ async def get_nearest_water_sources(
     limit: int = Query(3, ge=1, le=20, description="Jumlah maksimal rekomendasi sumber air yang ditampilkan"),
     include_low_discharge: bool = Query(True, description="Sertakan hidran berdebit rendah (LOW_DISCHARGE)"),
 ):
-    """Placeholder implementasi kontrak endpoint pencarian sumber air."""
-    raise NotImplementedError("Implementasi logika bisnis pada TASK berikutnya")
+    """Pencarian sumber air aktif terdekat berbasis indeks spasial PostGIS GIST."""
+    pool = get_db_pool()
+    connection = None
+    if pool is not None:
+        async with pool.acquire() as conn:
+            items = await query_nearest_water_sources(
+                connection=conn,
+                lat=lat,
+                lng=lng,
+                limit=limit,
+                include_low_discharge=include_low_discharge,
+            )
+            return NearestWaterResponse(status="success", data=items)
+
+    # Fallback saat pool belum aktif
+    items = await query_nearest_water_sources(
+        connection=None,
+        lat=lat,
+        lng=lng,
+        limit=limit,
+        include_low_discharge=include_low_discharge,
+    )
+    return NearestWaterResponse(status="success", data=items)
 
 
 @router.patch(
@@ -38,5 +64,13 @@ async def update_water_source_status(
     payload: WaterStatusUpdateRequest,
     source_id: UUID = Path(..., description="UUID unik sumber air"),
 ):
-    """Placeholder implementasi kontrak endpoint pembaruan status sumber air."""
-    raise NotImplementedError("Implementasi logika bisnis pada TASK berikutnya")
+    """Pembaruan status kesiapan sumber air di lapangan."""
+    pool = get_db_pool()
+    if pool is not None:
+        async with pool.acquire() as conn:
+            data = await update_water_source_status_in_db(conn, source_id, payload)
+            return WaterStatusUpdateResponse(status="success", data=data)
+
+    data = await update_water_source_status_in_db(None, source_id, payload)
+    return WaterStatusUpdateResponse(status="success", data=data)
+

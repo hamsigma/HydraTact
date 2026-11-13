@@ -1,6 +1,11 @@
 from uuid import UUID
-from fastapi import APIRouter, Path, status
+from fastapi import APIRouter, HTTPException, Path, status
 
+from app.core.db import get_db_pool
+from app.repositories.spatial import (
+    fetch_incident_detail_by_id,
+    process_citizen_incident_report,
+)
 from app.schemas.incident import (
     CitizenReportRequest,
     FSMTransitionRequest,
@@ -24,8 +29,15 @@ router = APIRouter(prefix="/incidents", tags=["Komando Insiden & Pelaporan"])
     description="Menerima titik koordinat pelapor (1-tap SOS) dan mengevaluasi konsensus spasial radius 100m serta selang waktu 3 menit.",
 )
 async def report_incident(payload: CitizenReportRequest):
-    """Placeholder implementasi kontrak endpoint pelaporan warga."""
-    raise NotImplementedError("Implementasi logika bisnis pada TASK berikutnya")
+    """Menerima laporan darurat warga dan mengevaluasi konsensus spasial anti-prank."""
+    pool = get_db_pool()
+    if pool is not None:
+        async with pool.acquire() as conn:
+            data = await process_citizen_incident_report(conn, payload)
+            return IncidentReportResponse(status="success", data=data)
+
+    data = await process_citizen_incident_report(None, payload)
+    return IncidentReportResponse(status="success", data=data)
 
 
 @router.get(
@@ -38,8 +50,22 @@ async def report_incident(payload: CitizenReportRequest):
 async def get_incident_detail(
     incident_id: UUID = Path(..., description="UUID unik insiden kebakaran"),
 ):
-    """Placeholder implementasi kontrak endpoint detail insiden."""
-    raise NotImplementedError("Implementasi logika bisnis pada TASK berikutnya")
+    """Mengambil detail komprehensif insiden kebakaran aktif."""
+    pool = get_db_pool()
+    detail = None
+    if pool is not None:
+        async with pool.acquire() as conn:
+            detail = await fetch_incident_detail_by_id(conn, incident_id)
+    else:
+        detail = await fetch_incident_detail_by_id(None, incident_id)
+
+    if detail is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Insiden dengan ID '{incident_id}' tidak ditemukan.",
+        )
+    return IncidentDetailResponse(status="success", data=detail)
+
 
 
 @router.patch(
