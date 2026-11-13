@@ -129,3 +129,4 @@ if __name__ == "__main__":
     target_mbtiles_path = os.path.join(target_asset_dir, "samarinda_dense.mbtiles")
 
     build_samarinda_mbtiles(target_mbtiles_path)
+

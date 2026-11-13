@@ -40,3 +40,4 @@ python infra/tiles-pipeline/generate_mbtiles.py
 Berkas keluaran otomatis ditaruh di:
 `apps/mobile-volunteer/assets/maps/samarinda_dense.mbtiles`
 dan telah didaftarkan pada `apps/mobile-volunteer/pubspec.yaml`.
+

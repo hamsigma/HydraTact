@@ -34,3 +34,4 @@ fi
 
 echo "[HydraTact MBTiles] Berkas berhasil dihasilkan di: ${MBTILES_OUT}"
 ls -lh "${MBTILES_OUT}"
+
