@@ -35,8 +35,8 @@
 
 ### 2.1 Mesin Konsensus & Pembagian Peran Otomatis
 - [x] **`TASK-201`** `[P0]` `@Hervino` — Bangun struktur dasar peladen REST menggunakan **FastAPI (Python 3.11+)** + Pydantic v2 dengan router modular, asinkron (`asyncpg`), dan validasi skema ketat.
-- [ ] **`TASK-202`** `[P0]` `@Ilham` — Implementasi fungsi murni **Geofencing Consensus Engine** di `packages/spatial-core`: verifikasi otomatis insiden jika terdapat $\ge 2$ laporan unik dalam radius $\le 100\text{ m}$ dan selang waktu $\le 3\text{ menit}$.
-- [ ] **`TASK-203`** `[P0]` `@Ilham` — Implementasi algoritma **Dynamic Role Dispatching (*Auto-Split*)**:
+- [x] **`TASK-202`** `[P0]` `@Ilham` — Implementasi fungsi murni **Geofencing Consensus Engine** di `packages/spatial-core`: verifikasi otomatis insiden jika terdapat $\ge 2$ laporan unik dalam radius $\le 100\text{ m}$ dan selang waktu $\le 3\text{ menit}$.
+- [x] **`TASK-203`** `[P0]` `@Ilham` — Implementasi algoritma **Dynamic Role Dispatching (*Auto-Split*)**:
   * Tetapkan `FEEDER` untuk armada berkapasitas $\ge 3.000\text{ L}$ jika lebar jalan $< 2,5\text{ m}$.
   * Tetapkan `ATTACKER` untuk armada berkapasitas $< 1.000\text{ L}$ (tossa roda tiga / pompa jinjing) jika lebar jalan $< 2,5\text{ m}$.
 - [ ] **`TASK-204`** `[P0]` `@Hervino` — Implementasi **Incident Lifecycle Finite State Machine (FSM)** (`PENDING_VERIFICATION` $\rightarrow$ `VERIFIED` $\rightarrow$ `DISPATCHING` $\rightarrow$ `SUPPRESSION_ACTIVE` $\rightarrow$ `OVERHAUL_COOLING` $\rightarrow$ `INCIDENT_CLOSED` $\rightarrow$ `ARCHIVED`) beserta fitur *Manual Override* operator.
