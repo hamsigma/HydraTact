@@ -90,7 +90,7 @@
 
 ### 5.1 Pengujian Otomatis & Uji Stres Sistem
 - [ ] **`TASK-501`** `[P0]` `@Ilham` — Tulis *unit test* untuk algoritma *Dynamic Role Dispatching*, rumus jarak Haversine, dan transisi FSM (target cakupan kode $\ge 80\%$).
-- [ ] **`TASK-502`** `[P0]` `@Ariyadi` — Lakukan **Airplane Mode Stress Test**: simulasikan 10 mutasi status air dan barikade secara luring, matikan/hidupkan ulang aplikasi, lalu verifikasi seluruh antrean tersinkronisasi tanpa duplikasi saat sinyal aktif kembali.
+- [x] **`TASK-502`** `[P0]` `@Ariyadi` — Lakukan **Airplane Mode Stress Test**: simulasikan 10 mutasi status air dan barikade secara luring, matikan/hidupkan ulang aplikasi, lalu verifikasi seluruh antrean tersinkronisasi tanpa duplikasi saat sinyal aktif kembali.
 - [ ] **`TASK-503`** `[P1]` `@Hervino` — Jalankan *load testing* (k6 / Artillery) dengan 100 permintaan konkuren pada *endpoint* pelaporan dan pencarian sumber air terdekat (target latensi p95 $< 150\text{ ms}$).
 
 ### 5.2 Uji Kegunaan Pengguna & Penyusunan Luaran KMM AST-PTMA 2026
