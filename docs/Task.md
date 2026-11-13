@@ -56,7 +56,7 @@
 
 ### 3.2 PWA Pelaporan Darurat Warga (`apps/pwa-citizen`)
 - [ ] **`TASK-302`** `[P0]` `@Hervino` — Bangun halaman pelaporan tanpa login (*Zero-Auth*) dengan kunci geolokasi GPS otomatis dan indikator akurasi koordinat.
-- [ ] **`TASK-303`** `[P0]` `@Ariyadi` & `@Hervino` — Implementasi tombol darurat **Haptic Press-and-Hold (2,0 detik)** dengan cincin progres visual dan umpan balik getar (*Vibration API*) untuk mencegah laporan tidak sengaja.
+- [x] **`TASK-303`** `[P0]` `@Ariyadi` & `@Hervino` — Implementasi tombol darurat **Haptic Press-and-Hold (2,0 detik)** dengan cincin progres visual dan umpan balik getar (*Vibration API*) untuk mencegah laporan tidak sengaja.
 - [ ] **`TASK-304`** `[P1]` `@Hervino` — Bangun kartu status konsensus waktu nyata yang memberi tahu warga saat laporannya telah terverifikasi bersama warga sekitar.
 
 ### 3.3 Dasbor Komando Posko Induk (`apps/web-command`)
