@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "uvicorn main:app --reload --port 8000",
+    "export:openapi": "python export_openapi.py",
     "lint": "python -c \"print('Python linting ready')\"",
     "test": "python -c \"print('Python tests ready')\"",
     "build": "python -c \"print('FastAPI ready')\""
