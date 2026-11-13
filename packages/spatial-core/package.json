@@ -2,10 +2,12 @@
   "name": "@hydratact/spatial-core",
   "version": "1.0.0",
   "private": true,
-  "description": "Algoritma spasial murni (Haversine, Auto-Split Role, FSM)",
+  "description": "Algoritma spasial murni (Haversine, Geofencing Consensus, Dynamic Role Dispatching)",
+  "type": "module",
+  "main": "./src/index.ts",
   "scripts": {
+    "test": "node --experimental-strip-types --test test/*.test.ts",
     "build": "echo \"Spatial core ready\"",
-    "lint": "echo \"Spatial core lint ready\"",
-    "test": "echo \"Spatial core tests ready\""
+    "lint": "echo \"Spatial core lint ready\""
   }
 }
