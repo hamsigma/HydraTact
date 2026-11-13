@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../../../../core/network/models/enums.dart';
+import '../../../../core/sync/optimistic_mutation_service.dart';
+import '../../../../core/sync/outbox_worker.dart';
 import '../../../../core/theme/tactical_colors.dart';
 import '../../map/services/mbtiles_service.dart';
 import '../../map/widgets/tactical_map_view.dart';
@@ -14,16 +16,21 @@ import '../widgets/feeder_action_panel.dart';
 /// - Area Peta Utama: 60% tinggi layar ponsel
 /// - Panel Kontrol Aksi Bawah: 40% tinggi layar ponsel
 /// - Adaptif terhadap peran ATTACKER vs FEEDER
+/// - Terhubung dengan OutboxWorker & OptimisticMutationService (TASK-407)
 class TacticalScreen extends StatefulWidget {
   const TacticalScreen({
     super.key,
     required this.mbtilesService,
+    this.outboxWorker,
+    this.optimisticMutationService,
     this.initialRole = TacticalRole.ATTACKER,
     this.initialCenter = const LatLng(-0.4942, 117.1441), // Jl. Pelita Gg. 4
     this.renderVectorTiles = true,
   });
 
   final MbTilesService mbtilesService;
+  final OutboxWorker? outboxWorker;
+  final OptimisticMutationService? optimisticMutationService;
   final TacticalRole initialRole;
   final LatLng initialCenter;
   final bool renderVectorTiles;
@@ -36,7 +43,7 @@ class _TacticalScreenState extends State<TacticalScreen> {
   late TacticalRole _currentRole;
   bool _isPressureRequested = false;
   bool _isBarricadeActive = false;
-  final String _syncStatusText = 'ONLINE (TERHUBUNG)';
+  String _syncStatusText = 'ONLINE (TERHUBUNG)';
 
   // Skenario Jl. Pelita Gg. 4
   static const LatLng _fireIncidentPoint = LatLng(-0.4942, 117.1441);
@@ -55,6 +62,28 @@ class _TacticalScreenState extends State<TacticalScreen> {
   void initState() {
     super.initState();
     _currentRole = widget.initialRole;
+
+    // Pantau status konektivitas & antrean sinkronisasi dari OutboxWorker
+    final worker = widget.outboxWorker;
+    if (worker != null) {
+      _syncStatusText = worker.statusNotifier.value.tacticalStatusText;
+      worker.statusNotifier.addListener(_onOutboxStatusChanged);
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.outboxWorker?.statusNotifier.removeListener(_onOutboxStatusChanged);
+    super.dispose();
+  }
+
+  void _onOutboxStatusChanged() {
+    final status = widget.outboxWorker?.statusNotifier.value;
+    if (status != null && mounted) {
+      setState(() {
+        _syncStatusText = status.tacticalStatusText;
+      });
+    }
   }
 
   void _toggleRole() {
@@ -65,16 +94,31 @@ class _TacticalScreenState extends State<TacticalScreen> {
     });
   }
 
-  void _togglePressure() {
+  Future<void> _togglePressure() async {
+    final newRequested = !_isPressureRequested;
     setState(() {
-      _isPressureRequested = !_isPressureRequested;
+      _isPressureRequested = newRequested;
     });
+
+    if (newRequested) {
+      await widget.optimisticMutationService?.requestWaterPressureOptimistic(
+        unitId: 'ATK-01',
+        targetPressureBar: 5.0,
+      );
+    }
   }
 
-  void _toggleBarricade() {
+  Future<void> _toggleBarricade() async {
+    final newActive = !_isBarricadeActive;
     setState(() {
-      _isBarricadeActive = !_isBarricadeActive;
+      _isBarricadeActive = newActive;
     });
+
+    await widget.optimisticMutationService?.toggleBarricadeOptimistic(
+      barricadeId: 'barr-pelita-01',
+      activate: newActive,
+      unitId: 'FDR-01',
+    );
   }
 
   @override

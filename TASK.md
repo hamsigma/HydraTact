@@ -89,7 +89,7 @@ flowchart TD
 | **`TASK-208`** | `P1` | `backend` | `@Hervino` | `feat/TASK-208-rate-limiting-abuse` | Rate limiting (`slowapi`, $3\text{ req/mnt}$ per IP) dan validasi *device fingerprint* pada endpoint pelaporan warga. | `To Do` |
 | **`TASK-403`** | `P0` | `mobile` | `@Ariyadi` | `feat/TASK-403-mobile-role-views` | Antarmuka adaptif `ATTACKER` (merah, tombol minta tekanan $64\text{ dp}$) vs `FEEDER` (kuning, parkir & barikade). | `Done` |
 | **`TASK-406`** | `P0` | `mobile` | `@Ariyadi` | `feat/TASK-406-isar-sync-queue-schema` | Skema Isar DB `SyncQueueItem` & `CachedWaterSource` untuk penyimpanan luring perangkat. | `Done` |
-| **`TASK-407`** | `P0` | `mobile` | `@Ariyadi` | `feat/TASK-407-outbox-worker-optimistic` | Optimistic UI dan Background Outbox Worker yang mengirim antrean mutasi (FIFO) saat sinyal pulih. | `To Do` |
+| **`TASK-407`** | `P0` | `mobile` | `@Ariyadi` | `feat/TASK-407-outbox-worker-optimistic` | Optimistic UI dan Background Outbox Worker yang mengirim antrean mutasi (FIFO) saat sinyal pulih. | `Done` |
 
 ---
 
