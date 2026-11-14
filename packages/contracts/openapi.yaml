@@ -106,6 +106,43 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/incidents/{incident_id}/override:
+    post:
+      tags:
+      - Komando Insiden & Pelaporan
+      summary: Manual Override verifikasi paksa oleh operator posko induk
+      description: Melakukan verifikasi paksa insiden pelapor tunggal atau pembatalan
+        darurat oleh operator posko.
+      operationId: manual_override_incident_api_v1_incidents__incident_id__override_post
+      parameters:
+      - name: incident_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          description: UUID unik insiden kebakaran
+          title: Incident Id
+        description: UUID unik insiden kebakaran
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ManualOverrideRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FSMTransitionResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
   /api/v1/incidents/{incident_id}/units/assign:
     post:
       tags:
@@ -952,6 +989,41 @@ components:
       - current_location
       title: IncidentUnitItem
       description: Informasi armada yang ditugaskan pada insiden.
+    ManualOverrideRequest:
+      properties:
+        target_status:
+          $ref: '#/components/schemas/IncidentFSMStatus'
+          description: Status target hasil override (biasanya VERIFIED)
+          default: VERIFIED
+        override_reason:
+          type: string
+          minLength: 5
+          title: Override Reason
+          description: 'Alasan verifikasi paksa (misal: verifikasi HT Balakarcana,
+            pelapor tunggal tengah malam)'
+          examples:
+          - Dikonfirmasi via radio HT Posko Balakarcana Jl. Pelita, pelapor tunggal
+            dini hari sah.
+        road_width_meters:
+          anyOf:
+          - type: number
+            maximum: 50.0
+            minimum: 0.5
+          - type: 'null'
+          title: Road Width Meters
+          description: Koreksi lebar jalan gang oleh operator posko
+        operator_notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Operator Notes
+          description: Catatan komando operasional lapangan
+      type: object
+      required:
+      - override_reason
+      title: ManualOverrideRequest
+      description: Permintaan verifikasi paksa / override darurat oleh operator posko
+        induk.
     MutationOperation:
       type: string
       enum:

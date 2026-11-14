@@ -32,6 +32,7 @@ from app.schemas.incident import (
     IncidentReportRequest,
     IncidentReportResponse,
     IncidentUnitItem,
+    ManualOverrideRequest,
     RespondingUnitSummary,
 )
 from app.schemas.outbox import (
@@ -81,6 +82,7 @@ __all__ = [
     "IncidentReportData",
     "IncidentReportResponse",
     "FSMTransitionRequest",
+    "ManualOverrideRequest",
     "FSMTransitionData",
     "FSMTransitionResponse",
     "IncidentUnitItem",
