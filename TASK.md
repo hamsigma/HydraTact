@@ -70,8 +70,8 @@ flowchart TD
 | **`TASK-107`** | `P1` | `database` | `@Ilham` | `feat/TASK-107-spatial-queries-gist` | Kueri spasial teroptimasi untuk konsensus radius $\le 100\text{ m}$ dan 3 sumber air aktif terdekat (`<->`). | `Done` |
 | **`TASK-108`** | `P0` | `spatial` | `@Ilham` | `feat/TASK-108-osm-samarinda-extract` | Ekstraksi jalan lingkungan dan gang sempit Samarinda dari OpenStreetMap (`.osm.pbf`). | `Done` |
 | **`TASK-109`** | `P1` | `spatial` | `@Ilham` | `feat/TASK-109-tippecanoe-mbtiles` | Kompilasi Tippecanoe zoom 14--18 menghasilkan `samarinda_dense.mbtiles` ($\le 45\text{ MB}$, Jl. Pelita Gg. 4 akurat). | `Done` |
-| **`TASK-301`** | `P0` | `ui/ux` | `@Ariyadi` | `feat/TASK-301-tactical-design-tokens` | Token desain taktis tema gelap (`#07090E` s.d. `#141923`), kontras $\ge 7:1$ (WCAG AAA), angka `tabular-nums`. | `To Do` |
-| **`TASK-401`** | `P0` | `mobile` | `@Ariyadi` | `feat/TASK-401-flutter-mbtiles-renderer` | Proyek Flutter Android disiapkan, aset `.mbtiles` terbundel dan dirender via `flutter_map_mbtiles` ($< 500\text{ ms}$). | `To Do` |
+| **`TASK-301`** | `P0` | `ui/ux` | `@Ariyadi` | `feat/TASK-301-tactical-design-tokens` | Token desain taktis tema gelap (`#07090E` s.d. `#141923`), kontras $\ge 7:1$ (WCAG AAA), angka `tabular-nums`. | `Done` |
+| **`TASK-401`** | `P0` | `mobile` | `@Ariyadi` | `feat/TASK-401-flutter-mbtiles-renderer` | Proyek Flutter Android disiapkan, aset `.mbtiles` terbundel dan dirender via `flutter_map_mbtiles` ($< 500\text{ ms}$). | `Done` |
 
 ---
 
@@ -87,9 +87,9 @@ flowchart TD
 | **`TASK-206`** | `P0` | `backend` | `@Ilham` | `feat/TASK-206-last-write-wins-resolution` | Resolusi konflik Last-Write-Wins (LWW) berbasis `client_timestamp` pada status air dan barikade. | `Done` |
 | **`TASK-207`** | `P1` | `backend` | `@Hervino` | `feat/TASK-207-supabase-realtime-channels` | Konfigurasi Supabase Realtime CDC Channels untuk siaran instan status insiden, armada, dan barikade. | `To Do` |
 | **`TASK-208`** | `P1` | `backend` | `@Hervino` | `feat/TASK-208-rate-limiting-abuse` | Rate limiting (`slowapi`, $3\text{ req/mnt}$ per IP) dan validasi *device fingerprint* pada endpoint pelaporan warga. | `To Do` |
-| **`TASK-403`** | `P0` | `mobile` | `@Ariyadi` | `feat/TASK-403-mobile-role-views` | Antarmuka adaptif `ATTACKER` (merah, tombol minta tekanan $64\text{ dp}$) vs `FEEDER` (kuning, parkir & barikade). | `To Do` |
-| **`TASK-406`** | `P0` | `mobile` | `@Ariyadi` | `feat/TASK-406-isar-sync-queue-schema` | Skema Isar DB `SyncQueueItem` & `CachedWaterSource` untuk penyimpanan luring perangkat. | `To Do` |
-| **`TASK-407`** | `P0` | `mobile` | `@Ariyadi` | `feat/TASK-407-outbox-worker-optimistic` | Optimistic UI dan Background Outbox Worker yang mengirim antrean mutasi (FIFO) saat sinyal pulih. | `To Do` |
+| **`TASK-403`** | `P0` | `mobile` | `@Ariyadi` | `feat/TASK-403-mobile-role-views` | Antarmuka adaptif `ATTACKER` (merah, tombol minta tekanan $64\text{ dp}$) vs `FEEDER` (kuning, parkir & barikade). | `Done` |
+| **`TASK-406`** | `P0` | `mobile` | `@Ariyadi` | `feat/TASK-406-isar-sync-queue-schema` | Skema Isar DB `SyncQueueItem` & `CachedWaterSource` untuk penyimpanan luring perangkat. | `Done` |
+| **`TASK-407`** | `P0` | `mobile` | `@Ariyadi` | `feat/TASK-407-outbox-worker-optimistic` | Optimistic UI dan Background Outbox Worker yang mengirim antrean mutasi (FIFO) saat sinyal pulih. | `Done` |
 
 ---
 
@@ -98,14 +98,14 @@ flowchart TD
 | Task ID | Pri | Modul | Assignee | Nama Tugas & Cabang Branch | Acceptance Criteria / Output | Status |
 | :--- | :---: | :--- | :--- | :--- | :--- | :---: |
 | **`TASK-302`** | `P0` | `pwa` | `@Hervino` | `feat/TASK-302-citizen-pwa-zero-auth` | Halaman pelaporan warga tanpa login (*Zero-Auth*) dengan kunci geolokasi GPS otomatis. | `To Do` |
-| **`TASK-303`** | `P0` | `pwa` | `@Ariyadi` & `@Hervino` | `feat/TASK-303-haptic-press-and-hold` | Tombol darurat Haptic Press-and-Hold ($2,0\text{ detik}$) dengan cincin progres visual dan getar. | `To Do` |
+| **`TASK-303`** | `P0` | `pwa` | `@Ariyadi` & `@Hervino` | `feat/TASK-303-haptic-press-and-hold` | Tombol darurat Haptic Press-and-Hold ($2,0\text{ detik}$) dengan cincin progres visual dan getar. | `Done` |
 | **`TASK-304`** | `P1` | `pwa` | `@Hervino` | `feat/TASK-304-citizen-consensus-card` | Kartu status konsensus waktu nyata yang mengabarkan verifikasi otomatis kepada warga sekitar. | `To Do` |
 | **`TASK-305`** | `P0` | `web` | `@Hervino` | `feat/TASK-305-web-command-leaflet-dark` | Kanvas Leaflet.js tema gelap di Dasbor Posko: titik api, Sungai Karang Mumus, dan sumber air. | `To Do` |
 | **`TASK-306`** | `P0` | `web` | `@Hervino` | `feat/TASK-306-auto-split-barricade-panel` | Visualisasi pembagian unit `ATTACKER`/`FEEDER` serta garis barikade selang fuchsia (`LineString`). | `To Do` |
 | **`TASK-307`** | `P1` | `web` | `@Hervino` | `feat/TASK-307-telemetry-stream-fsm-ui` | Panel Telemetry Stream kronologis dan tombol kendali transisi status operasi FSM bagi operator. | `To Do` |
 | **`TASK-402`** | `P1` | `mobile` | `@Ariyadi` & `@Ilham` | `feat/TASK-402-map-matching-snapping` | Client-Side Map-Matching Snapping untuk mengunci GPS mentah ke gang jika deviasi multipath $\le 25\text{ m}$. | `Done` |
-| **`TASK-404`** | `P0` | `mobile` | `@Ariyadi` | `feat/TASK-404-nearest-water-sources-ui` | Modul 3 Sumber Air Terdekat menggunakan Haversine lokal dan filter status (`READY` / `LOW_DISCHARGE`). | `To Do` |
-| **`TASK-405`** | `P0` | `mobile` | `@Ariyadi` | `feat/TASK-405-tap-water-barricade-actions` | Aksi 1-Tap status air dan sakelar Hose Barricade dengan target sentuh ramah sarung tangan ($\ge 48\text{ dp}$). | `To Do` |
+| **`TASK-404`** | `P0` | `mobile` | `@Ariyadi` | `feat/TASK-404-nearest-water-sources-ui` | Modul 3 Sumber Air Terdekat menggunakan Haversine lokal dan filter status (`READY` / `LOW_DISCHARGE`). | `Done` |
+| **`TASK-405`** | `P0` | `mobile` | `@Ariyadi` | `feat/TASK-405-tap-water-barricade-actions` | Aksi 1-Tap status air dan sakelar Hose Barricade dengan target sentuh ramah sarung tangan ($\ge 48\text{ dp}$). | `Done` |
 
 ---
 
@@ -115,11 +115,11 @@ flowchart TD
 | :--- | :---: | :--- | :--- | :--- | :--- | :---: |
 | **`TASK-408`** | `P0` | `e2e` | `@Hervino` | `feat/TASK-408-e2e-integration-flow` | Integrasi alur lengkap: Lapor Warga $\rightarrow$ Auto-Konsensus $\rightarrow$ Posko Induk $\rightarrow$ Dispatch Armada Mobile. | `To Do` |
 | **`TASK-501`** | `P0` | `test` | `@Ilham` | `test/TASK-501-spatial-unit-tests` | Unit test algoritma Dynamic Role Dispatching, Haversine, dan FSM (cakupan kode $\ge 80\%$). | `To Do` |
-| **`TASK-502`** | `P0` | `test` | `@Ariyadi` | `test/TASK-502-airplane-mode-stress-test` | Pengujian offline fisik Android: simulasikan 10 mutasi luring, restart aplikasi, dan verifikasi sinkronisasi. | `To Do` |
+| **`TASK-502`** | `P0` | `test` | `@Ariyadi` | `test/TASK-502-airplane-mode-stress-test` | Pengujian offline fisik Android: simulasikan 10 mutasi luring, restart aplikasi, dan verifikasi sinkronisasi. | `Done` |
 | **`TASK-503`** | `P1` | `test` | `@Hervino` | `test/TASK-503-load-testing-k6` | Load testing 100 permintaan konkuren pada endpoint pelaporan dan sumber air (latensi p95 $< 150\text{ ms}$). | `To Do` |
-| **`TASK-504`** | `P1` | `test` | `@Ariyadi` & `@Hervino` | `docs/TASK-504-sus-evaluation-report` | Pengujian System Usability Scale (SUS) 5 skenario bersama 15 relawan Balakarcana (skor $\ge 75$). | `To Do` |
-| **`TASK-505`** | `P0` | `media` | `@Semua` | `chore/TASK-505-video-demo-kmm` | Rekam dan edit video demo 5 menit (`04:20`) skenario Jl. Pelita Gg. 4 untuk YouTube panitia KMM. | `To Do` |
-| **`TASK-506`** | `P0` | `docs` | `@Semua` | `docs/TASK-506-final-technical-report` | Finalisasi dokumen teknis, repositori publik bersih, dan tautan luaran untuk pengumpulan akhir KMM. | `To Do` |
+| **`TASK-504`** | `P1` | `test` | `@Ariyadi` & `@Hervino` | `docs/TASK-504-sus-evaluation-report` | Pengujian System Usability Scale (SUS) 5 skenario bersama 15 relawan Balakarcana (skor $\ge 75$). | `Done` |
+| **`TASK-505`** | `P0` | `media` | `@Semua` | `chore/TASK-505-video-demo-kmm` | Rekam dan edit video demo 5 menit (`04:20`) skenario Jl. Pelita Gg. 4 untuk YouTube panitia KMM. | `Done` |
+| **`TASK-506`** | `P0` | `docs` | `@Semua` | `docs/TASK-506-final-technical-report` | Finalisasi dokumen teknis, repositori publik bersih, dan tautan luaran untuk pengumpulan akhir KMM. | `Done` |
 
 ---
 

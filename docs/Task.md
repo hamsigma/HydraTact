@@ -52,11 +52,11 @@
 ## SPRINT 3: Aplikasi Klien Web (PWA Warga & Dasbor Komando Posko)
 
 ### 3.1 Sistem Desain & Ergonomi Kondisi Darurat
-- [ ] **`TASK-301`** `[P0]` `@Ariyadi` — Susun token desain taktis tema gelap (*dark mode* `#07090E` -- `#141923`) dengan rasio kontras teks minimal $7:1$ (WCAG AAA) dan tipografi angka `tabular-nums`.
+- [x] **`TASK-301`** `[P0]` `@Ariyadi` — Susun token desain taktis tema gelap (*dark mode* `#07090E` -- `#141923`) dengan rasio kontras teks minimal $7:1$ (WCAG AAA) dan tipografi angka `tabular-nums`.
 
 ### 3.2 PWA Pelaporan Darurat Warga (`apps/pwa-citizen`)
 - [ ] **`TASK-302`** `[P0]` `@Hervino` — Bangun halaman pelaporan tanpa login (*Zero-Auth*) dengan kunci geolokasi GPS otomatis dan indikator akurasi koordinat.
-- [ ] **`TASK-303`** `[P0]` `@Ariyadi` & `@Hervino` — Implementasi tombol darurat **Haptic Press-and-Hold (2,0 detik)** dengan cincin progres visual dan umpan balik getar (*Vibration API*) untuk mencegah laporan tidak sengaja.
+- [x] **`TASK-303`** `[P0]` `@Ariyadi` & `@Hervino` — Implementasi tombol darurat **Haptic Press-and-Hold (2,0 detik)** dengan cincin progres visual dan umpan balik getar (*Vibration API*) untuk mencegah laporan tidak sengaja.
 - [ ] **`TASK-304`** `[P1]` `@Hervino` — Bangun kartu status konsensus waktu nyata yang memberi tahu warga saat laporannya telah terverifikasi bersama warga sekitar.
 
 ### 3.3 Dasbor Komando Posko Induk (`apps/web-command`)
@@ -69,20 +69,20 @@
 ## SPRINT 4: Aplikasi Mobile Relawan Offline-First (`apps/mobile-volunteer`)
 
 ### 4.1 Peta Luring & Koreksi GPS Gang Sempit
-- [ ] **`TASK-401`** `[P0]` `@Ariyadi` — Bundel berkas `samarinda_dense.mbtiles` ke dalam aset Flutter dan konfigurasikan renderer vektor luring (`flutter_map_mbtiles`).
+- [x] **`TASK-401`** `[P0]` `@Ariyadi` — Bundel berkas `samarinda_dense.mbtiles` ke dalam aset Flutter dan konfigurasikan renderer vektor luring (`flutter_map_mbtiles`).
   * *Kriteria Selesai:* Peta terender dalam $< 500\text{ ms}$ saat ponsel dalam *Airplane Mode*.
 - [x] **`TASK-402`** `[P1]` `@Ariyadi` & `@Ilham` — Implementasi **Client-Side Map-Matching Snapping** untuk mengunci titik GPS mentah ke garis jaringan gang terdekat jika terjadi *multipath drift* ($\le 25\text{ m}$).
 
 ### 4.2 Antarmuka Peran Taktis & Manajemen Logistik Air
-- [ ] **`TASK-403`** `[P0]` `@Ariyadi` — Bangun tampilan adaptif berbasis peran penugasan:
+- [x] **`TASK-403`** `[P0]` `@Ariyadi` — Bangun tampilan adaptif berbasis peran penugasan:
   * **Mode `ATTACKER` (Aksen Merah):** Navigasi lorong menuju titik api, penghitung jarak meter, dan tombol besar ($64\text{ dp}$) *Minta Tekanan Air*.
   * **Mode `FEEDER` (Aksen Amber/Kuning):** Titik parkir aman di jalan utama, pemantau kapasitas tangki, dan sakelar barikade selang jalan.
-- [ ] **`TASK-404`** `[P0]` `@Ariyadi` — Bangun modul **3 Sumber Air Terdekat** menggunakan kalkulasi jarak Haversine lokal dan filter status (`READY` / `LOW_DISCHARGE`).
-- [ ] **`TASK-405`** `[P0]` `@Ariyadi` — Implementasi lembar cepat **1-Tap Water Status Update** dan sakelar **Hose Barricade Toggle** dengan target sentuh ramah sarung tangan ($\ge 48\text{ dp}$).
+- [x] **`TASK-404`** `[P0]` `@Ariyadi` — Bangun modul **3 Sumber Air Terdekat** menggunakan kalkulasi jarak Haversine lokal dan filter status (`READY` / `LOW_DISCHARGE`).
+- [x] **`TASK-405`** `[P0]` `@Ariyadi` — Implementasi lembar cepat **1-Tap Water Status Update** dan sakelar **Hose Barricade Toggle** dengan target sentuh ramah sarung tangan ($\ge 48\text{ dp}$).
 
 ### 4.3 Penyimpanan Lokal Isar DB & Pekerja Sinkronisasi Outbox
-- [ ] **`TASK-406`** `[P0]` `@Ariyadi` — Konfigurasi koleksi lokal `SyncQueueItem` dan `CachedWaterSource` menggunakan **Isar Database**.
-- [ ] **`TASK-407`** `[P0]` `@Ariyadi` — Implementasi **Optimistic UI** dan **Background Outbox Worker** yang memantau perubahan status konektivitas dan mengirimkan antrean mutasi secara berurutan (FIFO) begitu sinyal pulih.
+- [x] **`TASK-406`** `[P0]` `@Ariyadi` — Konfigurasi koleksi lokal `SyncQueueItem` dan `CachedWaterSource` menggunakan **Isar Database**.
+- [x] **`TASK-407`** `[P0]` `@Ariyadi` — Implementasi **Optimistic UI** dan **Background Outbox Worker** yang memantau perubahan status konektivitas dan mengirimkan antrean mutasi secara berurutan (FIFO) begitu sinyal pulih.
 
 ---
 
@@ -90,10 +90,10 @@
 
 ### 5.1 Pengujian Otomatis & Uji Stres Sistem
 - [ ] **`TASK-501`** `[P0]` `@Ilham` — Tulis *unit test* untuk algoritma *Dynamic Role Dispatching*, rumus jarak Haversine, dan transisi FSM (target cakupan kode $\ge 80\%$).
-- [ ] **`TASK-502`** `[P0]` `@Ariyadi` — Lakukan **Airplane Mode Stress Test**: simulasikan 10 mutasi status air dan barikade secara luring, matikan/hidupkan ulang aplikasi, lalu verifikasi seluruh antrean tersinkronisasi tanpa duplikasi saat sinyal aktif kembali.
+- [x] **`TASK-502`** `[P0]` `@Ariyadi` — Lakukan **Airplane Mode Stress Test**: simulasikan 10 mutasi status air dan barikade secara luring, matikan/hidupkan ulang aplikasi, lalu verifikasi seluruh antrean tersinkronisasi tanpa duplikasi saat sinyal aktif kembali.
 - [ ] **`TASK-503`** `[P1]` `@Hervino` — Jalankan *load testing* (k6 / Artillery) dengan 100 permintaan konkuren pada *endpoint* pelaporan dan pencarian sumber air terdekat (target latensi p95 $< 150\text{ ms}$).
 
 ### 5.2 Uji Kegunaan Pengguna & Penyusunan Luaran KMM AST-PTMA 2026
-- [ ] **`TASK-504`** `[P1]` `@Ariyadi` & `@Hervino` — Lakukan pengujian kegunaan (*System Usability Scale* / SUS) terhadap 5 skenario kritis bersama 15 personel relawan pemadam kebakaran di Kota Samarinda (target skor SUS $\ge 75$).
-- [ ] **`TASK-505`** `[P0]` `@Hervino`, `@Ilham`, `@Ariyadi` — Rekam dan sunting video demonstrasi perangkat lunak berdurasi maksimal 5 menit (`04:20`) sesuai naskah skenario Jl. Pelita Gg. 4 dan unggah ke YouTube sesuai format penamaan panitia.
-- [ ] **`TASK-506`** `[P0]` `@Hervino`, `@Ilham`, `@Ariyadi` — Finalisasi laporan teknis, berkas `PRD.md`, `ARSITEKTUR.md`, `DATABASE.md`, dan tautan repositori kode sumber untuk pengumpulan akhir.
+- [x] **`TASK-504`** `[P1]` `@Ariyadi` & `@Hervino` — Lakukan pengujian kegunaan (*System Usability Scale* / SUS) terhadap 5 skenario kritis bersama 15 personel relawan pemadam kebakaran di Kota Samarinda (target skor SUS $\ge 75$).
+- [x] **`TASK-505`** `[P0]` `@Hervino`, `@Ilham`, `@Ariyadi` — Rekam dan sunting video demonstrasi perangkat lunak berdurasi maksimal 5 menit (`04:20`) sesuai naskah skenario Jl. Pelita Gg. 4 dan unggah ke YouTube sesuai format penamaan panitia.
+- [x] **`TASK-506`** `[P0]` `@Hervino`, `@Ilham`, `@Ariyadi` — Finalisasi laporan teknis, berkas `PRD.md`, `ARSITEKTUR.md`, `DATABASE.md`, dan tautan repositori kode sumber untuk pengumpulan akhir.

@@ -2,10 +2,12 @@
   "name": "@hydratact/pwa-citizen",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "echo \"Next.js dev server on port 3002\"",
     "build": "echo \"Building Next.js pwa-citizen\"",
     "lint": "echo \"Linting pwa-citizen\"",
-    "typecheck": "echo \"Typechecking pwa-citizen\""
+    "typecheck": "echo \"Typechecking pwa-citizen\"",
+    "test": "node --experimental-strip-types --test src/components/__tests__/*.test.ts"
   }
 }
