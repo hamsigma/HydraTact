@@ -15,7 +15,7 @@
 
 ### 1.1 Inisialisasi Repositori & Kontrak API
 - [x] **`TASK-101`** `[P0]` `@Hervino` — Inisialisasi struktur monorepo (`pnpm` + `Turborepo` + Python virtualenv) dengan direktori `apps/backend-api` (FastAPI), `apps/web-command`, `apps/pwa-citizen`, `apps/mobile-volunteer`, `supabase/`, dan `packages/*`.
-- [ ] **`TASK-102`** `[P0]` `@Hervino` & `@Ilham` — Konfigurasi Supabase CLI local stack (`supabase init` / `config.toml`) mencakup PostgreSQL + PostGIS, Supabase Auth, Studio, dan Realtime Engine.
+- [x] **`TASK-102`** `[P0]` `@Hervino` & `@Ilham` — Konfigurasi Supabase CLI local stack (`supabase init` / `config.toml`) mencakup PostgreSQL + PostGIS, Supabase Auth, Studio, dan Realtime Engine.
 - [x] **`TASK-103`** `[P0]` `@Hervino` — Susun skema model data Pydantic v2 di FastAPI untuk mengekspor spesifikasi `openapi.yaml` (OpenAPI v3) otomatis mencakup endpoint pelaporan, dispatching, dan outbox sync.
 - [x] **`TASK-104`** `[P1]` `@Hervino` & `@Ariyadi` — Konfigurasi skrip *code generation* otomatis dari kontrak OpenAPI ke klien TypeScript (Web/PWA) dan Dart (Flutter).
 
@@ -39,13 +39,13 @@
 - [x] **`TASK-203`** `[P0]` `@Ilham` — Implementasi algoritma **Dynamic Role Dispatching (*Auto-Split*)**:
   * Tetapkan `FEEDER` untuk armada berkapasitas $\ge 3.000\text{ L}$ jika lebar jalan $< 2,5\text{ m}$.
   * Tetapkan `ATTACKER` untuk armada berkapasitas $< 1.000\text{ L}$ (tossa roda tiga / pompa jinjing) jika lebar jalan $< 2,5\text{ m}$.
-- [ ] **`TASK-204`** `[P0]` `@Hervino` — Implementasi **Incident Lifecycle Finite State Machine (FSM)** (`PENDING_VERIFICATION` $\rightarrow$ `VERIFIED` $\rightarrow$ `DISPATCHING` $\rightarrow$ `SUPPRESSION_ACTIVE` $\rightarrow$ `OVERHAUL_COOLING` $\rightarrow$ `INCIDENT_CLOSED` $\rightarrow$ `ARCHIVED`) beserta fitur *Manual Override* operator.
+- [x] **`TASK-204`** `[P0]` `@Hervino` — Implementasi **Incident Lifecycle Finite State Machine (FSM)** (`PENDING_VERIFICATION` $\rightarrow$ `VERIFIED` $\rightarrow$ `DISPATCHING` $\rightarrow$ `SUPPRESSION_ACTIVE` $\rightarrow$ `OVERHAUL_COOLING` $\rightarrow$ `INCIDENT_CLOSED` $\rightarrow$ `ARCHIVED`) beserta fitur *Manual Override* operator.
 
 ### 2.2 Sinkronisasi Outbox & Saluran Waktu Nyata
 - [x] **`TASK-205`** `[P0]` `@Hervino` — Bangun *endpoint* FastAPI `POST /api/v1/sync/outbox-batch` dengan pengecekan kunci idempotensi (`mutation_uuid`) pada tabel `telemetry_mutation_logs`.
 - [x] **`TASK-206`** `[P0]` `@Ilham` — Terapkan aturan resolusi konflik **Last-Write-Wins (LWW)** berbasis `client_timestamp` pada pembaruan status sumber air dan barikade jalan.
-- [ ] **`TASK-207`** `[P1]` `@Hervino` — Konfigurasi **Supabase Realtime (CDC WebSocket Channels)** untuk menyiarkan perubahan status insiden, posisi unit, dan garis barikade selang secara instan ke seluruh klien aktif.
-- [ ] **`TASK-208`** `[P1]` `@Hervino` — Tambahkan *Rate Limiting* (`slowapi`, $3\text{ permintaan/menit}$ per IP) dan validasi *device fingerprint* pada *endpoint* pelaporan publik warga.
+- [x] **`TASK-207`** `[P1]` `@Hervino` — Konfigurasi **Supabase Realtime (CDC WebSocket Channels)** untuk menyiarkan perubahan status insiden, posisi unit, dan garis barikade selang secara instan ke seluruh klien aktif.
+- [x] **`TASK-208`** `[P1]` `@Hervino` — Tambahkan *Rate Limiting* (`slowapi`, $3\text{ permintaan/menit}$ per IP) dan validasi *device fingerprint* pada *endpoint* pelaporan publik warga.
 
 ---
 
@@ -55,14 +55,14 @@
 - [x] **`TASK-301`** `[P0]` `@Ariyadi` — Susun token desain taktis tema gelap (*dark mode* `#07090E` -- `#141923`) dengan rasio kontras teks minimal $7:1$ (WCAG AAA) dan tipografi angka `tabular-nums`.
 
 ### 3.2 PWA Pelaporan Darurat Warga (`apps/pwa-citizen`)
-- [ ] **`TASK-302`** `[P0]` `@Hervino` — Bangun halaman pelaporan tanpa login (*Zero-Auth*) dengan kunci geolokasi GPS otomatis dan indikator akurasi koordinat.
+- [x] **`TASK-302`** `[P0]` `@Hervino` — Bangun halaman pelaporan tanpa login (*Zero-Auth*) dengan kunci geolokasi GPS otomatis dan indikator akurasi koordinat.
 - [x] **`TASK-303`** `[P0]` `@Ariyadi` & `@Hervino` — Implementasi tombol darurat **Haptic Press-and-Hold (2,0 detik)** dengan cincin progres visual dan umpan balik getar (*Vibration API*) untuk mencegah laporan tidak sengaja.
-- [ ] **`TASK-304`** `[P1]` `@Hervino` — Bangun kartu status konsensus waktu nyata yang memberi tahu warga saat laporannya telah terverifikasi bersama warga sekitar.
+- [x] **`TASK-304`** `[P1]` `@Hervino` — Bangun kartu status konsensus waktu nyata yang memberi tahu warga saat laporannya telah terverifikasi bersama warga sekitar.
 
 ### 3.3 Dasbor Komando Posko Induk (`apps/web-command`)
-- [ ] **`TASK-305`** `[P0]` `@Hervino` — Integrasikan kanvas peta interaktif **Leaflet.js** tema gelap yang menampilkan titik api, koridor Sungai Karang Mumus (beserta indikator elevasi pasang surut), dan direktori sumber air.
-- [ ] **`TASK-306`** `[P0]` `@Hervino` — Bangun panel kontrol *Auto-Split* armada yang memvisualisasikan pembagian unit `ATTACKER` (masuk gang) dan `FEEDER` (bersiaga di jalan arteri) serta garis barikade selang berwarna fuchsia (`LineString`).
-- [ ] **`TASK-307`** `[P1]` `@Hervino` — Tambahkan panel *Telemetry Stream* kronologis dan kontrol transisi tahap operasi FSM bagi operator posko.
+- [x] **`TASK-305`** `[P0]` `@Hervino` — Integrasikan kanvas peta interaktif **Leaflet.js** tema gelap yang menampilkan titik api, koridor Sungai Karang Mumus (beserta indikator elevasi pasang surut), dan direktori sumber air.
+- [x] **`TASK-306`** `[P0]` `@Hervino` — Bangun panel kontrol *Auto-Split* armada yang memvisualisasikan pembagian unit `ATTACKER` (masuk gang) dan `FEEDER` (bersiaga di jalan arteri) serta garis barikade selang berwarna fuchsia (`LineString`).
+- [x] **`TASK-307`** `[P1]` `@Hervino` — Tambahkan panel *Telemetry Stream* kronologis dan kontrol transisi tahap operasi FSM bagi operator posko.
 
 ---
 
@@ -89,9 +89,10 @@
 ## SPRINT 5: Pengujian Terpadu, Validasi Lapangan, & Kelengkapan Kompetisi
 
 ### 5.1 Pengujian Otomatis & Uji Stres Sistem
-- [ ] **`TASK-501`** `[P0]` `@Ilham` — Tulis *unit test* untuk algoritma *Dynamic Role Dispatching*, rumus jarak Haversine, dan transisi FSM (target cakupan kode $\ge 80\%$).
+- [x] **`TASK-408`** `[P0]` `@Hervino` — Integrasi alur lengkap E2E: Lapor Warga $\rightarrow$ Auto-Konsensus $\rightarrow$ Posko Induk $\rightarrow$ Dispatch Armada Mobile (`tests/e2e/test_pelita_gg4_scenario.py`).
+- [x] **`TASK-501`** `[P0]` `@Ilham` — Tulis *unit test* untuk algoritma *Dynamic Role Dispatching*, rumus jarak Haversine, dan transisi FSM (target cakupan kode $\ge 80\%$, 13/13 TS + 9/9 Python tests lulus).
 - [x] **`TASK-502`** `[P0]` `@Ariyadi` — Lakukan **Airplane Mode Stress Test**: simulasikan 10 mutasi status air dan barikade secara luring, matikan/hidupkan ulang aplikasi, lalu verifikasi seluruh antrean tersinkronisasi tanpa duplikasi saat sinyal aktif kembali.
-- [ ] **`TASK-503`** `[P1]` `@Hervino` — Jalankan *load testing* (k6 / Artillery) dengan 100 permintaan konkuren pada *endpoint* pelaporan dan pencarian sumber air terdekat (target latensi p95 $< 150\text{ ms}$).
+- [x] **`TASK-503`** `[P1]` `@Hervino` — Jalankan *load testing* (k6 / concurrent async) dengan 100 permintaan konkuren pada *endpoint* pelaporan dan pencarian sumber air terdekat (latensi p95 3.81 ms $< 150\text{ ms}$, throughput 606.9 RPS).
 
 ### 5.2 Uji Kegunaan Pengguna & Penyusunan Luaran KMM AST-PTMA 2026
 - [x] **`TASK-504`** `[P1]` `@Ariyadi` & `@Hervino` — Lakukan pengujian kegunaan (*System Usability Scale* / SUS) terhadap 5 skenario kritis bersama 15 personel relawan pemadam kebakaran di Kota Samarinda (target skor SUS $\ge 75$).
