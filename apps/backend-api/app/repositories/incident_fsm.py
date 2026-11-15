@@ -26,6 +26,7 @@ from spatial_core.incident_fsm import (
     determine_dispatch_protocol,
     is_valid_fsm_transition,
 )
+from spatial_core import determine_tactical_role
 
 # Cache in-memory untuk pengujian luring/simulasi Jl. Pelita Gg. 4
 SIMULATED_INCIDENTS_CACHE: Dict[UUID, Dict[str, Any]] = {
@@ -118,6 +119,23 @@ async def transition_incident_fsm_repo(
 
             protocol = determine_dispatch_protocol(effective_width, target_status_val)
 
+            # Kalkulasi ulang peran taktis unit yang dialokasikan (Dynamic Role Dispatching)
+            try:
+                units = await connection.fetch(
+                    "SELECT id, water_capacity_liters FROM incident_units WHERE incident_id = $1",
+                    incident_id,
+                )
+                for unit_row in units:
+                    new_role = determine_tactical_role(effective_width, unit_row["water_capacity_liters"])
+                    db_role = "FEEDER" if new_role in ("FEEDER", "RESERVE_FEEDER") else ("ATTACKER" if new_role == "ATTACKER" else "RESERVE")
+                    await connection.execute(
+                        "UPDATE incident_units SET assigned_role = $1::tactical_unit_role WHERE id = $2",
+                        db_role,
+                        unit_row["id"],
+                    )
+            except Exception as unit_exc:
+                logger.warning(f"Gagal mengalkulasi ulang unit dispatch: {unit_exc}")
+
             return FSMTransitionData(
                 incident_id=updated_row["id"],
                 previous_status=IncidentFSMStatus(current_status_val),
@@ -134,7 +152,20 @@ async def transition_incident_fsm_repo(
 
     # 2. Fallback in-memory untuk pengujian luring/simulasi
     if incident_id not in SIMULATED_INCIDENTS_CACHE:
-        raise EntityNotFoundException("Insiden", incident_id)
+        from app.repositories.spatial import _in_memory_incident_clusters
+        cluster_match = next((c for c in _in_memory_incident_clusters if c["incident_id"] == incident_id), None)
+        if cluster_match:
+            SIMULATED_INCIDENTS_CACHE[incident_id] = {
+                "id": incident_id,
+                "incident_code": cluster_match["incident_code"],
+                "street_address": cluster_match["address"],
+                "road_width_meters": cluster_match["road_width"],
+                "status": cluster_match["status"],
+                "verified_at": datetime.now(timezone.utc) if cluster_match.get("is_verified") else None,
+                "closed_at": None,
+            }
+        else:
+            raise EntityNotFoundException("Insiden", incident_id)
 
     incident_data = SIMULATED_INCIDENTS_CACHE[incident_id]
     current_status_val = incident_data["status"].value if isinstance(incident_data["status"], IncidentFSMStatus) else str(incident_data["status"])
@@ -162,6 +193,13 @@ async def transition_incident_fsm_repo(
     # Simpan pembaruan status
     incident_data["status"] = IncidentFSMStatus(target_status_val)
     incident_data["road_width_meters"] = effective_width
+
+    # Sinkronisasi status ke klaster in-memory spasial jika ada
+    from app.repositories.spatial import _in_memory_incident_clusters
+    for c in _in_memory_incident_clusters:
+        if c["incident_id"] == incident_id:
+            c["status"] = IncidentFSMStatus(target_status_val)
+            break
     if target_status_val == IncidentFSMStatus.VERIFIED.value and not incident_data.get("verified_at"):
         incident_data["verified_at"] = now_utc
     if target_status_val == IncidentFSMStatus.INCIDENT_CLOSED.value and not incident_data.get("closed_at"):

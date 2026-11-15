@@ -3,6 +3,7 @@ from app.schemas.barricade import (
     BarricadeData,
     BarricadeDeactivateData,
     BarricadeDeactivateResponse,
+    BarricadeListResponse,
     BarricadeResponse,
 )
 from app.schemas.common import (
@@ -105,6 +106,7 @@ __all__ = [
     "BarricadeResponse",
     "BarricadeDeactivateData",
     "BarricadeDeactivateResponse",
+    "BarricadeListResponse",
     "MutationOperation",
     "OutboxMutationItem",
     "OutboxBatchRequest",

@@ -36,6 +36,15 @@ from app.schemas.water import (
 # Radius bumi rata-rata WGS 84 dalam meter
 EARTH_RADIUS_METERS = 6371000.0
 
+# Simpanan state in-memory pelaporan warga untuk pengujian / mode tanpa database
+_in_memory_incident_clusters: List[Dict[str, Any]] = []
+
+
+def reset_in_memory_spatial_state():
+    """Mengosongkan state cluster pelaporan in-memory (berguna untuk isolasi unit tests)."""
+    global _in_memory_incident_clusters
+    _in_memory_incident_clusters.clear()
+
 
 def haversine_distance_meters(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     """Menghitung jarak terestrial bola bumi antara dua koordinat WGS 84 menggunakan rumus Haversine.
@@ -414,11 +423,42 @@ async def process_citizen_incident_report(
             # Fallback ke penanganan deterministik jika database error
             pass
 
-    # Fallback in-memory
-    simulated_id = UUID("33333333-3333-3333-3333-333333333301")
-    # Cek jarak ke epicenter simulasi Jl. Pelita Gg. 4 (-0.4942, 117.1441)
+    # Fallback in-memory dengan evaluasi konsensus spasial dinamis (radius 100m, jeda 3 menit)
+    global _in_memory_incident_clusters
+    matched_cluster = None
+    for cluster in _in_memory_incident_clusters:
+        dist = haversine_distance_meters(lat, lng, cluster["lat"], cluster["lng"])
+        if dist <= cluster_radius_meters:
+            matched_cluster = cluster
+            break
+
+    if matched_cluster is not None:
+        if payload.reporter_phone not in matched_cluster["reporters"]:
+            matched_cluster["reporters"].append(payload.reporter_phone)
+        count = len(matched_cluster["reporters"])
+        is_verified = count >= 2
+        status = IncidentFSMStatus.VERIFIED if is_verified else IncidentFSMStatus.PENDING_VERIFICATION
+        matched_cluster["status"] = status
+        matched_cluster["is_verified"] = is_verified
+
+        return IncidentReportData(
+            incident_id=matched_cluster["incident_id"],
+            incident_code=matched_cluster["incident_code"],
+            incident_status=status,
+            consensus=ConsensusData(
+                is_verified=is_verified,
+                unique_reporters_count=count,
+                cluster_radius_meters=cluster_radius_meters,
+            ),
+            resolved_address=matched_cluster["address"],
+            detected_road_width_meters=matched_cluster["road_width"],
+            nearest_responding_unit=RespondingUnitSummary(unit_identifier="ATK-04", eta_minutes=3.0),
+        )
+
+    # Cek apakah koordinat adalah titik benchmark simulasi Jl. Pelita Gg. 4 (-0.4942, 117.1441)
     dist_to_sim = haversine_distance_meters(lat, lng, -0.4942, 117.1441)
     if dist_to_sim <= cluster_radius_meters:
+        simulated_id = UUID("33333333-3333-3333-3333-333333333301")
         return IncidentReportData(
             incident_id=simulated_id,
             incident_code="HT-2026-089",
@@ -433,19 +473,38 @@ async def process_citizen_incident_report(
             nearest_responding_unit=RespondingUnitSummary(unit_identifier="ATK-04", eta_minutes=3.0),
         )
 
-    new_id = uuid4()
+    # Buat klaster baru
+    new_incident_id = uuid4()
+    is_pelita = haversine_distance_meters(lat, lng, -0.5021, 117.1536) <= 500
+    addr = "Jl. Pelita Gg. 4, RT 14, Samarinda" if is_pelita else "Kawasan Permukiman Samarinda"
+    road_w = 2.10 if is_pelita else 2.00
+
+    new_cluster = {
+        "incident_id": new_incident_id,
+        "incident_code": f"HT-2026-{str(new_incident_id)[:4].upper()}",
+        "lat": lat,
+        "lng": lng,
+        "address": addr,
+        "road_width": road_w,
+        "reporters": [payload.reporter_phone],
+        "is_verified": False,
+        "status": IncidentFSMStatus.PENDING_VERIFICATION,
+        "created_at": datetime.now(timezone.utc),
+    }
+    _in_memory_incident_clusters.append(new_cluster)
+
     return IncidentReportData(
-        incident_id=new_id,
-        incident_code="HT-2026-NEW",
+        incident_id=new_incident_id,
+        incident_code=new_cluster["incident_code"],
         incident_status=IncidentFSMStatus.PENDING_VERIFICATION,
         consensus=ConsensusData(
             is_verified=False,
             unique_reporters_count=1,
             cluster_radius_meters=cluster_radius_meters,
         ),
-        resolved_address="Kawasan Permukiman Samarinda",
-        detected_road_width_meters=2.00,
-        nearest_responding_unit=RespondingUnitSummary(unit_identifier="ATK-04", eta_minutes=5.0),
+        resolved_address=addr,
+        detected_road_width_meters=road_w,
+        nearest_responding_unit=RespondingUnitSummary(unit_identifier="ATK-04", eta_minutes=4.5),
     )
 
 
@@ -505,6 +564,21 @@ async def fetch_incident_detail_by_id(
             pass
 
     # Fallback untuk simulasi Jl. Pelita Gg. 4
+    for cluster in _in_memory_incident_clusters:
+        if cluster["incident_id"] == incident_id:
+            return IncidentDetailData(
+                incident_id=incident_id,
+                incident_code=cluster["incident_code"],
+                street_address=cluster["address"],
+                epicenter=GeoPoint(type="Point", coordinates=(cluster["lng"], cluster["lat"])),
+                road_width_meters=cluster["road_width"],
+                status=cluster.get("status", IncidentFSMStatus.PENDING_VERIFICATION),
+                reported_at=cluster["created_at"],
+                verified_at=datetime.now(timezone.utc) if cluster.get("is_verified") else None,
+                closed_at=datetime.now(timezone.utc) if cluster.get("status") == IncidentFSMStatus.INCIDENT_CLOSED else None,
+                allocated_units=[],
+            )
+
     if str(incident_id) == "33333333-3333-3333-3333-333333333301":
         return IncidentDetailData(
             incident_id=incident_id,

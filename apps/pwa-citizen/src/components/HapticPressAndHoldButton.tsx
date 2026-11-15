@@ -201,8 +201,8 @@ export const HapticPressAndHoldButton: React.FC<HapticPressAndHoldButtonProps> =
           />
         </svg>
 
-        {/* Teks Status / Progres (No pill chip, pure monospace typography) */}
-        <span className="font-mono text-xs font-black tracking-widest uppercase">
+        {/* Teks Status / Progres (No pill chip, pure monospace typography with tabular figures) */}
+        <span className="font-mono tabular-nums text-xs font-black tracking-widest uppercase">
           {isTriggered
             ? 'TERKIRIM!'
             : isPressing

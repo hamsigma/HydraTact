@@ -1,6 +1,9 @@
+import asyncio
 import logging
+import socket
 import time
 from typing import AsyncGenerator, Optional, Tuple
+from urllib.parse import urlparse
 import asyncpg
 
 from app.core.config import settings
@@ -8,22 +11,56 @@ from app.core.config import settings
 logger = logging.getLogger("hydratact.db")
 
 _pool: Optional[asyncpg.Pool] = None
+_pool_init_attempted: bool = False
 
 
-async def init_db_pool() -> Optional[asyncpg.Pool]:
+def _is_database_socket_open(url: str, timeout_sec: float = 0.5) -> bool:
+    """Melakukan probe soket kilat untuk memastikan port database terbuka sebelum inisialisasi pool."""
+    try:
+        parsed = urlparse(url)
+        host = parsed.hostname or "127.0.0.1"
+        if host == "localhost":
+            host = "127.0.0.1"
+        port = parsed.port or 5432
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(timeout_sec)
+        result = sock.connect_ex((host, port))
+        sock.close()
+        return result == 0
+    except Exception:
+        return False
+
+
+async def init_db_pool(force: bool = False) -> Optional[asyncpg.Pool]:
     """Inisialisasi pool koneksi asinkron asyncpg ke basis data PostgreSQL PostGIS."""
-    global _pool
+    global _pool, _pool_init_attempted
     if _pool is not None:
         return _pool
+    if _pool_init_attempted and not force:
+        return None
+
+    _pool_init_attempted = True
+
+    # Jika soket database belum aktif, langsung gunakan mode in-memory tanpa memblokir startup
+    if not _is_database_socket_open(settings.DATABASE_URL):
+        logger.info(
+            f"Database PostgreSQL belum aktif pada {settings.DATABASE_URL}. "
+            "Peladen FastAPI beroperasi penuh menggunakan in-memory state repository."
+        )
+        _pool = None
+        return None
 
     try:
         logger.info(f"Connecting to database pool at {settings.DATABASE_URL}...")
-        _pool = await asyncpg.create_pool(
-            dsn=settings.DATABASE_URL,
-            min_size=settings.DB_POOL_MIN_SIZE,
-            max_size=settings.DB_POOL_MAX_SIZE,
-            timeout=settings.DB_POOL_TIMEOUT_SECONDS,
-            command_timeout=settings.DB_POOL_TIMEOUT_SECONDS,
+        _pool = await asyncio.wait_for(
+            asyncpg.create_pool(
+                dsn=settings.DATABASE_URL,
+                min_size=settings.DB_POOL_MIN_SIZE,
+                max_size=settings.DB_POOL_MAX_SIZE,
+                timeout=2.0,
+                command_timeout=2.0,
+            ),
+            timeout=2.0,
         )
         logger.info("Database connection pool initialized successfully.")
         return _pool

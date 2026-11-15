@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-surface-0: #07090E;
+  --color-surface-1: #0D1117;
+  --color-surface-2: #161B22;
+  --color-border-subtle: #21262D;
+  --color-border-active: #30363D;
+  --color-text-primary: #F0F6FC;
+  --color-text-secondary: #8B949E;
+  --color-text-muted: #484F58;
+  --color-attacker: #EF4444;
+  --color-feeder: #F59E0B;
+  --color-commander: #38BDF8;
+  --color-barricade: #D946EF;
+  --color-water-ready: #10B981;
+  --color-water-low: #F59E0B;
+  --color-water-empty: #64748B;
+  --color-water-damaged: #DC2626;
+}
+
+/* Custom Tactical Scrollbars per Impeccable Craft Floor */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: #07090E;
+}
+::-webkit-scrollbar-thumb {
+  background: #21262D;
+  border-radius: 0px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #30363D;
+}
+
+/* Themed Browser Text Selection */
+::selection {
+  background-color: #450a0a;
+  color: #fecaca;
+}
+
+/* High Precision Telemetry Numbers */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}

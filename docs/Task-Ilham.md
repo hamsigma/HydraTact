@@ -13,7 +13,7 @@
 ### Sprint 1 / Hari 1: Skema Database Spasial, Seeding & Pipeline MBTiles
 | Task ID | Pri | Modul | Nama Tugas & Cabang Branch | Acceptance Criteria / Output | Status |
 | :--- | :---: | :--- | :--- | :--- | :---: |
-| **`TASK-102`** | `P0` | `infra` | `chore/TASK-102-supabase-local-stack` *(Collab @Hervino)* | Konfigurasi Supabase CLI local stack (`supabase init`) untuk PostgreSQL 15/16 + PostGIS 3.4, Auth & Studio. | `[ ]` |
+| **`TASK-102`** | `P0` | `infra` | `chore/TASK-102-supabase-local-stack` *(Collab @Hervino)* | Konfigurasi Supabase CLI local stack (`supabase init`) untuk PostgreSQL 15/16 + PostGIS 3.4, Auth & Studio (`supabase/config.toml`). | `[x]` |
 | **`TASK-105`** | `P0` | `database` | `feat/TASK-105-supabase-postgis-ddl` | Skrip migrasi DDL Supabase PostGIS (`supabase/migrations/`), tipe ENUM, indeks GiST, dan replikasi `supabase_realtime`. | `[x]` |
 | **`TASK-106`** | `P0` | `database` | `feat/TASK-106-seeding-samarinda-data` | Seeding data wilayah di `supabase/seed.sql`: posko Balakarcana, 30 titik hidran/tandon, dan skenario uji Jl. Pelita Gg. 4. | `[x]` |
 | **`TASK-107`** | `P1` | `database` | `feat/TASK-107-spatial-queries-gist` | Kueri spasial teroptimasi untuk konsensus radius $\le 100\text{ m}$ dan 3 sumber air aktif terdekat (`<->`). | `[x]` |
@@ -35,12 +35,12 @@
 ### Sprint 4 & 5 / Hari 4: Unit Testing Spasial & Video Demonstrasi KMM
 | Task ID | Pri | Modul | Nama Tugas & Cabang Branch | Acceptance Criteria / Output | Status |
 | :--- | :---: | :--- | :--- | :--- | :---: |
-| **`TASK-501`** | `P0` | `test` | `test/TASK-501-spatial-unit-tests` | Unit test algoritma Dynamic Role Dispatching, Haversine, dan FSM (cakupan kode $\ge 80\%$). | `[ ]` |
-| **`TASK-505`** | `P0` | `media` | `chore/TASK-505-video-demo-kmm` *(Collab Tim)* | Rekam dan edit video demo 5 menit (`04:20`) skenario Jl. Pelita Gg. 4 untuk YouTube panitia KMM. | `[ ]` |
-| **`TASK-506`** | `P0` | `docs` | `docs/TASK-506-final-technical-report` *(Collab Tim)* | Finalisasi dokumen teknis, repositori publik bersih, dan tautan luaran untuk pengumpulan akhir KMM. | `[ ]` |
+| **`TASK-501`** | `P0` | `test` | `test/TASK-501-spatial-unit-tests` | Unit test algoritma Dynamic Role Dispatching, Haversine, dan FSM (cakupan kode $\ge 80\%$, 13/13 TS + 9/9 Python tests passed). | `[x]` |
+| **`TASK-505`** | `P0` | `media` | `chore/TASK-505-video-demo-kmm` *(Collab Tim)* | Rekam dan edit video demo 5 menit (`04:20`) skenario Jl. Pelita Gg. 4 untuk YouTube panitia KMM (`docs/TASK-505-video-demo-guide.md`). | `[x]` |
+| **`TASK-506`** | `P0` | `docs` | `docs/TASK-506-final-technical-report` *(Collab Tim)* | Finalisasi dokumen teknis, repositori publik bersih, dan tautan luaran untuk pengumpulan akhir KMM (`docs/TASK-506-final-technical-report.md`). | `[x]` |
 
 ---
 
 ## 🔗 Dependensi Utama
-* **Menyediakan untuk @Ariyadi:** Berkas `samarinda_dense.mbtiles` (`TASK-109`) sebelum Ariyadi mengonfigurasi renderer luring Flutter.
-* **Menyediakan untuk @Hervino:** Skrip DDL Supabase PostGIS (`TASK-105`) dan fungsi konsensus geospasial (`TASK-202`).
+* **Menyediakan untuk @Ariyadi:** Berkas `samarinda_dense.mbtiles` (`TASK-109`) sebelum Ariyadi mengonfigurasi renderer luring Flutter. *(Tuntas)*
+* **Menyediakan untuk @Hervino:** Skrip DDL Supabase PostGIS (`TASK-105`) dan fungsi konsensus geospasial (`TASK-202`). *(Tuntas & Terintegrasi)*

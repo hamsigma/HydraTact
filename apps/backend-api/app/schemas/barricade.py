@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Literal
+from typing import List, Literal
 from uuid import UUID
 from pydantic import BaseModel, Field
 
@@ -44,3 +44,10 @@ class BarricadeDeactivateResponse(BaseModel):
     """Respons pembukaan kembali akses jalan."""
     status: Literal["success"] = "success"
     data: BarricadeDeactivateData
+
+
+class BarricadeListResponse(BaseModel):
+    """Respons daftar seluruh barikade aktif."""
+    status: Literal["success"] = "success"
+    data: List[BarricadeData]
+

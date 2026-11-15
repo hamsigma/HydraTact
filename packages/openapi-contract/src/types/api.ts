@@ -64,6 +64,26 @@ export interface paths {
         patch: operations["transition_incident_fsm_api_v1_incidents__incident_id__transition_patch"];
         trace?: never;
     };
+    "/api/v1/incidents/{incident_id}/override": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Manual Override verifikasi paksa oleh operator posko induk
+         * @description Melakukan verifikasi paksa insiden pelapor tunggal atau pembatalan darurat oleh operator posko.
+         */
+        post: operations["manual_override_incident_api_v1_incidents__incident_id__override_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/incidents/{incident_id}/units/assign": {
         parameters: {
             query?: never;
@@ -171,7 +191,11 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * Daftar barikade jalan aktif
+         * @description Mengambil seluruh barikade ruas jalan yang sedang aktif terpasang bentangan selang pemadam.
+         */
+        get: operations["list_barricades_api_v1_barricades_get"];
         put?: never;
         /**
          * Tandai barikade bentangan selang pada ruas jalan
@@ -365,6 +389,20 @@ export interface components {
              */
             status: "success";
             data: components["schemas"]["BarricadeDeactivateData"];
+        };
+        /**
+         * BarricadeListResponse
+         * @description Respons daftar seluruh barikade aktif.
+         */
+        BarricadeListResponse: {
+            /**
+             * Status
+             * @default success
+             * @constant
+             */
+            status: "success";
+            /** Data */
+            data: components["schemas"]["BarricadeData"][];
         };
         /**
          * BarricadeReason
@@ -710,6 +748,33 @@ export interface components {
             assigned_role: components["schemas"]["TacticalRole"];
             /** @description Koordinat posisi terkini unit */
             current_location: components["schemas"]["GeoPoint"];
+        };
+        /**
+         * ManualOverrideRequest
+         * @description Permintaan verifikasi paksa / override darurat oleh operator posko induk.
+         */
+        ManualOverrideRequest: {
+            /**
+             * @description Status target hasil override (biasanya VERIFIED)
+             * @default VERIFIED
+             */
+            target_status: components["schemas"]["IncidentFSMStatus"];
+            /**
+             * Override Reason
+             * @description Alasan verifikasi paksa (misal: verifikasi HT Balakarcana, pelapor tunggal tengah malam)
+             * @example Dikonfirmasi via radio HT Posko Balakarcana Jl. Pelita, pelapor tunggal dini hari sah.
+             */
+            override_reason: string;
+            /**
+             * Road Width Meters
+             * @description Koreksi lebar jalan gang oleh operator posko
+             */
+            road_width_meters?: number | null;
+            /**
+             * Operator Notes
+             * @description Catatan komando operasional lapangan
+             */
+            operator_notes?: string | null;
         };
         /**
          * MutationOperation
@@ -1299,6 +1364,42 @@ export interface operations {
             };
         };
     };
+    manual_override_incident_api_v1_incidents__incident_id__override_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description UUID unik insiden kebakaran */
+                incident_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ManualOverrideRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FSMTransitionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     assign_unit_to_incident_api_v1_incidents__incident_id__units_assign_post: {
         parameters: {
             query?: never;
@@ -1479,6 +1580,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_barricades_api_v1_barricades_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BarricadeListResponse"];
                 };
             };
         };

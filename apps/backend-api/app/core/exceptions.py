@@ -3,6 +3,7 @@ from typing import Any, Dict, Optional
 from fastapi import Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from slowapi.errors import RateLimitExceeded
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.schemas.common import ErrorDetail, ErrorResponse
@@ -113,6 +114,23 @@ class RateLimitExceededException(HydraTactException):
 # =============================================================================
 # Global Exception Handlers
 # =============================================================================
+
+async def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded) -> JSONResponse:
+    """Handler terpusat untuk SlowAPI RateLimitExceeded (HTTP 429)."""
+    response_payload = ErrorResponse(
+        status="error",
+        error=ErrorDetail(
+            code="RATE_LIMIT_EXCEEDED",
+            message="Terlalu banyak permintaan pelaporan darurat dari perangkat/IP Anda. Batas kuota adalah 3 laporan per menit.",
+            details={"retry_after_seconds": 60, "limit": str(exc.detail)},
+        ),
+    )
+    return JSONResponse(
+        status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+        content=response_payload.model_dump(),
+        headers={"Retry-After": "60"},
+    )
+
 
 async def hydratact_exception_handler(request: Request, exc: HydraTactException) -> JSONResponse:
     """Handler untuk seluruh eksepsi terstruktur domain HydraTact."""
