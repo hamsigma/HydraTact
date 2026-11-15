@@ -40,7 +40,7 @@ class AttackerActionPanel extends StatelessWidget {
             child: Material(
               color: isPressureRequested
                   ? TacticalColors.attacker
-                  : const Color(0x33EF4444), // Translucent red when standby
+                  : TacticalColors.attackerSoftBg, // Translucent red standby
               shape: RoundedRectangleBorder(
                 side: const BorderSide(color: TacticalColors.attacker, width: 2.0),
                 borderRadius: BorderRadius.circular(2.0), // Flat tactical edges

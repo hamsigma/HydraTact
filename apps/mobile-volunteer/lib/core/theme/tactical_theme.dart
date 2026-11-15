@@ -5,10 +5,9 @@ import 'tactical_typography.dart';
 export 'tactical_colors.dart';
 export 'tactical_typography.dart';
 
-/// HydraTact Samarinda Tactical OLED Dark Theme Data
-/// Sesuai aturan Design.md:
-/// - Latar belakang OLED pekat (#07090E)
-/// - Kontras WCAG AAA (>= 7:1)
+/// HydraTact Samarinda Command Dashboard Light Theme Data
+/// Palet terang selaras web dashboard komando (apps/web-command):
+/// - Permukaan putih/slate terang (#E2E8F0, #FFFFFF)
 /// - Border datar 1 px tanpa gradien dan tanpa kartu berlapis
 /// - Larangan mutlak pill chip / badge oval
 class TacticalTheme {
@@ -17,20 +16,20 @@ class TacticalTheme {
   static ThemeData get darkTheme {
     return ThemeData(
       useMaterial3: true,
-      brightness: Brightness.dark,
+      brightness: Brightness.light,
       scaffoldBackgroundColor: TacticalColors.surface0,
       canvasColor: TacticalColors.surface0,
       cardColor: TacticalColors.surface1,
       dividerColor: TacticalColors.borderSubtle,
 
       colorScheme: const ColorScheme(
-        brightness: Brightness.dark,
+        brightness: Brightness.light,
         primary: TacticalColors.commander,
-        onPrimary: TacticalColors.surface0,
+        onPrimary: TacticalColors.surface1,
         secondary: TacticalColors.feeder,
-        onSecondary: TacticalColors.surface0,
+        onSecondary: TacticalColors.surface1,
         error: TacticalColors.attacker,
-        onError: TacticalColors.surface0,
+        onError: TacticalColors.surface1,
         surface: TacticalColors.surface1,
         onSurface: TacticalColors.textPrimary,
         outline: TacticalColors.borderSubtle,

@@ -219,7 +219,7 @@ class _TacticalScreenState extends State<TacticalScreen> {
                   CircleMarker(
                     point: _fireIncidentPoint,
                     radius: 45.0, // Visual representation of 100m radius
-                    color: Color(0x22EF4444),
+                    color: TacticalColors.attackerSoftBg,
                     borderColor: TacticalColors.attacker,
                     borderStrokeWidth: 1.5,
                   ),

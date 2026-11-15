@@ -26,16 +26,18 @@ class IncidentFireMarkerWidget extends StatelessWidget {
         Container(
           width: size,
           height: size,
-          decoration: BoxDecoration(
-            color: TacticalColors.surface0,
-            border: Border.all(color: TacticalColors.attacker, width: 2),
-            borderRadius: BorderRadius.circular(2), // Flat corners, no oval
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            color: TacticalColors.attacker,
+            border: Border.fromBorderSide(
+              BorderSide(color: TacticalColors.surface1, width: 2),
+            ),
           ),
           child: const Center(
             child: Icon(
               Icons.local_fire_department,
-              color: TacticalColors.attacker,
-              size: 22,
+              color: TacticalColors.surface1,
+              size: 20,
             ),
           ),
         ),
@@ -96,7 +98,7 @@ class AttackerMarkerWidget extends StatelessWidget {
   }
 }
 
-/// Marker Unit FEEDER (Bujursangkar kuning 28 dp terkunci di arteri utama)
+/// Marker Unit FEEDER (Lingkaran kuning 28 dp terkunci di arteri utama)
 class FeederMarkerWidget extends StatelessWidget {
   const FeederMarkerWidget({
     super.key,
@@ -115,16 +117,18 @@ class FeederMarkerWidget extends StatelessWidget {
         Container(
           width: size,
           height: size,
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
             color: TacticalColors.feeder,
-            border: Border.all(color: TacticalColors.surface0, width: 2),
-            borderRadius: BorderRadius.circular(2),
+            border: Border.fromBorderSide(
+              BorderSide(color: TacticalColors.surface1, width: 2),
+            ),
           ),
           child: const Center(
             child: Icon(
               Icons.local_shipping,
-              color: TacticalColors.surface0,
-              size: 18,
+              color: TacticalColors.surface1,
+              size: 16,
             ),
           ),
         ),
@@ -178,15 +182,17 @@ class WaterSourceMarkerWidget extends StatelessWidget {
           width: size,
           height: size,
           decoration: BoxDecoration(
-            color: TacticalColors.surface0,
-            border: Border.all(color: _statusColor, width: 1.5),
-            borderRadius: BorderRadius.circular(2),
+            shape: BoxShape.circle,
+            color: _statusColor,
+            border: const Border.fromBorderSide(
+              BorderSide(color: TacticalColors.surface1, width: 1.5),
+            ),
           ),
           child: Center(
             child: Icon(
               Icons.water_drop,
-              color: _statusColor,
-              size: 16,
+              color: TacticalColors.surface1,
+              size: 14,
             ),
           ),
         ),

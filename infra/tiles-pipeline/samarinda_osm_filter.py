@@ -11,10 +11,10 @@ from typing import Any, Dict, List, Tuple
 
 # Bounding box Kota Samarinda (Fokus area padat: Samarinda Ilir, Samarinda Kota, bantaran Sungai Karang Mumus)
 SAMARINDA_BBOX = {
-    "min_lng": 117.1300,
+    "min_lng": 117.1000,
     "min_lat": -0.5050,
     "max_lng": 117.1600,
-    "max_lat": -0.4800,
+    "max_lat": -0.4350,
 }
 
 # Jaringan jalan lingkungan dan gang detail Samarinda (Jl. Pelita, Lambung Mangkurat, Gg. 4)
@@ -121,6 +121,66 @@ ROADS_DATASET: List[Dict[str, Any]] = [
             ],
         },
     },
+    {
+        "type": "Feature",
+        "properties": {
+            "osm_id": 1006,
+            "name": "Jl. Gunung Panjang",
+            "highway": "secondary",
+            "road_width_meters": 8.0,
+            "surface": "asphalt",
+            "emergency_accessible": True,
+        },
+        "geometry": {
+            "type": "LineString",
+            "coordinates": [
+                [117.1080, -0.4420],
+                [117.1180, -0.4470],
+                [117.1280, -0.4520],
+                [117.1380, -0.4560],
+            ],
+        },
+    },
+    {
+        "type": "Feature",
+        "properties": {
+            "osm_id": 1007,
+            "name": "Jl. Bung Tomo",
+            "highway": "residential",
+            "road_width_meters": 5.5,
+            "surface": "asphalt",
+            "emergency_accessible": True,
+        },
+        "geometry": {
+            "type": "LineString",
+            "coordinates": [
+                [117.1100, -0.4500],
+                [117.1220, -0.4480],
+                [117.1340, -0.4460],
+            ],
+        },
+    },
+    {
+        "type": "Feature",
+        "properties": {
+            "osm_id": 1008,
+            "name": "Karang Asam Gg. 6",
+            "highway": "living_street",
+            "road_width_meters": 1.9,
+            "surface": "concrete",
+            "emergency_accessible": True,
+            "tactical_constraint": "NARROW_ALLEY_UNDER_2_5M",
+        },
+        "geometry": {
+            "type": "LineString",
+            "coordinates": [
+                [117.1160, -0.4560],
+                [117.1200, -0.4520],
+                [117.1240, -0.4480],
+                [117.1280, -0.4440],
+            ],
+        },
+    },
 ]
 
 # Sungai Karang Mumus (Hydrography LineString & Waterways)
@@ -137,6 +197,10 @@ WATERWAYS_DATASET: List[Dict[str, Any]] = [
         "geometry": {
             "type": "LineString",
             "coordinates": [
+                [117.1460, -0.4360],
+                [117.1450, -0.4470],
+                [117.1438, -0.4600],
+                [117.1428, -0.4760],
                 [117.1415, -0.4915],
                 [117.1432, -0.4948],
                 [117.1440, -0.4970],

@@ -4,6 +4,9 @@ analyzer:
   exclude:
     - "**/*.g.dart"
     - "lib/core/network/models/**"
+    - build/**
+    - android/**
+    - web/**
 
 linter:
   rules:

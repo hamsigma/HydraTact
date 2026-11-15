@@ -1,70 +1,98 @@
 import 'package:flutter/material.dart';
 
-/// HydraTact Samarinda Tactical OLED Dark Design System Colors
-/// Sesuai spesifikasi docs/Design.md Bagian 3 & Aturan Desain
+/// HydraTact Samarinda Command Dashboard Light Design System Colors
+/// Palet warna diselaraskan dengan web dashboard komando
+/// (apps/web-command TacticalMapCanvas.tsx): permukaan putih/slate terang,
+/// aksen status merah-amber-emerald-fuchsia.
 class TacticalColors {
   TacticalColors._();
 
-  // 3.1 Warna Latar Belakang (Surface Hierarchy)
-  /// Base Canvas: Latar belakang utama seluruh aplikasi (#07090E)
-  static const Color surface0 = Color(0xFF07090E);
+  // 3.1 Warna Latar Belakang (Surface Hierarchy — terang seperti web komando)
+  /// Base Canvas: Area peta & latar utama (#E2E8F0 slate-200)
+  static const Color surface0 = Color(0xFFE2E8F0);
 
-  /// Card Surface: Permukaan panel data, kartu unit, dan lembar kontrol (#0D1117)
-  static const Color surface1 = Color(0xFF0D1117);
+  /// Card Surface: Panel HUD, kartu data, header (#FFFFFF)
+  static const Color surface1 = Color(0xFFFFFFFF);
 
-  /// Overlay Surface: Dialog konfirmasi, modal, dan sheet aksi (#161B22)
-  static const Color surface2 = Color(0xFF161B22);
+  /// Overlay Surface: Baris terpilih, sheet aksi (#F1F5F9 slate-100)
+  static const Color surface2 = Color(0xFFF1F5F9);
 
-  /// Surface Border: Garis pembatas 1 px antar panel data (#21262D)
-  static const Color borderSubtle = Color(0xFF21262D);
+  /// Surface Border: Garis pembatas 1 px antar panel (#CBD5E1 slate-300)
+  static const Color borderSubtle = Color(0xFFCBD5E1);
 
-  /// Surface Border Active: Garis pembatas panel yang sedang aktif (#30363D)
-  static const Color borderActive = Color(0xFF30363D);
+  /// Surface Border Active: Garis panel aktif (#94A3B8 slate-400)
+  static const Color borderActive = Color(0xFF94A3B8);
 
-  // 3.2 Tipografi dan Teks Kontras Tinggi (WCAG AAA >= 7:1)
-  /// Text Primary: Kontras 15.8:1 terhadap #07090E (#F0F6FC)
-  static const Color textPrimary = Color(0xFFF0F6FC);
+  // 3.2 Tipografi dan Teks
+  /// Text Primary: teks utama gelap (#0F172A slate-900)
+  static const Color textPrimary = Color(0xFF0F172A);
 
-  /// Text Secondary: Kontras 7.2:1 terhadap #07090E (#8B949E)
-  static const Color textSecondary = Color(0xFF8B949E);
+  /// Text Secondary: teks pendukung (#475569 slate-600)
+  static const Color textSecondary = Color(0xFF475569);
 
-  /// Text Muted / Disabled: Teks tidak aktif / non-interaktif (#484F58)
-  static const Color textMuted = Color(0xFF484F58);
+  /// Text Muted / Disabled: teks non-interaktif (#64748B slate-500)
+  static const Color textMuted = Color(0xFF64748B);
 
-  // 3.3 Aksen Peran Lapangan dan Indikator Spasial
-  /// Peran ATTACKER: Unit serbu gang sempit dan tombol darurat (#EF4444)
-  static const Color attacker = Color(0xFFEF4444);
+  // 3.3 Aksen Peran Lapangan dan Indikator Spasial (warna web komando)
+  /// Peran ATTACKER / Titik Api: merah (red-600 #DC2626)
+  static const Color attacker = Color(0xFFDC2626);
 
-  /// Peran FEEDER: Truk tangki pengumpan di jalan arteri (#F59E0B)
-  static const Color feeder = Color(0xFFF59E0B);
+  /// Peran FEEDER / Debit Lemah: amber (amber-600 #D97706)
+  static const Color feeder = Color(0xFFD97706);
 
-  /// Peran COMMANDER / Taktis: Penanda fokus peta dan kueri operator (#38BDF8)
-  static const Color commander = Color(0xFF38BDF8);
+  /// Peran COMMANDER / Koridor Sungai: sky (sky-700 #0284C7)
+  static const Color commander = Color(0xFF0284C7);
 
-  /// Garis Barikade Selang: Fuchsia neon (#D946EF)
-  static const Color barricade = Color(0xFFD946EF);
+  /// Garis Barikade Selang: fuchsia (fuchsia-600 #C026D3)
+  static const Color barricade = Color(0xFFC026D3);
 
-  /// Latar Belakang Barikade Aktif: rgba(217, 70, 239, 0.15)
-  static const Color barricadeActiveBg = Color(0x26D946EF);
+  /// Latar Belakang Barikade Aktif: rgba(192, 38, 211, 0.10)
+  static const Color barricadeActiveBg = Color(0x1AC026D3);
 
-  // 3.4 Status Logistik Air (Water Source Status)
-  /// READY: Hijau Emerald; debit air deras >= 4.0 Bar (#10B981)
-  static const Color waterReady = Color(0xFF10B981);
+  /// Latar lembut badge Peran ATTACKER: rgba(220, 38, 38, 0.10)
+  static const Color attackerSoftBg = Color(0x1ADC2626);
 
-  /// LOW_DISCHARGE: Amber peringatan; debit air lemah < 2.0 Bar (#F59E0B)
-  static const Color waterLowDischarge = Color(0xFFF59E0B);
+  /// Latar lembut badge Peran FEEDER: rgba(217, 119, 6, 0.10)
+  static const Color feederSoftBg = Color(0x1AD97706);
 
-  /// EMPTY: Slate redup; tandon kering / hidran mati (#64748B)
+  /// Tombol terpilih (HUD): latar slate-900 #0F172A
+  static const Color selectedControlBg = Color(0xFF0F172A);
+
+  /// Teks pada tombol terpilih: #FFFFFF
+  static const Color selectedControlText = Color(0xFFFFFFFF);
+
+  // 3.4 Status Logistik Air (Water Source Status — warna web komando)
+  /// READY: Hijau Emerald; debit air deras >= 4.0 Bar (emerald-600 #059669)
+  static const Color waterReady = Color(0xFF059669);
+
+  /// LOW_DISCHARGE: Amber peringatan; debit air lemah < 2.0 Bar (amber-600 #D97706)
+  static const Color waterLowDischarge = Color(0xFFD97706);
+
+  /// EMPTY: Slate redup; tandon kering / hidran mati (slate-500 #64748B)
   static const Color waterEmpty = Color(0xFF64748B);
 
-  /// DAMAGED: Merah padam; fisik rusak (#DC2626)
+  /// DAMAGED: Merah padam; fisik rusak (red-600 #DC2626)
   static const Color waterDamaged = Color(0xFFDC2626);
 
-  // 6.1 Lapisan Peta Vektor Luring
-  static const Color mapBackground = Color(0xFF0B0E14);
-  static const Color mapRoadArtery = Color(0xFF2D333B);
-  static const Color mapAlley = Color(0xFF484F58);
-  static const Color mapRiver = Color(0xFF0F2847);
-  static const Color mapRiverBank = Color(0xFF1D4ED8);
-  static const Color mapBuilding = Color(0xFF161B22);
+  // 6.1 Lapisan Peta Vektor Luring (gaya OpenStreetMap terang)
+  /// Daratan luring: krem khas OSM Standard (#F2EFE9)
+  static const Color mapBackground = Color(0xFFF2EFE9);
+
+  /// Jalan arteri (>= 6 m): abu-abu hangat (#B5AEA2)
+  static const Color mapRoadArtery = Color(0xFFB5AEA2);
+
+  /// Gang sempit (< 2.5 m): abu terang (#D8D3C9)
+  static const Color mapAlley = Color(0xFFD8D3C9);
+
+  /// Jalan default (fallback): (#C9C3B8)
+  static const Color mapRoadDefault = Color(0xFFC9C3B8);
+
+  /// Koridor Sungai Karang Mumus: biru muda OSM (#AAD3DF)
+  static const Color mapRiver = Color(0xFFAAD3DF);
+
+  /// Tepian/isi garis sungai: sky-700 (#0284C7)
+  static const Color mapRiverBank = Color(0xFF0284C7);
+
+  /// Bangunan Permukiman Padat: (#E0DFDB)
+  static const Color mapBuilding = Color(0xFFE0DFDB);
 }
