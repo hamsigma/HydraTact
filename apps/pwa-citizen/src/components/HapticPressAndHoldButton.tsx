@@ -128,7 +128,7 @@ export const HapticPressAndHoldButton: React.FC<HapticPressAndHoldButtonProps> =
           cy="78"
           r={radius}
           fill="none"
-          stroke="rgba(220, 38, 38, 0.25)"
+          stroke="rgba(220, 38, 38, 0.15)"
           strokeWidth="6"
         />
         {/* Cincin progres aktif berputar selama 2.000 ms */}
@@ -137,7 +137,7 @@ export const HapticPressAndHoldButton: React.FC<HapticPressAndHoldButtonProps> =
           cy="78"
           r={radius}
           fill="none"
-          stroke="#EF4444"
+          stroke="#DC2626"
           strokeWidth="6"
           strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}
@@ -166,12 +166,12 @@ export const HapticPressAndHoldButton: React.FC<HapticPressAndHoldButtonProps> =
         onTouchCancel={handlePressEnd}
         className={`relative z-10 flex flex-col items-center justify-center rounded-full transition-transform active:scale-95 ${
           disabled
-            ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed'
+            ? 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
             : isTriggered
-              ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-950/50'
+              ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30'
               : isPressing
-                ? 'bg-red-700 text-white shadow-inner'
-                : 'bg-[#DC2626] text-white hover:bg-red-700 shadow-xl shadow-red-950/40 cursor-pointer'
+                ? 'bg-red-800 text-white shadow-inner scale-95'
+                : 'bg-[#DC2626] text-white hover:bg-red-700 shadow-xl shadow-red-600/35 cursor-pointer'
         }`}
         style={{
           width: '140px',

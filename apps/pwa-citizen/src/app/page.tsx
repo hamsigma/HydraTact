@@ -113,98 +113,133 @@ export default function CitizenEmergencyPage() {
   const isFormValid = phoneNumber.trim().length >= 10 && !phoneError;
 
   return (
-    <main className="min-h-screen bg-stone-950 text-stone-100 flex flex-col justify-between p-6 max-w-md mx-auto font-sans antialiased selection:bg-red-900 selection:text-white">
-      {/* Header Wilayah & Status Operasional */}
-      <header className="border-b border-stone-800 pb-4">
-        <p className="text-xs font-mono font-bold tracking-widest text-stone-400 uppercase mb-1">
-          POSKO DAMKAR SAMARINDA • TEPIAN MAHAKAM
-        </p>
-        <h1 className="text-xl font-bold tracking-tight text-white uppercase">
-          Pelaporan Darurat Kebakaran
-        </h1>
-        <div className="mt-3 flex items-center justify-between text-xs font-mono">
-          <span className="text-stone-400">STATUS KOORDINAT:</span>
-          {gpsStatus === "LOCKED" && coords ? (
-            <span className="font-bold text-emerald-400 tabular-nums">
-              TERKUNCI (±{coords.accuracy}m)
+    <main className="min-h-screen bg-[#F0F2F5] text-slate-900 flex flex-col justify-between p-4 sm:p-6 font-sans antialiased selection:bg-red-100 selection:text-red-900">
+      <div className="w-full max-w-md mx-auto flex flex-col justify-between flex-1">
+        {/* Header Wilayah & Status Operasional */}
+        <header className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs mb-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] font-mono font-bold tracking-widest text-slate-500 uppercase flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-red-600 inline-block animate-pulse" />
+              POSKO DAMKAR SAMARINDA
             </span>
-          ) : gpsStatus === "SEARCHING" ? (
-            <span className="font-bold text-amber-400">MENCARI GPS...</span>
-          ) : (
-            <span className="font-bold text-stone-400 tabular-nums">
-              MANUAL SAMARINDA (±5.0m)
+            <span className="text-[10px] font-mono font-bold text-slate-400">
+              SEKTOR MAHAKAM
             </span>
-          )}
-        </div>
-      </header>
+          </div>
 
-      {/* Konten Utama */}
-      <div className="my-auto py-8 flex flex-col items-center text-center">
-        {!reportResult ? (
-          <>
-            <div className="w-full text-left mb-6">
-              <label
-                htmlFor="reporter-phone"
-                className="block text-xs font-mono font-bold tracking-wider text-stone-300 uppercase mb-2"
-              >
-                Nomor Kontak WhatsApp Pelapor
-              </label>
-              <input
-                id="reporter-phone"
-                type="tel"
-                inputMode="numeric"
-                placeholder="081234567890"
-                value={phoneNumber}
-                onChange={handlePhoneChange}
-                disabled={isSubmitting}
-                className="w-full bg-stone-900 border border-stone-700 focus:border-red-600 focus:outline-none text-white px-4 py-3 rounded-none font-mono text-base tracking-wider placeholder:text-stone-600"
-              />
-              {phoneError && (
-                <p className="mt-2 text-xs font-mono text-red-400">{phoneError}</p>
+          <h1 className="text-xl font-black tracking-tight text-slate-900 uppercase">
+            Pelaporan Darurat Kebakaran
+          </h1>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Akses darurat warga Kota Samarinda menuju posko komando terdekat
+          </p>
+
+          {/* Status Koordinat GPS */}
+          <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-mono">
+            <span className="text-slate-500 flex items-center gap-1.5">
+              <svg className="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 2v2m0 16v2m10-10h-2M4 12H2m15.071 7.071l-1.414-1.414M8.343 8.343L6.929 6.929m12.728 0l-1.414 1.414M8.343 15.657l-1.414 1.414" />
+              </svg>
+              KOORDINAT GPS:
+            </span>
+            {gpsStatus === "LOCKED" && coords ? (
+              <span className="font-bold text-emerald-700 tabular-nums flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
+                TERKUNCI (±{coords.accuracy}m)
+              </span>
+            ) : gpsStatus === "SEARCHING" ? (
+              <span className="font-bold text-amber-600 flex items-center gap-1.5 animate-pulse">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                MENCARI GPS...
+              </span>
+            ) : (
+              <span className="font-bold text-slate-600 tabular-nums flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+                MANUAL SAMARINDA (±5.0m)
+              </span>
+            )}
+          </div>
+        </header>
+
+        {/* Konten Utama */}
+        <div className="my-auto py-2 flex flex-col items-center text-center">
+          {!reportResult ? (
+            <div className="w-full bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs flex flex-col items-center">
+              {/* Input Nomor Telepon Pelapor */}
+              <div className="w-full text-left mb-6">
+                <label
+                  htmlFor="reporter-phone"
+                  className="block text-xs font-mono font-bold tracking-wider text-slate-700 uppercase mb-1.5"
+                >
+                  Nomor Kontak WhatsApp Pelapor
+                </label>
+                <p className="text-[11px] text-slate-500 mb-2">
+                  Wajib untuk verifikasi dua arah posko damkar Samarinda
+                </p>
+                <input
+                  id="reporter-phone"
+                  type="tel"
+                  inputMode="numeric"
+                  placeholder="Contoh: 081234567890"
+                  value={phoneNumber}
+                  onChange={handlePhoneChange}
+                  disabled={isSubmitting}
+                  className="w-full bg-[#F8FAFC] border border-slate-300 rounded-xl focus:border-red-600 focus:bg-white focus:ring-4 focus:ring-red-100/80 focus:outline-none text-slate-900 px-4 py-3.5 font-mono text-base tracking-wider placeholder:text-slate-400 transition-all"
+                />
+                {phoneError && (
+                  <p className="mt-2 text-xs font-mono font-bold text-red-600 flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-600 shrink-0" />
+                    {phoneError}
+                  </p>
+                )}
+              </div>
+
+              {/* Pedestal Tombol Darurat */}
+              <div className="my-2 p-6 rounded-full bg-red-50/50 border border-red-100/80 flex items-center justify-center">
+                <HapticPressAndHoldButton
+                  onTrigger={handleEmergencyTrigger}
+                  holdDurationMs={2000}
+                  disabled={!isFormValid || isSubmitting}
+                  label="TAHAN 2 DETIK"
+                  triggerLabel="MENGIRIM..."
+                />
+              </div>
+
+              {/* Petunjuk Penggunaan */}
+              <p className="mt-4 text-xs font-mono text-slate-500 max-w-xs leading-relaxed">
+                Sentuh dan tahan tombol merah selama 2.0 detik penuh untuk mengeliminasi panggilan palsu.
+              </p>
+
+              {errorMessage && (
+                <div className="mt-4 p-3.5 bg-red-50 border border-red-200 rounded-xl text-left w-full">
+                  <p className="text-xs font-mono font-bold text-red-800 uppercase mb-1">
+                    KESALAHAN PENGIRIMAN
+                  </p>
+                  <p className="text-xs text-red-700">{errorMessage}</p>
+                </div>
               )}
             </div>
-
-            <div className="my-4">
-              <HapticPressAndHoldButton
-                onTrigger={handleEmergencyTrigger}
-                holdDurationMs={2000}
-                disabled={!isFormValid || isSubmitting}
-                label="TAHAN 2 DETIK"
-                triggerLabel="MENGIRIM..."
+          ) : (
+            /* Tampilan Status Konsensus Real-Time Setelah Dilaporkan */
+            <div className="w-full">
+              <CitizenConsensusCard
+                incidentId={reportResult.incident_id}
+                initialStatus={reportResult.status}
+                initialReportersCount={reportResult.consensus.unique_reporters_count}
+                clusterRadiusMeters={reportResult.consensus.cluster_radius_meters}
+                createdAt={reportResult.created_at}
               />
             </div>
+          )}
+        </div>
 
-            <p className="mt-4 text-xs font-mono text-stone-400 max-w-xs leading-relaxed">
-              Sentuh dan tahan tombol merah selama 2.0 detik penuh untuk mengeliminasi panggilan palsu.
-            </p>
-
-            {errorMessage && (
-              <div className="mt-4 p-3 bg-red-950/80 border border-red-700 text-left w-full">
-                <p className="text-xs font-mono font-bold text-red-300 uppercase mb-1">
-                  KESALAHAN PENGIRIMAN
-                </p>
-                <p className="text-xs font-mono text-red-200">{errorMessage}</p>
-              </div>
-            )}
-          </>
-        ) : (
-          /* Tampilan Status Konsensus Real-Time Setelah Dilaporkan */
-          <CitizenConsensusCard
-            incidentId={reportResult.incident_id}
-            initialStatus={reportResult.status}
-            initialReportersCount={reportResult.consensus.unique_reporters_count}
-            clusterRadiusMeters={reportResult.consensus.cluster_radius_meters}
-            createdAt={reportResult.created_at}
-          />
-        )}
+        {/* Footer Hak Cipta & Standar Taktis */}
+        <footer className="mt-4 text-center py-2">
+          <p className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">
+            HYDRATACT SAMARINDA • ZERO-HARDWARE TACTICAL SYSTEM
+          </p>
+        </footer>
       </div>
-
-      {/* Footer Hak Cipta & Standar Taktis */}
-      <footer className="border-t border-stone-800 pt-3 text-center">
-        <p className="text-[10px] font-mono text-stone-500 uppercase tracking-widest">
-          HYDRATACT SAMARINDA • ZERO-HARDWARE TACTICAL SYSTEM
-        </p>
-      </footer>
     </main>
   );
 }

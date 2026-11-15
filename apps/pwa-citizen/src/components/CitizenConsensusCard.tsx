@@ -82,73 +82,90 @@ export const CitizenConsensusCard: React.FC<CitizenConsensusCardProps> = ({
   return (
     <section
       aria-label="Status Konsensus Darurat"
-      className={`w-full p-6 text-left border transition-all duration-300 ${
-        isVerified
-          ? "bg-red-950/40 border-red-700"
-          : "bg-stone-900 border-stone-800"
-      }`}
+      className="w-full bg-white border border-slate-200/90 rounded-2xl shadow-sm p-5 md:p-6 text-left transition-all duration-300 overflow-hidden"
     >
-      {/* Eyebrow Label (Plain Text Monospace - No Pill Chip) */}
-      <p
-        className={`text-xs font-mono font-bold tracking-widest uppercase mb-2 ${
-          isVerified ? "text-red-400" : "text-amber-400"
+      {/* Banner Status Konsensus Berwarna Pastel */}
+      <div
+        className={`p-4 rounded-xl border mb-5 transition-colors ${
+          isVerified
+            ? "bg-emerald-50/80 border-emerald-200 text-emerald-950"
+            : "bg-amber-50/80 border-amber-200 text-amber-950"
         }`}
       >
-        {isVerified
-          ? "TERVERIFIKASI OTOMATIS • KONSENSUS TERCAPAI"
-          : "MENUNGGU VERIFIKASI KONSENSUS SPASIAL"}
-      </p>
-
-      {/* Judul Status Utama */}
-      <h2 className="text-lg font-bold text-white mb-4 tracking-tight">
-        {isVerified
-          ? "ARMADA BALAKARCANA DIKERAHKAN MENUJU LOKASI"
-          : "MENUNGGU LAPORAN WARGA TERDEKAT (RADIUS 100M)"}
-      </h2>
-
-      {/* Grid Rincian Metrik (Tabular Nums) */}
-      <div className="space-y-3 text-xs font-mono border-t border-stone-800/80 pt-4">
-        <div className="flex justify-between items-center">
-          <span className="text-stone-400">ID INSIDEN:</span>
-          <span className="text-white font-bold tracking-wider">
-            {incidentId.slice(0, 8)}...
-          </span>
-        </div>
-
-        <div className="flex justify-between items-center">
-          <span className="text-stone-400">STATUS FSM TAKTIS:</span>
+        <div className="flex items-center gap-2 mb-1.5">
           <span
-            className={`font-bold uppercase ${
-              isVerified ? "text-emerald-400" : "text-amber-400"
+            className={`w-2 h-2 rounded-full inline-block ${
+              isVerified ? "bg-emerald-600" : "bg-amber-500 animate-pulse"
+            }`}
+          />
+          <p
+            className={`text-[10px] font-mono font-bold tracking-widest uppercase ${
+              isVerified ? "text-emerald-700" : "text-amber-800"
             }`}
           >
-            {status}
-          </span>
+            {isVerified
+              ? "TERVERIFIKASI OTOMATIS • KONSENSUS TERCAPAI"
+              : "MENUNGGU VERIFIKASI KONSENSUS SPASIAL"}
+          </p>
         </div>
 
-        <div className="flex justify-between items-center">
-          <span className="text-stone-400">LAPORAN INDEPENDEN:</span>
-          <span className="text-white font-bold tabular-nums">
-            {reportersCount} / 2 PELAPOR (RADIUS {clusterRadiusMeters}M)
-          </span>
-        </div>
+        <h2 className="text-base font-black tracking-tight text-slate-900 uppercase">
+          {isVerified
+            ? "ARMADA BALAKARCANA & DAMKAR MELUNCUR"
+            : "MENUNGGU LAPORAN WARGA TERDEKAT (RADIUS 100M)"}
+        </h2>
 
         {!isVerified && (
-          <div className="flex justify-between items-center">
-            <span className="text-stone-400">JENDELA KONSENSUS:</span>
-            <span className="text-amber-400 font-bold tabular-nums tracking-wider">
+          <div className="mt-3 pt-3 border-t border-amber-200/70 flex items-center justify-between">
+            <span className="text-xs font-mono font-bold text-amber-900 uppercase">
+              JENDELA KONSENSUS:
+            </span>
+            <span className="text-2xl font-mono font-black text-amber-700 tabular-nums tracking-wider">
               {formattedCountdown}
             </span>
           </div>
         )}
       </div>
 
-      {/* Panduan Instruksi Warga */}
-      <p className="mt-5 text-xs text-stone-300 leading-relaxed">
-        {isVerified
-          ? "Unit pemadam kebakaran dan relawan Balakarcana telah menerima rute navigasi. Harap bersihkan jalan masuk gang dari kendaraan atau barang yang menghalangi selang."
-          : "Jika terdapat warga lain di sekitar lokasi yang melihat kebakaran, minta mereka turut menekan tombol darurat di gawainya untuk mempercepat verifikasi otomatis tanpa menunggu posko."}
-      </p>
+      {/* Grid Rincian Metrik Taktis (Tabular Nums) */}
+      <div className="space-y-2.5 text-xs font-mono border-t border-slate-100 pt-4">
+        <div className="flex justify-between items-center py-0.5">
+          <span className="text-slate-500 font-medium">ID INSIDEN:</span>
+          <span className="text-slate-900 font-bold tracking-wider">
+            {incidentId.slice(0, 8)}...
+          </span>
+        </div>
+
+        <div className="flex justify-between items-center py-0.5">
+          <span className="text-slate-500 font-medium">STATUS FSM TAKTIS:</span>
+          <span
+            className={`font-bold uppercase ${
+              isVerified ? "text-emerald-700" : "text-amber-700"
+            }`}
+          >
+            {status}
+          </span>
+        </div>
+
+        <div className="flex justify-between items-center py-0.5">
+          <span className="text-slate-500 font-medium">LAPORAN INDEPENDEN:</span>
+          <span className="text-slate-900 font-bold tabular-nums">
+            {reportersCount} / 2 PELAPOR (RADIUS {clusterRadiusMeters}M)
+          </span>
+        </div>
+      </div>
+
+      {/* Panduan Operasional Warga */}
+      <div className="mt-5 p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl text-xs text-slate-600 leading-relaxed">
+        <p className="font-bold text-slate-800 text-[11px] uppercase tracking-wider mb-1 font-mono">
+          PANDUAN OPERASIONAL WARGA:
+        </p>
+        <p>
+          {isVerified
+            ? "Unit pemadam kebakaran dan relawan Balakarcana telah menerima rute navigasi. Harap bersihkan jalan masuk gang dari kendaraan atau barang yang menghalangi selang."
+            : "Jika terdapat warga lain di sekitar lokasi yang melihat kebakaran, minta mereka turut menekan tombol darurat di gawainya untuk mempercepat verifikasi otomatis tanpa menunggu posko."}
+        </p>
+      </div>
     </section>
   );
 };
