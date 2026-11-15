@@ -142,14 +142,17 @@ export const AutoSplitMatrixPanel: React.FC<AutoSplitMatrixPanelProps> = ({
 
               {onToggleBarricade && (
                 <button
+                  type="button"
                   onClick={() => onToggleBarricade(barricade.id, barricade.isActive)}
-                  className={`mt-2 w-full py-1 text-[10px] font-mono font-bold uppercase border transition-colors ${
+                  className={`mt-2.5 w-full min-h-[48px] px-3 py-2 text-xs font-mono font-bold uppercase border transition-all cursor-pointer active:scale-[0.99] focus:outline-none focus:ring-2 ${
                     barricade.isActive
-                      ? "border-red-800 text-red-300 hover:bg-red-950/50"
-                      : "border-emerald-800 text-emerald-300 hover:bg-emerald-950/50"
+                      ? "border-red-700 bg-red-950/30 text-red-200 hover:bg-red-900/50 focus:ring-red-500"
+                      : "border-fuchsia-600 bg-fuchsia-950/30 text-fuchsia-200 hover:bg-fuchsia-900/50 focus:ring-fuchsia-400"
                   }`}
                 >
-                  {barricade.isActive ? "Lepas Barikade Jalan" : "Pasang Barikade Ulang"}
+                  {barricade.isActive
+                    ? "LEPAS BARIKADE SELANG JALAN"
+                    : "AKTIFKAN BARIKADE SELANG (BENTANG)"}
                 </button>
               )}
             </div>

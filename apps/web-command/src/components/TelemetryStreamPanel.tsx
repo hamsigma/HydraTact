@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import type { TelemetryMutationItem } from "../lib/telemetry.ts";
+import type { TelemetryMutationItem } from "../lib/telemetry";
 
 export interface TelemetryStreamPanelProps {
   mutations?: TelemetryMutationItem[];
