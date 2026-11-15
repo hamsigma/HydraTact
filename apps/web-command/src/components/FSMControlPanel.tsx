@@ -52,11 +52,11 @@ export const FSMControlPanel: React.FC<FSMControlPanelProps> = ({
 
   return (
     <div className={`flex flex-col space-y-3 ${className}`}>
-      <div className="flex items-center justify-between pb-2 border-b border-stone-800">
-        <p className="text-xs font-mono font-bold tracking-widest text-stone-400 uppercase">
+      <div className="flex items-center justify-between pb-2 border-b border-[#E2E8F0]">
+        <p className="text-xs font-mono font-bold tracking-widest text-slate-500 uppercase">
           KENDALI PROTOKOL FSM POSKO
         </p>
-        <span className="text-xs font-mono text-emerald-400 font-bold uppercase tracking-wider">
+        <span className="text-xs font-mono text-emerald-700 font-bold uppercase tracking-wider">
           {currentStatus}
         </span>
       </div>
@@ -73,9 +73,9 @@ export const FSMControlPanel: React.FC<FSMControlPanelProps> = ({
               description: "Mengabaikan kuorum 2 pelapor dan langsung memvalidasi insiden secara otoritatif.",
             })
           }
-          className="min-h-[52px] p-2.5 border border-red-800/80 bg-red-950/20 hover:bg-red-950/40 text-red-300 font-bold text-left transition-all cursor-pointer active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-red-500"
+          className="min-h-[52px] p-2.5 border border-red-300 bg-red-50 hover:bg-red-100 text-red-700 font-bold text-left transition-all cursor-pointer active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-red-500"
         >
-          <span className="block text-[10px] text-red-400 font-normal">OTORITAS POSKO</span>
+          <span className="block text-[10px] text-red-600 font-normal">OTORITAS POSKO</span>
           VERIFIKASI PAKSA
         </button>
 
@@ -89,9 +89,9 @@ export const FSMControlPanel: React.FC<FSMControlPanelProps> = ({
               description: "Menginstruksikan seluruh unit posko dan relawan terdekat meluncur ke lokasi insiden.",
             })
           }
-          className="min-h-[52px] p-2.5 border border-cyan-800/80 bg-cyan-950/20 hover:bg-cyan-950/40 text-cyan-300 font-bold text-left transition-all cursor-pointer active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-cyan-500"
+          className="min-h-[52px] p-2.5 border border-sky-300 bg-sky-50 hover:bg-sky-100 text-sky-800 font-bold text-left transition-all cursor-pointer active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-sky-500"
         >
-          <span className="block text-[10px] text-cyan-400 font-normal">INSTRUKSI JALAN</span>
+          <span className="block text-[10px] text-sky-600 font-normal">INSTRUKSI JALAN</span>
           DISPATCH
         </button>
 
@@ -105,9 +105,9 @@ export const FSMControlPanel: React.FC<FSMControlPanelProps> = ({
               description: "Menandai bahwa api utama telah padam dan fase pendinginan titik bara sedang berlangsung.",
             })
           }
-          className="min-h-[52px] p-2.5 border border-amber-800/80 bg-amber-950/20 hover:bg-amber-950/40 text-amber-300 font-bold text-left transition-all cursor-pointer active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-amber-500"
+          className="min-h-[52px] p-2.5 border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold text-left transition-all cursor-pointer active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-amber-500"
         >
-          <span className="block text-[10px] text-amber-400 font-normal">FASE PENDINGINAN</span>
+          <span className="block text-[10px] text-amber-700 font-normal">FASE PENDINGINAN</span>
           PENDINGINAN
         </button>
 
@@ -121,9 +121,9 @@ export const FSMControlPanel: React.FC<FSMControlPanelProps> = ({
               description: "Mengakhiri status darurat insiden, membongkar selang, dan memulihkan armada ke posko.",
             })
           }
-          className="min-h-[52px] p-2.5 border border-emerald-800/80 bg-emerald-950/20 hover:bg-emerald-950/40 text-emerald-300 font-bold text-left transition-all cursor-pointer active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          className="min-h-[52px] p-2.5 border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-left transition-all cursor-pointer active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-emerald-500"
         >
-          <span className="block text-[10px] text-emerald-400 font-normal">SELESAI OPERASI</span>
+          <span className="block text-[10px] text-emerald-700 font-normal">SELESAI OPERASI</span>
           TUTUP INSIDEN
         </button>
       </div>
@@ -134,22 +134,22 @@ export const FSMControlPanel: React.FC<FSMControlPanelProps> = ({
           role="dialog"
           aria-modal="true"
           aria-labelledby="fsm-dialog-title"
-          className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4"
         >
-          <div className="bg-[#0A0E17] border border-stone-700 max-w-sm w-full p-5 text-left font-mono shadow-2xl">
-            <p className="text-xs font-bold text-red-400 tracking-widest uppercase mb-1">
+          <div className="bg-[#FFFFFF] border border-[#CBD5E1] max-w-sm w-full p-5 text-left font-mono shadow-2xl">
+            <p className="text-xs font-bold text-red-600 tracking-widest uppercase mb-1">
               KONFIRMASI EKSEKUSI TAKTIS
             </p>
-            <h3 id="fsm-dialog-title" className="text-base font-bold text-white mb-2">
+            <h3 id="fsm-dialog-title" className="text-base font-bold text-slate-900 mb-2">
               {pendingAction.label}
             </h3>
-            <p className="text-xs text-stone-300 leading-relaxed mb-4">
+            <p className="text-xs text-slate-600 leading-relaxed mb-4">
               {pendingAction.description}
             </p>
 
-            <div className="text-[11px] text-stone-400 bg-stone-950 p-2.5 border border-stone-850 mb-4">
+            <div className="text-[11px] text-slate-600 bg-slate-50 p-2.5 border border-slate-200 mb-4">
               <span>TARGET INSIDEN: </span>
-              <span className="text-white font-bold tracking-wider">{incidentId.slice(0, 8)}...</span>
+              <span className="text-slate-900 font-bold tracking-wider">{incidentId.slice(0, 8)}...</span>
             </div>
 
             <div className="flex gap-2">
@@ -157,7 +157,7 @@ export const FSMControlPanel: React.FC<FSMControlPanelProps> = ({
                 type="button"
                 disabled={isProcessing}
                 onClick={() => setPendingAction(null)}
-                className="flex-1 min-h-[48px] py-2.5 text-xs font-bold border border-stone-700 text-stone-300 hover:bg-stone-900 transition-colors cursor-pointer active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-stone-500"
+                className="flex-1 min-h-[48px] py-2.5 text-xs font-bold border border-slate-300 text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-slate-400"
               >
                 BATAL [ESC]
               </button>
@@ -165,7 +165,7 @@ export const FSMControlPanel: React.FC<FSMControlPanelProps> = ({
                 type="button"
                 disabled={isProcessing}
                 onClick={handleConfirm}
-                className="flex-1 min-h-[48px] py-2.5 text-xs font-bold bg-red-700 hover:bg-red-600 text-white transition-colors cursor-pointer active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50"
+                className="flex-1 min-h-[48px] py-2.5 text-xs font-bold bg-red-600 hover:bg-red-700 text-white transition-colors cursor-pointer active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50"
               >
                 {isProcessing ? "MEMPROSES..." : "EKSEKUSI [ENTER]"}
               </button>

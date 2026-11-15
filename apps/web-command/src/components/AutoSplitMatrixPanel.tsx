@@ -33,23 +33,23 @@ export const AutoSplitMatrixPanel: React.FC<AutoSplitMatrixPanelProps> = ({
   return (
     <div className={`flex flex-col space-y-4 ${className}`}>
       {/* Parameter Geometris Gang & Aturan Auto-Split */}
-      <div className="p-3 bg-[#0A0E17] border border-stone-800 text-xs font-mono">
+      <div className="p-3 bg-[#F8F9FA] border border-[#E2E8F0] text-xs font-mono">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-stone-400">LEBAR GANG TERUKUR:</span>
-          <span className="font-bold text-amber-400 tabular-nums">
+          <span className="text-slate-500">LEBAR GANG TERUKUR:</span>
+          <span className="font-bold text-amber-700 tabular-nums">
             {gangWidthMeters.toFixed(1)} METER (&lt; 2.5M)
           </span>
         </div>
-        <p className="text-[11px] text-stone-300 leading-relaxed">
+        <p className="text-[11px] text-slate-600 leading-relaxed">
           Protokol Auto-Split aktif: Unit kapasitas &lt; 1000L masuk ke gang sebagai{" "}
-          <strong className="text-cyan-400">ATTACKER</strong>. Unit &ge; 3000L standby di jalan utama sebagai{" "}
-          <strong className="text-amber-400">FEEDER</strong> penyuplai selang.
+          <strong className="text-sky-700">ATTACKER</strong>. Unit &ge; 3000L standby di jalan utama sebagai{" "}
+          <strong className="text-amber-700">FEEDER</strong> penyuplai selang.
         </p>
       </div>
 
       {/* Matriks Unit Pemadam */}
       <div>
-        <p className="text-xs font-mono font-bold tracking-widest text-stone-400 uppercase mb-2">
+        <p className="text-xs font-mono font-bold tracking-widest text-slate-500 uppercase mb-2">
           MATRIKS PERAN ARMADA TAKTIS
         </p>
         <div className="space-y-2">
@@ -58,41 +58,41 @@ export const AutoSplitMatrixPanel: React.FC<AutoSplitMatrixPanelProps> = ({
             return (
               <div
                 key={unit.id}
-                className="p-3 bg-[#080B10] border border-stone-800 text-xs font-mono"
+                className="p-3 bg-[#FFFFFF] border border-[#E2E8F0] text-xs font-mono shadow-sm"
               >
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="font-bold text-white tracking-wider">{unit.callSign}</span>
+                  <span className="font-bold text-slate-900 tracking-wider">{unit.callSign}</span>
                   <span
                     className={`font-bold tracking-widest uppercase ${
-                      isAttacker ? "text-cyan-400" : "text-amber-400"
+                      isAttacker ? "text-sky-700" : "text-amber-700"
                     }`}
                   >
                     {unit.assignedRole}
                   </span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 text-[11px] text-stone-400 pt-1 border-t border-stone-900">
+                <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-600 pt-2 border-t border-slate-100">
                   <div>
                     <span>TANGKI: </span>
-                    <span className="text-stone-200 font-bold tabular-nums">
+                    <span className="text-slate-900 font-bold tabular-nums">
                       {unit.tankCapacityLiters}L
                     </span>
                   </div>
                   <div>
                     <span>JARAK API: </span>
-                    <span className="text-stone-200 font-bold tabular-nums">
+                    <span className="text-slate-900 font-bold tabular-nums">
                       {unit.distanceFromFireMeters}m
                     </span>
                   </div>
                   <div>
                     <span>TEKANAN: </span>
-                    <span className="text-emerald-400 font-bold tabular-nums">
+                    <span className="text-emerald-700 font-bold tabular-nums">
                       {unit.waterPressureBar} BAR
                     </span>
                   </div>
                   <div>
                     <span>STATUS: </span>
-                    <span className="text-stone-300 font-bold">{unit.status}</span>
+                    <span className="text-slate-800 font-bold">{unit.status}</span>
                   </div>
                 </div>
               </div>
@@ -104,10 +104,10 @@ export const AutoSplitMatrixPanel: React.FC<AutoSplitMatrixPanelProps> = ({
       {/* Lapisan Barikade Selang Jalan Fuchsia */}
       <div>
         <div className="flex items-center justify-between mb-2">
-          <p className="text-xs font-mono font-bold tracking-widest text-fuchsia-400 uppercase">
-            BARIKADE SELANG RELAY FUCHSIA (#D946EF)
+          <p className="text-xs font-mono font-bold tracking-widest text-fuchsia-700 uppercase">
+            BARIKADE SELANG RELAY FUCHSIA (#C026D3)
           </p>
-          <span className="text-[10px] font-mono text-stone-400 tabular-nums">
+          <span className="text-[10px] font-mono text-slate-500 tabular-nums">
             {barricades.filter((b) => b.isActive).length} AKTIF
           </span>
         </div>
@@ -116,26 +116,26 @@ export const AutoSplitMatrixPanel: React.FC<AutoSplitMatrixPanelProps> = ({
           {barricades.map((barricade) => (
             <div
               key={barricade.id}
-              className={`p-3 text-xs font-mono border transition-colors ${
+              className={`p-3 text-xs font-mono border transition-colors shadow-sm ${
                 barricade.isActive
-                  ? "bg-fuchsia-950/20 border-fuchsia-800/80"
-                  : "bg-stone-950 border-stone-800 opacity-60"
+                  ? "bg-fuchsia-50/40 border-fuchsia-300"
+                  : "bg-slate-50 border-slate-200 opacity-70"
               }`}
             >
               <div className="flex items-center justify-between mb-1">
-                <span className="font-bold text-fuchsia-300">{barricade.roadName}</span>
+                <span className="font-bold text-fuchsia-900">{barricade.roadName}</span>
                 <span
                   className={`text-[10px] font-bold uppercase ${
-                    barricade.isActive ? "text-emerald-400" : "text-stone-500"
+                    barricade.isActive ? "text-emerald-700" : "text-slate-500"
                   }`}
                 >
                   {barricade.isActive ? "TERPASANG (4PX)" : "DINONAKTIFKAN"}
                 </span>
               </div>
 
-              <div className="flex items-center justify-between text-[11px] text-stone-400 mt-1">
+              <div className="flex items-center justify-between text-[11px] text-slate-600 mt-1">
                 <span>DIBENTANGKAN: {barricade.feederCallSign}</span>
-                <span className="font-bold text-stone-300 tabular-nums">
+                <span className="font-bold text-slate-900 tabular-nums">
                   {barricade.hoseLengthMeters} METER
                 </span>
               </div>
@@ -146,8 +146,8 @@ export const AutoSplitMatrixPanel: React.FC<AutoSplitMatrixPanelProps> = ({
                   onClick={() => onToggleBarricade(barricade.id, barricade.isActive)}
                   className={`mt-2.5 w-full min-h-[48px] px-3 py-2 text-xs font-mono font-bold uppercase border transition-all cursor-pointer active:scale-[0.99] focus:outline-none focus:ring-2 ${
                     barricade.isActive
-                      ? "border-red-700 bg-red-950/30 text-red-200 hover:bg-red-900/50 focus:ring-red-500"
-                      : "border-fuchsia-600 bg-fuchsia-950/30 text-fuchsia-200 hover:bg-fuchsia-900/50 focus:ring-fuchsia-400"
+                      ? "border-red-300 bg-red-50 text-red-700 hover:bg-red-100 focus:ring-red-500"
+                      : "border-fuchsia-300 bg-fuchsia-50 text-fuchsia-800 hover:bg-fuchsia-100 focus:ring-fuchsia-400"
                   }`}
                 >
                   {barricade.isActive

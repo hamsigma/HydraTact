@@ -1,49 +1,109 @@
+@import "leaflet/dist/leaflet.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --color-surface-0: #07090E;
-  --color-surface-1: #0D1117;
-  --color-surface-2: #161B22;
-  --color-border-subtle: #21262D;
-  --color-border-active: #30363D;
-  --color-text-primary: #F0F6FC;
-  --color-text-secondary: #8B949E;
-  --color-text-muted: #484F58;
-  --color-attacker: #EF4444;
-  --color-feeder: #F59E0B;
-  --color-commander: #38BDF8;
-  --color-barricade: #D946EF;
-  --color-water-ready: #10B981;
-  --color-water-low: #F59E0B;
-  --color-water-empty: #64748B;
-  --color-water-damaged: #DC2626;
+  /* Surface Layers (Light Mode Utilitarian) */
+  --color-surface-0: #F8F9FA; /* Base Canvas: Latar belakang utama seluruh aplikasi */
+  --color-surface-1: #FFFFFF; /* Card Surface: Permukaan panel data & lembar kontrol */
+  --color-surface-2: #F1F5F9; /* Overlay Surface: Dialog konfirmasi & modal taktis */
+
+  /* Borders */
+  --color-border-subtle: #E2E8F0; /* Garis pembatas 1 px antar panel */
+  --color-border-active: #CBD5E1; /* Garis pembatas panel yang sedang aktif */
+
+  /* Text & Foreground */
+  --color-text-primary: #0F172A;   /* Slate 900: Kontras 15.2:1 terhadap #FFFFFF (WCAG AAA) */
+  --color-text-secondary: #475569; /* Slate 600: Kontras 7.1:1 terhadap #FFFFFF (WCAG AAA) */
+  --color-text-muted: #64748B;     /* Slate 500: Teks keterangan non-interaktif */
+
+  /* Peran Taktis Lapangan */
+  --color-attacker: #DC2626;       /* Merah pekat: Unit serbu gang sempit & tombol darurat */
+  --color-feeder: #D97706;         /* Amber reflektif: Unit tangki pengumpan jalan arteri */
+  --color-commander: #0284C7;      /* Sky Cyan: Posko komando, fokus peta & Sungai Karang Mumus */
+  --color-barricade: #C026D3;      /* Fuchsia neon: Garis barikade selang */
+
+  /* Status Sumber Air & Hidran */
+  --color-water-ready: #059669;    /* Hijau Emerald: Debit air lancar (>= 4.0 Bar) */
+  --color-water-low: #D97706;      /* Amber peringatan: Debit rendah (< 2.0 Bar) */
+  --color-water-empty: #64748B;    /* Slate redup: Tandon kering / hidran kosong */
+  --color-water-damaged: #DC2626;  /* Merah padam: Fisik hidran patah / rusak */
 }
 
-/* Custom Tactical Scrollbars per Impeccable Craft Floor */
+/* Custom Light Tactical Scrollbars */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #07090E;
+  background: #F1F5F9;
 }
 ::-webkit-scrollbar-thumb {
-  background: #21262D;
+  background: #CBD5E1;
   border-radius: 0px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #30363D;
+  background: #94A3B8;
 }
 
-/* Themed Browser Text Selection */
+/* Themed Browser Text Selection (Light Red) */
 ::selection {
-  background-color: #450a0a;
-  color: #fecaca;
+  background-color: #FEE2E2;
+  color: #991B1B;
 }
 
 /* High Precision Telemetry Numbers */
 .tabular-nums {
   font-variant-numeric: tabular-nums;
+}
+
+/* Leaflet Real Slippy Map Light Overrides */
+.leaflet-container {
+  font-family: inherit;
+  background-color: #E2E8F0;
+  width: 100%;
+  height: 100%;
+  outline: none;
+}
+
+.leaflet-popup-content-wrapper {
+  background: #FFFFFF !important;
+  color: #0F172A !important;
+  border: 1px solid #CBD5E1 !important;
+  border-radius: 0px !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08) !important;
+  padding: 0 !important;
+}
+
+.leaflet-popup-content {
+  margin: 10px 12px !important;
+  line-height: 1.4 !important;
+}
+
+.leaflet-popup-tip {
+  background: #FFFFFF !important;
+  border: 1px solid #CBD5E1 !important;
+  box-shadow: none !important;
+}
+
+/* Pulse animation for active fire incident on map */
+@keyframes tactical-pulse-ring {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.9;
+  }
+  70% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+.tactical-pulse-ring {
+  animation: tactical-pulse-ring 2s cubic-bezier(0.25, 0, 0.2, 1) infinite;
 }
