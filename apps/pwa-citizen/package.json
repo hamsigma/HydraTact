@@ -8,6 +8,6 @@
     "build": "echo \"Building Next.js pwa-citizen\"",
     "lint": "echo \"Linting pwa-citizen\"",
     "typecheck": "echo \"Typechecking pwa-citizen\"",
-    "test": "node --experimental-strip-types --test src/components/__tests__/*.test.ts"
+    "test": "node --experimental-strip-types --test src/**/__tests__/*.test.ts"
   }
 }
