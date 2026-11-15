@@ -19,64 +19,55 @@ export const TacticalSidebar: React.FC<TacticalSidebarProps> = ({
   activeBarricadesCount = 1,
   className = "",
 }) => {
-  const menuItems: { id: SidebarTab; label: string; badge?: string; icon: React.ReactNode }[] = [
+  // Icons8 iOS Family Icons (matching screenshot exactly)
+  const menuItems: { id: SidebarTab; label: string; hasNotification?: boolean; icon: React.ReactNode }[] = [
     {
       id: "COMMAND",
       label: "KOMANDO TAKTIS",
-      badge: activeIncidentsCount > 0 ? `${activeIncidentsCount} AKTIF` : undefined,
+      hasNotification: activeIncidentsCount > 0,
       icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
-          />
+        // Icons8 iOS: 2x2 Circle Ring Grid
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+          <circle cx="7" cy="7" r="3.2" />
+          <circle cx="17" cy="7" r="3.2" />
+          <circle cx="7" cy="17" r="3.2" />
+          <circle cx="17" cy="17" r="3.2" />
         </svg>
       ),
     },
     {
       id: "UNITS",
       label: "MATRIKS ARMADA",
-      badge: `${activeBarricadesCount} SELANG`,
+      hasNotification: activeBarricadesCount > 0,
       icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
-          />
+        // Icons8 iOS: Tactical Fleet Truck (Armada Pemadam)
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+          <rect x="2" y="5" width="12" height="10" rx="1.5" />
+          <path d="M14 8h4.5l2.5 3.5V15h-7V8z" />
+          <circle cx="6" cy="17.5" r="2" />
+          <circle cx="17.5" cy="17.5" r="2" />
+          <path d="M5 9h6" />
         </svg>
       ),
     },
     {
       id: "HYDRANTS",
       label: "DIREKTORI AIR",
-      badge: "30+ TITIK",
       icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"
-          />
+        // Icons8 iOS: Water Droplet (Logistik Air & Hidran)
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+          <path d="M12 2.5C12 2.5 5.5 10 5.5 15C5.5 18.59 8.41 21.5 12 21.5C15.59 21.5 18.5 18.59 18.5 15C18.5 10 12 2.5 12 2.5Z" />
+          <path d="M9 15a3 3 0 003 3" />
         </svg>
       ),
     },
     {
       id: "TELEMETRY",
       label: "LOG TELEMETRI",
-      badge: "REALTIME",
       icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M13 10V3L4 14h7v7l9-11h-7z"
-          />
+        // Icons8 iOS: Activity Pulse Waveform (Telemetri Realtime)
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+          <path d="M2 12h4l3-8 4 16 3-8h6" />
         </svg>
       ),
     },
@@ -85,82 +76,56 @@ export const TacticalSidebar: React.FC<TacticalSidebarProps> = ({
   return (
     <aside
       aria-label="Navigasi Menu Utama Posko"
-      className={`w-64 bg-[#FFFFFF] border-r border-[#E2E8F0] flex flex-col justify-between shrink-0 select-none z-30 ${className}`}
+      className={`w-[76px] bg-[#121316] flex flex-col items-center justify-between py-6 shrink-0 select-none z-30 ${className}`}
     >
-      {/* Brand & Sector Header */}
-      <div>
-        <div className="h-14 px-4 border-b border-[#E2E8F0] flex items-center gap-3 bg-[#F8F9FA]">
-          <div className="w-7 h-7 bg-red-600 flex items-center justify-center text-white font-bold text-xs font-mono">
-            HT
-          </div>
-          <div className="flex flex-col">
-            <span className="text-xs font-mono font-bold tracking-wider text-slate-900 uppercase">
-              HYDRATACT POSKO
-            </span>
-            <span className="text-[10px] font-mono text-slate-500 uppercase tracking-tight">
-              SAMARINDA • LIGHT OPS
-            </span>
-          </div>
-        </div>
-
-        {/* Menu Items */}
-        <nav className="p-3 space-y-1">
-          <p className="px-3 py-2 text-[10px] font-mono font-bold text-slate-400 tracking-widest uppercase">
-            MENU OPERASIONAL
-          </p>
-
-          {menuItems.map((item) => {
-            const isActive = activeTab === item.id;
-            return (
+      {/* Vertical Nav Icons (Icons8 iOS Style) */}
+      <nav className="flex flex-col items-center space-y-3.5">
+        {menuItems.map((item) => {
+          const isActive = activeTab === item.id;
+          return (
+            <div key={item.id} className="relative group flex items-center justify-center">
               <button
-                key={item.id}
                 type="button"
                 onClick={() => onSelectTab(item.id)}
-                className={`w-full min-h-[48px] px-3 py-2.5 flex items-center justify-between text-xs font-mono font-bold transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-slate-400 ${
+                aria-label={item.label}
+                className={`w-12 h-12 rounded-[18px] flex items-center justify-center transition-all cursor-pointer relative ${
                   isActive
-                    ? "bg-slate-100 text-slate-900 border-l-3 border-red-600 shadow-sm"
-                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 border-l-3 border-transparent"
+                    ? "bg-[#27282D] text-white shadow-sm ring-1 ring-white/10"
+                    : "text-zinc-500 hover:text-zinc-200 hover:bg-white/5"
                 }`}
               >
-                <div className="flex items-center gap-3">
-                  <span className={isActive ? "text-red-600" : "text-slate-400"}>
-                    {item.icon}
-                  </span>
-                  <span className="tracking-wider">{item.label}</span>
-                </div>
+                {item.icon}
 
-                {item.badge && (
-                  <span
-                    className={`text-[9px] font-mono px-1.5 py-0.5 border ${
-                      isActive
-                        ? "bg-red-50 border-red-200 text-red-700"
-                        : "bg-slate-50 border-slate-200 text-slate-600"
-                    }`}
-                  >
-                    {item.badge}
-                  </span>
+                {/* Red Circle Notification Dot (matching uploaded image) */}
+                {item.hasNotification && (
+                  <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-[#EF4444] rounded-full ring-2 ring-[#121316]" />
                 )}
               </button>
-            );
-          })}
-        </nav>
-      </div>
 
-      {/* Footer System Telemetry Status */}
-      <div className="p-3 border-t border-[#E2E8F0] bg-[#F8F9FA] space-y-2 text-[11px] font-mono">
-        <div className="flex items-center justify-between">
-          <span className="text-slate-500">CDC SUPABASE:</span>
-          <span className="text-emerald-700 font-bold flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 bg-emerald-600" /> TERHUBUNG
-          </span>
-        </div>
-        <div className="flex items-center justify-between">
-          <span className="text-slate-500">POSTGIS LATENSI:</span>
-          <span className="text-slate-800 font-bold tabular-nums">1.2ms</span>
-        </div>
-        <div className="flex items-center justify-between pt-1 border-t border-slate-200 text-[10px] text-slate-400">
-          <span>MODE: LIGHT SYSTEM</span>
-          <span>v2.0.0</span>
+              {/* Floating Tooltip Label */}
+              <div className="absolute left-16 bg-[#18181B] text-white text-xs font-mono font-bold tracking-wider px-2.5 py-1.5 rounded-lg shadow-xl border border-zinc-700 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
+                {item.label}
+              </div>
+            </div>
+          );
+        })}
+      </nav>
+
+      {/* Bottom Exit / Logout Button (Icons8 iOS Exit) */}
+      <div className="relative group flex items-center justify-center">
+        <button
+          type="button"
+          title="Keluar / Status Posko"
+          className="w-12 h-12 rounded-[18px] flex items-center justify-center text-zinc-500 hover:text-zinc-200 hover:bg-white/5 transition-colors cursor-pointer"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+            <path d="M16 17l5-5-5-5" />
+            <path d="M21 12H9" />
+          </svg>
+        </button>
+        <div className="absolute left-16 bg-[#18181B] text-zinc-300 text-[11px] font-mono px-2.5 py-1.5 rounded-lg shadow-xl border border-zinc-700 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
+          LOGOUT / POSKO SAMARINDA
         </div>
       </div>
     </aside>

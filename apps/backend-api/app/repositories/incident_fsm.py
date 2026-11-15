@@ -78,6 +78,17 @@ async def transition_incident_fsm_repo(
                 target_status_val,
                 is_override=effective_override,
             )
+            # Idempoten & Otoritas Override Posko: jika override aktif, izinkan target sah atau status yang sama
+            if effective_override:
+                if current_status_val == target_status_val or target_status_val in (
+                    IncidentFSMStatus.VERIFIED.value,
+                    IncidentFSMStatus.DISPATCHING.value,
+                    IncidentFSMStatus.INCIDENT_CLOSED.value,
+                    IncidentFSMStatus.CANCELLED_PRANK.value,
+                ):
+                    is_valid = True
+                    reason = None
+
             if not is_valid:
                 allowed_next = ALLOWED_FSM_TRANSITIONS.get(current_status_val, [])
                 raise InvalidFSMTransitionException(
@@ -176,6 +187,17 @@ async def transition_incident_fsm_repo(
         target_status_val,
         is_override=effective_override,
     )
+    # Idempoten & Otoritas Override Posko: jika override aktif, izinkan target sah atau status yang sama
+    if effective_override:
+        if current_status_val == target_status_val or target_status_val in (
+            IncidentFSMStatus.VERIFIED.value,
+            IncidentFSMStatus.DISPATCHING.value,
+            IncidentFSMStatus.INCIDENT_CLOSED.value,
+            IncidentFSMStatus.CANCELLED_PRANK.value,
+        ):
+            is_valid = True
+            reason = None
+
     if not is_valid:
         allowed_next = ALLOWED_FSM_TRANSITIONS.get(current_status_val, [])
         raise InvalidFSMTransitionException(

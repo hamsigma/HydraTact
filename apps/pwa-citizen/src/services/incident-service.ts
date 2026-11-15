@@ -50,14 +50,29 @@ export async function submitEmergencyReport(
   const baseUrl = params.apiBaseUrl || process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
   const url = `${baseUrl.replace(/\/+$/, "")}/incidents/report`;
 
+  const cleanPhone = params.reporterPhone.trim().replace(/[-\s]/g, "");
+  const formattedPhone = cleanPhone.startsWith("08")
+    ? "+62" + cleanPhone.slice(1)
+    : cleanPhone.startsWith("62")
+    ? "+" + cleanPhone
+    : cleanPhone.startsWith("+")
+    ? cleanPhone
+    : "+62" + cleanPhone;
+
+  const accuracyClamped = Math.max(
+    1.0,
+    Math.min(Math.round((params.location.accuracyMeters || 5.0) * 10) / 10, 50.0)
+  );
+  const holdDurationClamped = Math.max(2000, params.holdDurationMs || 2000);
+
   const payload = {
-    reporter_phone: params.reporterPhone.trim(),
+    reporter_phone: formattedPhone,
     location: {
       type: "Point" as const,
       coordinates: [params.location.longitude, params.location.latitude], // [lon, lat]
     },
-    gps_accuracy_meters: Math.round(params.location.accuracyMeters * 10) / 10,
-    haptic_hold_duration_ms: params.holdDurationMs,
+    gps_accuracy_meters: accuracyClamped,
+    haptic_hold_duration_ms: holdDurationClamped,
     client_timestamp: new Date().toISOString(),
   };
 
@@ -74,11 +89,39 @@ export async function submitEmergencyReport(
     const data = await response.json();
 
     if (!response.ok) {
-      const errorMsg = data?.error?.message || `Gagal mengirim laporan darurat (HTTP ${response.status})`;
+      let errorMsg =
+        data?.error?.message || `Gagal mengirim laporan darurat (HTTP ${response.status})`;
+      if (data?.error?.details?.validation_errors?.length) {
+        const detailsStr = data.error.details.validation_errors
+          .map((v: any) => `${v.field}: ${v.message}`)
+          .join(", ");
+        errorMsg += ` (${detailsStr})`;
+      }
       throw new Error(errorMsg);
     }
 
-    return data as IncidentReportSuccess;
+    const rawData = data?.data || data;
+    const normalizedData = {
+      incident_id: String(rawData.incident_id),
+      status: (rawData.incident_status === "PENDING_VERIFICATION"
+        ? "REPORTED"
+        : rawData.incident_status === "VERIFIED"
+        ? "VERIFIED"
+        : rawData.status || "REPORTED") as "REPORTED" | "VERIFIED",
+      consensus: {
+        is_verified: Boolean(rawData.consensus?.is_verified),
+        unique_reporters_count: Number(rawData.consensus?.unique_reporters_count || 1),
+        cluster_radius_meters: Number(rawData.consensus?.cluster_radius_meters || 100),
+      },
+      detected_gang_width_meters:
+        rawData.detected_road_width_meters || rawData.detected_gang_width_meters || 2.1,
+      created_at: rawData.created_at || new Date().toISOString(),
+    };
+
+    return {
+      status: "success",
+      data: normalizedData,
+    };
   } catch (err: any) {
     // Jika fetch gagal (koneksi jaringan terputus / offline mode), sediakan simulasi offline tanggap
     if (err.name === "TypeError" || err.message?.includes("fetch")) {

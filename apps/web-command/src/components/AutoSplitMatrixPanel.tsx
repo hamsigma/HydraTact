@@ -105,7 +105,7 @@ export const AutoSplitMatrixPanel: React.FC<AutoSplitMatrixPanelProps> = ({
       <div>
         <div className="flex items-center justify-between mb-2">
           <p className="text-xs font-mono font-bold tracking-widest text-fuchsia-700 uppercase">
-            BARIKADE SELANG RELAY FUCHSIA (#C026D3)
+            BARIKADE SELANG RELAY (#C026D3)
           </p>
           <span className="text-[10px] font-mono text-slate-500 tabular-nums">
             {barricades.filter((b) => b.isActive).length} AKTIF
@@ -113,50 +113,59 @@ export const AutoSplitMatrixPanel: React.FC<AutoSplitMatrixPanelProps> = ({
         </div>
 
         <div className="space-y-2">
-          {barricades.map((barricade) => (
-            <div
-              key={barricade.id}
-              className={`p-3 text-xs font-mono border transition-colors shadow-sm ${
-                barricade.isActive
-                  ? "bg-fuchsia-50/40 border-fuchsia-300"
-                  : "bg-slate-50 border-slate-200 opacity-70"
-              }`}
-            >
-              <div className="flex items-center justify-between mb-1">
-                <span className="font-bold text-fuchsia-900">{barricade.roadName}</span>
-                <span
-                  className={`text-[10px] font-bold uppercase ${
-                    barricade.isActive ? "text-emerald-700" : "text-slate-500"
-                  }`}
-                >
-                  {barricade.isActive ? "TERPASANG (4PX)" : "DINONAKTIFKAN"}
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between text-[11px] text-slate-600 mt-1">
-                <span>DIBENTANGKAN: {barricade.feederCallSign}</span>
-                <span className="font-bold text-slate-900 tabular-nums">
-                  {barricade.hoseLengthMeters} METER
-                </span>
-              </div>
-
-              {onToggleBarricade && (
-                <button
-                  type="button"
-                  onClick={() => onToggleBarricade(barricade.id, barricade.isActive)}
-                  className={`mt-2.5 w-full min-h-[48px] px-3 py-2 text-xs font-mono font-bold uppercase border transition-all cursor-pointer active:scale-[0.99] focus:outline-none focus:ring-2 ${
-                    barricade.isActive
-                      ? "border-red-300 bg-red-50 text-red-700 hover:bg-red-100 focus:ring-red-500"
-                      : "border-fuchsia-300 bg-fuchsia-50 text-fuchsia-800 hover:bg-fuchsia-100 focus:ring-fuchsia-400"
-                  }`}
-                >
-                  {barricade.isActive
-                    ? "LEPAS BARIKADE SELANG JALAN"
-                    : "AKTIFKAN BARIKADE SELANG (BENTANG)"}
-                </button>
-              )}
+          {barricades.length === 0 ? (
+            <div className="p-3 bg-slate-50 border border-slate-200 text-xs font-mono text-slate-500 rounded-lg">
+              <p className="font-bold text-slate-700 mb-0.5">NIHIL TITIK API AKTIF</p>
+              <p className="text-[11px] text-slate-500">
+                Barikade selang relay tidak diperlukan. Sektor dalam kondisi siaga hijau.
+              </p>
             </div>
-          ))}
+          ) : (
+            barricades.map((barricade) => (
+              <div
+                key={barricade.id}
+                className={`p-3 text-xs font-mono border transition-colors shadow-sm ${
+                  barricade.isActive
+                    ? "bg-fuchsia-50/40 border-fuchsia-300"
+                    : "bg-slate-50 border-slate-200 opacity-70"
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-bold text-fuchsia-900">{barricade.roadName}</span>
+                  <span
+                    className={`text-[10px] font-bold uppercase ${
+                      barricade.isActive ? "text-emerald-700" : "text-slate-500"
+                    }`}
+                  >
+                    {barricade.isActive ? "SELANG TERPASANG" : "DINONAKTIFKAN"}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between text-[11px] text-slate-600 mt-1">
+                  <span>DIBENTANGKAN: {barricade.feederCallSign}</span>
+                  <span className="font-bold text-slate-900 tabular-nums">
+                    {barricade.hoseLengthMeters} METER
+                  </span>
+                </div>
+
+                {onToggleBarricade && (
+                  <button
+                    type="button"
+                    onClick={() => onToggleBarricade(barricade.id, barricade.isActive)}
+                    className={`mt-2.5 w-full min-h-[48px] px-3 py-2 text-xs font-mono font-bold uppercase border transition-all cursor-pointer active:scale-[0.99] focus:outline-none focus:ring-2 ${
+                      barricade.isActive
+                        ? "border-red-300 bg-red-50 text-red-700 hover:bg-red-100 focus:ring-red-500"
+                        : "border-fuchsia-300 bg-fuchsia-50 text-fuchsia-800 hover:bg-fuchsia-100 focus:ring-fuchsia-400"
+                    }`}
+                  >
+                    {barricade.isActive
+                      ? "LEPAS BARIKADE SELANG JALAN"
+                      : "AKTIFKAN BARIKADE SELANG (BENTANG)"}
+                  </button>
+                )}
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>

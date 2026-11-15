@@ -8,12 +8,27 @@
 export interface IncidentQueueItem {
   id: string;
   locationName: string;
+  coordinates?: [number, number]; // [latitude, longitude]
   status: "REPORTED" | "VERIFIED" | "DISPATCHED" | "WATER_ON_FIRE" | "CONTROLLED" | "RESOLVED" | "FALSE_ALARM";
   reportersCount: number;
   consensusTarget: number;
   clusterRadiusMeters: number;
   reportedAt: string;
   elapsedMinutes: number;
+}
+
+export interface ResolvedIncidentHistoryItem {
+  id: string;
+  incidentCode: string;
+  locationName: string;
+  status: "RESOLVED";
+  reportersCount: number;
+  reportedAt: string;
+  resolvedAt: string;
+  durationMinutes: number;
+  operatorNotes: string;
+  unitsInvolved: string;
+  coordinates: [number, number];
 }
 
 export interface TelemetryMutationItem {
@@ -29,6 +44,7 @@ export const DEFAULT_INCIDENT_QUEUE: IncidentQueueItem[] = [
   {
     id: "33333333-3333-3333-3333-333333333301",
     locationName: "Gg. 4 Jl. Pelita, Samarinda Kota",
+    coordinates: [-0.4848, 117.1628],
     status: "VERIFIED",
     reportersCount: 2,
     consensusTarget: 2,
@@ -39,6 +55,7 @@ export const DEFAULT_INCIDENT_QUEUE: IncidentQueueItem[] = [
   {
     id: "33333333-3333-3333-3333-333333333302",
     locationName: "Gg. Madura Pasar Segiri",
+    coordinates: [-0.4828, 117.148],
     status: "REPORTED",
     reportersCount: 1,
     consensusTarget: 2,
@@ -77,5 +94,21 @@ export const DEFAULT_TELEMETRY_STREAM: TelemetryMutationItem[] = [
     callSign: "POSKO INDUK",
     actionType: "ROLE_REASSIGNED",
     description: "Auto-Split: Unit 01 ditugaskan ATTACKER, Unit 05 ditugaskan FEEDER",
+  },
+];
+
+export const DEFAULT_RESOLVED_HISTORY: ResolvedIncidentHistoryItem[] = [
+  {
+    id: "33333333-3333-3333-3333-333333333399",
+    incidentCode: "HT-2026-081",
+    locationName: "Jl. Lambung Mangkurat Gg. 2",
+    status: "RESOLVED",
+    reportersCount: 3,
+    reportedAt: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
+    resolvedAt: "17:40 WITA",
+    durationMinutes: 28,
+    operatorNotes: "Api pokok pada bangunan semi-permanen berhasil dipadamkan tuntas. Pendinginan bara selesai, nihil korban jiwa.",
+    unitsInvolved: "UNIT 02 CITRA NIAGA & RELAWAN 03",
+    coordinates: [-0.4890, 117.1580],
   },
 ];

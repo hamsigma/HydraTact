@@ -24,6 +24,9 @@ export interface ActiveBarricadeItem {
   hoseLengthMeters: number;
   isActive: boolean;
   createdAt: string;
+  incidentId?: string;
+  originCoords?: [number, number];
+  targetCoords?: [number, number];
 }
 
 export const DEFAULT_TACTICAL_UNITS: TacticalUnitMatrixItem[] = [

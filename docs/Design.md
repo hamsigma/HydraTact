@@ -1,224 +1,199 @@
-# SISTEM DESAIN & ERGONOMI TAKTIS (TACTICAL DESIGN SYSTEM SPECIFICATION)
+# SISTEM DESAIN & ERGONOMI TAKTIS
 
-**Nama Produk:** HydraTact Samarinda  
-**Versi Dokumen:** 2.0.0 (Standar Kompetisi KMM AST-PTMA 2026)  
-**Metodologi Terpadu:** Apple Human Interface Guidelines (Apple HIG OS 27), Impeccable (Operate Mode & Craft Floor), UI/UX Pro Max (Design Intelligence)  
-**Lingkup Antarmuka:** Web Command Center (`apps/web-command`), Citizen Emergency PWA (`apps/pwa-citizen`), Mobile Volunteer App (`apps/mobile-volunteer`)  
-**Tujuan Desain:** Menjamin kecepatan respons, kejelasan informasi tanpa beban kognitif (*Zero Cognitive Overhead*), dan kemudahan operasi fisik ekstrem saat menangani kebakaran permukiman padat dan gang sempit Kota Samarinda.
-
----
-
-## 1. Filosofi & Prinsip Desain Kondisi Stres Tinggi (High-Stress Design Principles)
-
-Antarmuka HydraTact dioperasikan dalam lingkungan darurat kritis: kepulan asap pekat, getaran kendaraan pemadam, pantulan sinar matahari terik tepian sungai atau gelap gulita saat listrik padam, serta personel yang menggunakan sarung tangan tebal dan basah.
-
-Sesuai panduan **Apple HIG** dan **Impeccable (Mode Operate)**, sistem dibangun di atas 4 pilar utama:
-
-1. **Prioritas Kontras Mutlak (WCAG 2.1 AAA $\ge 7:1$):**  
-   Seluruh elemen teks, simbol, dan batas interaksi wajib memenuhi rasio kontras minimal 7:1 terhadap latar belakang. Pada latar kanvas utama (`#07090E`), rasio kontras teks utama mencapai **15.8:1** (Text Primary `#F0F6FC`) dan **7.2:1** (Text Secondary `#8B949E`).
-2. **Target Sentuh Ramah Sarung Tangan (Glove-Friendly Touch Targets):**  
-   Mengikuti standar Apple HIG untuk kontrol kritis:
-   * Target sentuh umum minimal: **$44 \times 44\text{ pt}$** (iOS) / **$48 \times 48\text{ dp}$** (Android / Web).
-   * Aksi taktis darurat langsung: tinggi **$52\text{ dp}$ hingga $64\text{ dp}$** dengan lebar penuh (*full-width block*).
-3. **Kestabilan Tipografi Numerik (Tabular Numerals):**  
-   Seluruh angka telemetri yang terus diperbarui (jarak meter ke api, tekanan pompa Bar, kapasitas tangki air, durasi detik) wajib menggunakan atribut CSS `font-variant-numeric: tabular-nums` pada font monospaced untuk mencegah pergeseran tata letak (*zero cumulative layout shift* / CLS < 0.05).
-4. **Bebas Distraksi & Efisiensi Tugas (Operate Mode):**  
-   Dilarang menggunakan efek gradien kosmetik, animasi dekoratif tanpa makna, bayangan mengambang berlebih (*ghost cards*), atau kartu bertumpuk (*nested cards*). Setiap piksel didedikasikan untuk kecepatan pembacaan situasi (*situational awareness*).
+Nama Produk: HydraTact Samarinda  
+Versi: 2.2.0  
+Standar: Apple Human Interface Guidelines, Impeccable (Operate Mode), Minimalist UI, No AI Slop  
+Lingkup: Web Command Center (apps/web-command), Citizen Emergency PWA (apps/pwa-citizen), Mobile Volunteer App (apps/mobile-volunteer)  
+Tujuan: Mempercepat pembacaan data dan kendali fisik personel damkar saat menangani kebakaran di gang sempit Kota Samarinda.
 
 ---
 
-## 2. Larangan Mutlak Elemen Antarmuka (Impeccable Craft Floor & Banned Elements)
+## 1. Prinsip Operasi Lapangan
 
-Sesuai aturan `no-pill-chips.md` dan standar mutu *Impeccable Craft Floor*, elemen-elemen berikut **DILARANG KERAS** muncul di seluruh platform:
+Antarmuka beroperasi dalam situasi darurat: asap pekat, getaran kendaraan pemadam, pantulan sinar matahari siang, pemadaman listrik total, dan pengoperasian dengan sarung tangan basah.
 
-### 2.1 Larangan Mutlak (Strict Bans)
-* **Pill Chips / Oval Badges:** Dilarang membungkus teks status, kategori, atau catatan ke dalam kontainer kapsul membulat penuh (`rounded-full` dengan padding lonjong `px-3 py-1`, border tipis, dan latar transparan).
-* **Dot Indikator Dekoratif:** Dilarang meletakkan dot kecil berkedip (`w-2 h-2 rounded-full animate-pulse`) di dalam kapsul status.
-* **Badge Mengambang di Atas Judul:** Dilarang meletakkan chip atau badge mengambang di atas judul utama (H1) atau hero header.
-* **Ghost Cards / Kartu Bertumpuk:** Dilarang membuat kartu di dalam kartu (*cards-inside-cards*) atau kartu dengan bayangan lembut yang mengaburkan batas konten.
-* **Emoji sebagai Ikon:** Dilarang menggunakan emoji Unicode sebagai ikon navigasi/status; wajib menggunakan ikon vektor monoline SVG terstandarisasi.
+1. **Kontras Teks Minimal 7:1 (WCAG AAA)**  
+   - Kanvas Terang Web Command Center (`#F8F9FA`): Teks utama `#0F172A` (rasio kontras 15.2:1). Teks sekunder `#475569` (rasio kontras 7.1:1).  
+   - Kanvas Gelap Mobile Volunteer (`#07090E`): Teks utama `#F0F6FC` (rasio kontras 15.8:1).
+2. **Ukuran Target Sentuh Fisik**  
+   - Tombol umum minimal 48 x 48 dp.  
+   - Tombol darurat dan eskalasi (lapor darurat, barikade selang, verifikasi paksa) berukuran 52 dp hingga 64 dp dengan animasi penekanan fisik (`active:scale-[0.98]`).
+3. **Angka Telemetri Stabil (Tabular Numerals)**  
+   Semua data terukur (meter jarak, Bar tekanan, Liter isi tangki, detik hitung mundur) wajib memakai properti CSS `font-variant-numeric: tabular-nums` pada font monospace. Nilai yang bergerak cepat tidak boleh menggeser posisi tata letak teks di sebelahnya.
+4. **Tanpa Dekorasi Visual**  
+   Tanpa gradien warna, tanpa bayangan mengambang tebal, tanpa kartu bersarang di dalam kartu lain. Setiap elemen visual harus langsung melayani pembacaan data atau penekanan aksi kendali.
 
-### 2.2 Standar Pengganti (Minimalist Plain-Text Standard)
-1. **Section Eyebrow & Kategori:**  
-   Gunakan tipografi teks murni tanpa latar belakang, tanpa border, dan tanpa dot:
+---
+
+## 2. Aturan Pembatasan Komponen
+
+Aturan mutlak untuk seluruh antarmuka sistem:
+
+### 2.1 Komponen Terlarang
+* **Pill Chips dan Badge Lonjong:** Dilarang membungkus teks status, kategori, atau catatan ke dalam kontainer kapsul membulat penuh (`rounded-full` lonjong `px-3 py-1`).
+* **Dot Berkedip Dekoratif:** Dilarang memasang dot kecil berkedip (`animate-pulse`) di dalam kapsul status.
+* **Badge Mengambang di Atas Judul:** Dilarang menaruh badge mengambang di atas judul utama (H1).
+* **Kartu Bertumpuk (Cards Inside Cards):** Dilarang membungkus kartu ke dalam kartu lain secara bertingkat.
+* **Emoji:** Dilarang menggunakan emoji Unicode sebagai ikon. Gunakan ikon SVG monoline.
+
+### 2.2 Format Pengganti
+1. **Label Kategori:** Gunakan teks monospace tebal kapital tanpa kontainer latar belakang:
    ```css
    font-family: monospace;
    font-size: 11px;
    font-weight: 700;
    letter-spacing: 0.15em;
    text-transform: uppercase;
-   color: #8B949E;
-   margin-bottom: 8px;
+   color: #64748B;
+   margin-bottom: 6px;
    ```
-2. **Judul Utama (H1):**  
-   Judul berdiri sendiri secara gagah dan bersih di puncak hierarki visual.
-3. **Status Operasional & Metrik:**  
-   Tampilkan status sebagai teks tebal langsung dengan font monospace:
+2. **Status Operasional:** Teks monospace tebal langsung dengan warna penanda:
    ```css
    font-family: monospace;
    font-size: 12px;
    font-weight: 700;
-   color: #10B981; /* Hijau Emerald untuk READY / VERIFIED */
+   color: #059669; /* Status READY atau VERIFIED */
    ```
-4. **Catatan & Peringatan:**  
-   Gunakan blok datar berbatas garis 1 px di sisi kiri (`border-l-2 border-stone-700 pl-3`), bukan chip mengambang.
+3. **Catatan Operasional:** Gunakan blok teks datar berbatas garis 1 px pada sisi kiri (`border-l-2 border-slate-300 pl-3`).
 
 ---
 
-## 3. Sistem Token Warna Taktis (Tactical OLED Dark System)
+## 3. Spesifikasi Palet Warna
 
-Palet warna menggunakan fondasi hitam OLED pekat untuk memaksimalkan efisiensi baterai ponsel relawan di lapangan dan memastikan visibilitas tinggi di bawah cahaya matahari terik maupun kondisi gelap pekat.
-
-### 3.1 Hierarki Permukaan (Surface Hierarchy)
-
+### 3.1 Web Command Center (Light Mode Utilitarian)
+Dirancang untuk monitor posko komando di ruangan terang atau siang hari:
 ```css
 :root {
-  /* Surface Layers */
-  --color-surface-0: #07090E; /* Base Canvas: Latar belakang utama seluruh aplikasi */
-  --color-surface-1: #0D1117; /* Card Surface: Permukaan panel data & lembar kontrol */
-  --color-surface-2: #161B22; /* Overlay Surface: Dialog konfirmasi & modal taktis */
-  
-  /* Borders */
-  --color-border-subtle: #21262D; /* Garis pembatas 1 px antar panel */
-  --color-border-active: #30363D; /* Garis pembatas panel yang sedang aktif */
+  --color-surface-0: #F8F9FA; /* Latar kanvas utama */
+  --color-surface-1: #FFFFFF; /* Latar panel dan kartu data */
+  --color-surface-2: #F1F5F9; /* Latar modal dan dialog konfirmasi */
 
-  /* Text & Foreground */
-  --color-text-primary: #F0F6FC;   /* Kontras 15.8:1 terhadap surface-0 (WCAG AAA) */
-  --color-text-secondary: #8B949E; /* Kontras 7.2:1 terhadap surface-0 (WCAG AAA) */
-  --color-text-muted: #484F58;     /* Teks keterangan non-interaktif */
+  --color-border-subtle: #E2E8F0; /* Batas panel 1 px */
+  --color-border-active: #CBD5E1; /* Batas panel aktif */
 
-  /* Peran Taktis Lapangan */
-  --color-attacker: #EF4444;       /* Merah pekat: Unit serbu gang sempit & tombol darurat */
-  --color-feeder: #F59E0B;         /* Amber reflektif: Unit tangki pengumpan jalan arteri */
-  --color-commander: #38BDF8;      /* Sky Cyan: Posko komando, fokus peta & Sungai Karang Mumus */
-  --color-barricade: #D946EF;      /* Fuchsia neon: Garis barikade selang (kontras tertinggi) */
+  --color-text-primary: #0F172A;   /* Slate 900 (WCAG AAA) */
+  --color-text-secondary: #475569; /* Slate 600 (WCAG AAA) */
+  --color-text-muted: #64748B;     /* Slate 500 */
 
-  /* Status Sumber Air & Hidran */
-  --color-water-ready: #10B981;        /* Hijau Emerald: Debit air lancar (>= 4.0 Bar) */
-  --color-water-low: #F59E0B;          /* Amber peringatan: Debit rendah (< 2.0 Bar) */
-  --color-water-empty: #64748B;        /* Slate redup: Tandon kering / hidran kosong */
-  --color-water-damaged: #DC2626;      /* Merah padam: Fisik hidran patah / rusak */
+  --color-attacker: #DC2626;  /* Merah pekat unit serbu dan titik api */
+  --color-feeder: #D97706;    /* Amber unit tangki jalan raya */
+  --color-commander: #0284C7; /* Biru posko komando */
+  --color-barricade: #C026D3; /* Fuchsia barikade selang */
+
+  --color-water-ready: #059669;   /* Hijau debit air memadai */
+  --color-water-low: #D97706;     /* Amber debit rendah < 2.0 Bar */
+  --color-water-empty: #64748B;   /* Slate tandon kering atau hidran kosong */
+  --color-water-damaged: #DC2626; /* Merah fisik hidran rusak */
 }
 ```
 
----
-
-## 4. Tipografi & Skala Hierarki Data
-
-Sistem tipografi memadukan font sans-serif netral untuk instruksi umum dan font monospaced untuk seluruh data telemetri.
-
-### 4.1 Pemilihan Keluarga Font
-* **Display & Body:** `Inter`, `Roboto`, atau `System Sans-Serif`.
-* **Data Telemetri, Kode Unit & Metrik:** `JetBrains Mono`, `Roboto Mono`, atau `System Monospace` dengan pengaturan CSS `font-variant-numeric: tabular-nums`.
-
-### 4.2 Skala Ukuran & Bobot Teks
-
-| Peran Tipografi | Ukuran | Line Height | Weight | Penerapan UI |
-| :--- | :---: | :---: | :---: | :--- |
-| **Telemetry Giant** | 44 px | 48 px | Bold (700) Monospace | Angka sisa air tangki (Liter) & jarak meter ke api |
-| **Headline H1** | 20–22 px | 28 px | Bold (700) Sans | Nama lokasi kejadian aktif & header dasbor |
-| **Section Title H2** | 15–16 px | 22 px | Semibold (600) Sans | Header panel unit armada & direktori hidran |
-| **Body Data** | 13–14 px | 20 px | Regular (400) Sans | Alamat detail, nama posko, instruksi operasional |
-| **Label / Eyebrow** | 11 px | 14 px | Bold (700) Monospace | Kode unit (`ATK-04`), stempel waktu, koordinat WGS 84 |
+### 3.2 Mobile Volunteer App (Tactical Dark Mode)
+Dirancang untuk menghemat baterai layar OLED dan menjaga adaptasi gelap mata personel di lokasi kebakaran malam hari:
+* Kanvas Latar: `#07090E`
+* Kartu Data: `#0D1117`
+* Garis Batas: `#21262D`
+* Teks Utama: `#F0F6FC`
 
 ---
 
-## 5. Spesifikasi Komponen Interaktif (Apple HIG & Ergonomi Taktis)
+## 4. Tipografi
 
-### 5.1 Tombol Darurat Warga 2.0 Detik (Haptic Press-and-Hold Button)
-Komponen pelaporan darurat pada Citizen PWA dirancang untuk mengeliminasi laporan palsu (*prank call*) dan sentuhan tidak sengaja:
-* **Dimensi Fisik:** Lingkaran berdiameter **140 dp** tepat di tengah layar dengan warna dasar merah pemadam `#DC2626`.
-* **Cincin Progres Visual:** Garis tepi lingkaran SVG ketebalan **6 px** yang berputar memenuhi keliling tepat selama **2.000 ms** penahanan jari.
-* **Pola Umpan Balik Haptic (Vibration API):**
-  * *Touch Inisial:* Getaran pendek tunggal (40 ms) saat jari pertama kali menyentuh area tombol.
-  * *Trigger Sukses:* Getaran ganda tegas (100 ms ON / 50 ms jeda / 150 ms ON) saat progres mencapai 100% dan laporan terkirim.
-* **Pembatalan Spontan (Instant Abort):** Jika jari terangkat sebelum 2.0 detik tercapai (contoh: pada detik 1.2), lingkaran progres seketika kembali ke 0% dan tidak ada muatan data yang terkirim ke peladen.
+* **Teks Umum dan Judul:** Inter, Geist Sans, atau font sans-serif bawaan sistem operasi.
+* **Data Numerik, Kode Panggilan Unit, dan Koordinat:** Geist Mono, JetBrains Mono, atau font monospace sistem operasi dengan aturan `font-variant-numeric: tabular-nums`.
 
-### 5.2 Sakelar Barikade Selang Jalan (Hose Barricade Switch)
-* **Dimensi:** Modul tombol berukuran **56 dp** dengan garis tepi fuchsia `#D946EF`.
-* **Status Aktif:** Latar belakang berubah menjadi fuchsia gelap transparan (`rgba(217, 70, 239, 0.15)`) dengan teks tegas: `BARIKADE AKTIF: SELANG TERBENTANG`.
-* **Aksi 1-Tap Realtime:** Sekali sentuh langsung menyiarkan garis rintangan selang (`LineString`) ke seluruh layar unit lapangan dan posko via Supabase Realtime CDC.
-
-### 5.3 Tombol Pembaruan Status Air 1-Tap (Glove-Friendly Action Sheet)
-* **Tiga Tombol Bersebelahan (Tinggi 52 dp):**
-  * `[ READY ]` (Border `#10B981`, teks hijau emerald)
-  * `[ DEBIT RENDAH ]` (Border `#F59E0B`, teks kuning amber)
-  * `[ KERING ]` (Border `#64748B`, teks abu-abu slate)
-* **Optimistic UI:** Mengetuk salah satu tombol langsung memperbarui status di penyimpanan lokal Isar DB perangkat seketika (< 10 ms) sebelum disinkronkan ke peladen.
-
-### 5.4 Modal Dialog Konfirmasi Taktis FSM
-* **Fungsi:** Melindungi aksi-aksi berisiko tinggi (Verifikasi Paksa, Selesai Operasi / Tutup Insiden).
-* **Aksesibilitas & Fokus:** Dilengkapi atribut ARIA (`role="dialog" aria-modal="true"`), dukungan keyboard (`Escape` untuk membatalkan, `Enter` untuk konfirmasi), serta kontras tombol aksi `BATAL` vs `EKSEKUSI` yang kontras.
+| Peran | Ukuran | Bobot | Penggunaan |
+| :--- | :---: | :---: | :--- |
+| **Telemetry Giant** | 44 px | Bold Monospace | Volume tangki sisa (L) dan jarak ke api (m) |
+| **Headline H1** | 20 px | Bold Sans | Nama lokasi insiden aktif |
+| **Section Title H2** | 15 px | Semibold Sans | Header panel armada dan hidran |
+| **Body Data** | 13 px | Regular Sans | Rincian alamat dan instruksi operasional |
+| **Label atau Eyebrow** | 11 px | Bold Monospace | Tanda panggilan unit, waktu, koordinat |
 
 ---
 
-## 6. Ergonomi Peta Taktis Luring (Offline MBTiles & CartoDB Dark Canvas)
+## 5. Komponen Interaktif
 
-Peta vektor luring `.mbtiles` dan kanvas peta posko menggunakan palet gelap dengan hierarki garis jalan berbasis lebar fisik:
+### 5.1 Tombol Lapor Darurat Warga 2.0 Detik (apps/pwa-citizen)
+* **Bentuk:** Lingkaran diameter 140 dp warna `#DC2626`.
+* **Cincin Progres:** Garis SVG tebal 6 px berputar penuh selama 2000 ms sentuhan ditahan.
+* **Getaran Fisik (Vibration API):**
+  * Sentuhan awal: 40 ms.
+  * Laporan terkirim: Pola ganda 100 ms ON / 50 ms OFF / 150 ms ON.
+* **Pembatalan:** Pelepasan jari sebelum 2.0 detik membatalkan pengiriman seketika dan cincin kembali ke 0%.
 
-### 6.1 Pewarnaan Lapisan Vektor
-* **Latar Dasar Daratan:** `#0B0E14`
-* **Jaringan Jalan Arteri ($\ge 6\text{ m}$):** Garis lebar `#2D333B`
-* **Jaringan Gang Sempit ($< 2.5\text{ m}$):** Garis tegas `#484F58` beraksen pembatas
-* **Koridor Sungai Karang Mumus:** Poligon biru pekat `#0F2847` dengan garis tepian `#1D4ED8`
-* **Bangunan Permukiman Padat:** Poligon netral `#161B22` dengan batas tipis 0.5 px
+### 5.2 Sakelar Barikade Selang Jalan (apps/web-command)
+* **Dimensi:** Tombol tinggi 48–56 dp bergaris batas fuchsia `#C026D3`.
+* **Status Aktif:** Latar transparan fuchsia (`#FDF4FF`), teks: `BARIKADE AKTIF: SELANG TERBENTANG`.
+* **Aksi:** Sekali sentuh menyiarkan data barikade jalan ke seluruh armada via Supabase Realtime CDC.
 
-### 6.2 Marker Spasial Armada & Sumber Air
-* **Titik Api / Pusat Insiden:** Ikon api merah 32 x 32 dp beraksen lingkaran konsensus geofencing 100 meter (garis putus-putus merah).
-* **Unit ATTACKER:** Segitiga arah navigasi merah `#EF4444` berukuran 28 dp yang berputar mengikuti arah kompas perangkat.
-* **Unit FEEDER:** Bujursangkar kuning `#F59E0B` berukuran 28 dp yang terkunci di jalan arteri utama.
-* **Sumber Air / Hidran:** Ikon tetesan air 24 dp dengan warna status operasional dan teks jarak meter di bawahnya (contoh: `120M`).
+### 5.3 Tombol Status Hidran 1-Tap (apps/mobile-volunteer)
+Tiga tombol bersebelahan dengan tinggi 52 dp:
+* `[ READY ]` (Border `#059669`, teks hijau)
+* `[ DEBIT RENDAH ]` (Border `#D97706`, teks amber)
+* `[ KERING ]` (Border `#64748B`, teks slate)
 
----
-
-## 7. Tata Letak Antarmuka Per Platform
-
-### 7.1 Citizen Emergency PWA (`apps/pwa-citizen`)
-* **Struktur Tampilan:** *Single-viewport zero-scroll* pada layar ponsel standar (360 x 640 px s.d. 412 x 915 px).
-* **Header:** Teks posko pemadam dan status geolokasi: `STATUS KOORDINAT: TERKUNCI (±4.0m)`.
-* **Pusat Layar:** Tombol darurat Press-and-Hold 2.0 detik.
-* **Bawah Layar:** Input nomor telepon / WhatsApp pelapor dan kartu konsensus waktu nyata 180 detik.
-
-### 7.2 Dasbor Komando Posko Induk (`apps/web-command`)
-* **Tata Letak 3 Kolom Taktis:**
-  * **Kolom Kiri (Lebar 320 px):** Antrean insiden aktif, status konsensus warga, dan indikator pasang surut Sungai Karang Mumus (SKM).
-  * **Kolom Tengah (Fleksibel):** Kanvas peta interaktif Leaflet.js layar penuh bertema CartoDB Dark Matter dengan visualisasi pergerakan armada dan garis selang fuchsia.
-  * **Kolom Kanan (Lebar 360 px):** Matriks Auto-Split armada (`ATTACKER`/`FEEDER`), tombol kontrol transisi siklus hidup FSM, dan log aliran telemetri kronologis.
-
-### 7.3 Aplikasi Mobile Relawan Lapangan (`apps/mobile-volunteer`)
-* **Header Taktis (Tinggi 56 dp):**
-  * Teks mode peran: `MODE ATTACKER` (Latar merah gelap) atau `MODE FEEDER` (Latar amber gelap).
-  * Indikator antrean sinkronisasi: `OFFLINE (2 ANTREAN)` atau `ONLINE (TERHUBUNG)`.
-* **Area Peta Utama:** Mengisi 60% tinggi layar ponsel untuk navigasi gang sempit.
-* **Panel Kontrol Aksi Bawah:** Mengisi 40% tinggi layar ponsel dengan tombol minta tekanan pompa 64 dp dan modul 3 sumber air terdekat.
+### 5.4 Dialog Konfirmasi Transisi FSM (apps/web-command)
+* **Tujuan:** Mencegah salah pencet aksi kritis (Verifikasi Paksa, Tutup Insiden).
+* **Aksesibilitas:** Atribut ARIA `role="dialog"` dan `aria-modal="true"`.
+* **Pintasan Keyboard:** Tombol `Escape` untuk membatalkan, tombol `Enter` untuk mengeksekusi.
 
 ---
 
-## 8. Standar Salinan Teks Antarmuka (No-AI-Slop Copywriting Standard)
+## 6. Peta Taktis OpenStreetMap (Samarinda Kota)
 
-Seluruh label teks pada tombol, dialog, dan pesan sistem harus singkat, tegas, konkret, dan langsung menunjukkan tindakan operasional nyata tanpa bunga bahasa atau kata-kata pengisi:
+Peta memakai ubin resmi **OpenStreetMap Standar** (`https://tile.openstreetmap.org/{z}/{x}/{y}.png`) untuk menampilkan jalan, gang, dan toponimi Kota Samarinda secara presisi.
 
-| Komponen | Hindari (Slop / Bunga Bahasa) | Wajib Digunakan (Tegas & Konkret) |
+### 6.1 Koordinat Terkalibrasi ke Jaringan Jalan
+* **Titik Api Gg. 4 Jl. Pelita:** `[-0.4848, 117.1628]` (di dalam gang sempit permukiman, penanda radar lingkaran berdenyut merah).
+* **Posisi Parkir Truk Feeder Jl. Pelita:** `[-0.4840, 117.1638]` (di badan jalan raya berlebar 6 meter).
+* **Garis Barikade Selang:** Garis putus-putus fuchsia tebal 5 px dari posisi truk Feeder ke titik api sepanjang 110 meter.
+* **Titik Api Gg. Madura Pasar Segiri:** `[-0.4828, 117.1480]`.
+* **30 Titik Sumber Air:** Terkunci di sisi jalan raya, persimpangan gang, dan dermaga sedot sungai dengan penanda lingkaran hijau/amber/slate.
+* **Badan Air Alami:** Sungai Karang Mumus dan Sungai Mahakam tampil langsung dari ubin peta dasar OpenStreetMap tanpa garis poligon buatan.
+
+---
+
+## 7. Tata Letak Dasbor Web Command Center (Clean Bento Grid)
+
+1. **Sidebar Navigasi Ikon Ramping (76 px Dark Rail):**  
+   Navigasi vertikal dengan latar belakang gelap obsidian `#111215`, tombol logo squircle krem `#F5E6CC`, ikon monoline bersih dengan floating tooltip, serta tombol keluar/status di bagian bawah.
+2. **Header Ringkas Area Kerja:**  
+   Menampilkan judul "Overview" posko, detail sektor Samarinda, serta ikon pencarian, lonceng notifikasi siaga, dan kartu profil Komandan Jaga.
+3. **Baris Atas Hero Bento (Tinggi 520 px):**  
+   - **Hero Map Card (Span 8):** Kanvas peta interaktif OpenStreetMap Samarinda (WGS 84) diperluas maksimal dengan penanda lingkaran radar aktif, kontrol filter air ramping di pojok atas, dan status barikade selang.
+   - **3 Kartu Status Pastel Vertikal (Span 4):**
+     * Soft Lavender (`#F3E8FF`): Armada Taktis (Rasio Unit Attacker vs Feeder, tekanan 4.0 Bar dengan ikon lingkaran).
+     * Soft Mint (`#ECFDF5`): Logistik Air Siaga (30 Titik Hidran/Tandon, cakupan 100% GIS dengan ikon lingkaran).
+     * Soft Amber (`#FFFBEB`): Sungai Karang Mumus (Pasang Maksimal +1.80m, salinitas 0.05% dengan ikon lingkaran).
+4. **Baris Bawah:**  
+   - **Tabel Antrean Insiden (Span 7):** Daftar insiden kebakaran dan laporan konsensus warga dengan stempel waktu, status FSM, dan tombol fokus peta.
+   - **Kartu Gelap Kontras Aksi Cepat (Span 5):** Kartu gelap `#141518` dengan grafis geometrik berlatar tipis, status siaga, tombol aksi FSM (Verifikasi Paksa, Dispatch), dan sakelar barikade selang relay fuchsia.
+
+---
+
+## 8. Standar Salinan Teks Operasional
+
+Setiap label tombol, pesan dialog, dan status sistem ditulis singkat, tegas, konkret, dan langsung menunjukkan tindakan:
+
+| Komponen | Salinan Dilarang (AI Slop) | Salinan Wajib (Taktis Langsung) |
 | :--- | :--- | :--- |
-| **Tombol Lapor Warga** | Sentuh Di Sini untuk Memfasilitasi Bantuan Pemadaman | TAHAN 2 DETIK UNTUK LAPOR KEBAKARAN |
-| **Tombol Tekanan Air** | Minta Peningkatan Tekanan Air Demi Kelancaran Serbu | MINTA TEKANAN POMPA (5.0 BAR) |
-| **Tombol Barikade** | Aktifkan Proteksi Selang dari Kendaraan Melintas | AKTIFKAN BARIKADE SELANG |
-| **Pembaruan Hidran** | Catat Bahwa Sumber Air Ini Dalam Keadaan Sangat Baik | HIDRAN SIAP PAKAI |
-| **Kesalahan GPS** | Maaf, terjadi anomali dalam mendeteksi koordinat Anda | GPS MATI. AKTIFKAN LOKASI PERANGKAT ANDA. |
-| **Koneksi Putus** | Sistem sedang berusaha menyambungkan kembali koneksi | MODE LURING. 3 MUTASI TERSIMPAN DI PONSEL. |
+| **Tombol Lapor** | Sentuh Di Sini untuk Memfasilitasi Bantuan | TAHAN 2 DETIK UNTUK LAPOR |
+| **Minta Tekanan** | Minta Peningkatan Tekanan Pompa Demi Kelancaran | MINTA TEKANAN POMPA (7.0 BAR) |
+| **Barikade** | Aktifkan Proteksi Selang dari Kendaraan Melintas | AKTIFKAN BARIKADE SELANG |
+| **Status Hidran** | Catat Bahwa Sumber Air Ini Dalam Kondisi Baik | HIDRAN SIAP PAKAI |
+| **GPS Mati** | Maaf, terjadi anomali dalam mendeteksi koordinat Anda | GPS MATI. NYALAKAN LOKASI PERANGKAT. |
+| **Koneksi Putus** | Sistem sedang berusaha menyambungkan kembali koneksi | KONEKSI PUTUS. 3 MUTASI TERSIMPAN DI PONSEL. |
 | **Verifikasi Posko** | Lakukan Proses Eskalasi Status Insiden Secara Manual | VERIFIKASI PAKSA OPERATOR |
 
 ---
 
-## 9. Pre-Delivery Checklist Kualitas UI/UX (Quality Assurance)
+## 9. Daftar Periksa Mutu Antarmuka
 
-Sebelum menyerahkan kode antarmuka ke lingkungan produksi, setiap komponen wajib melewati daftar periksa berikut:
-
-- [x] **Accessibility (WCAG AAA):** Kontras teks utama minimal 7:1 terhadap latar `#07090E`.
-- [x] **Touch Target Floor:** Area interaksi tombol aksi kritis minimal $48 \times 48\text{ dp}$ (52–64 dp pada aksi utama).
-- [x] **Zero Pill Chips:** Tidak ada kontainer kapsul oval mengambang atau dot berkedip dekoratif di seluruh tampilan.
-- [x] **No Emoji Icons:** Seluruh simbol menggunakan ikon vektor monoline SVG terukur.
-- [x] **Themed Browser Surfaces:** Warna seleksi teks diatur seragam (`selection:bg-red-950 selection:text-red-200`) dan scrollbar tipis gelap.
-- [x] **Tabular Numerals:** Seluruh angka metrik menggunakan `tabular-nums` pada font monospace.
-- [x] **Haptic Feedback:** Tombol darurat warga mematuhi pola getaran tepat (40 ms sentuh, 100/50/150 ms sukses, abort instan).
-- [x] **Reduced Motion Support:** Mendukung kueri media `prefers-reduced-motion` untuk personel yang sensitif terhadap pergerakan layar.
+Sebelum kode dinyatakan selesai:
+- [x] Kontras teks utama terhadap latar belakang minimal 7:1 (WCAG AAA).
+- [x] Luas target sentuh tombol aksi minimal 48 x 48 dp (52 dp untuk aksi darurat).
+- [x] Tidak ada kontainer kapsul oval (*pill chip*) atau dot berkedip dekoratif di seluruh halaman.
+- [x] Semua ikon menggunakan format SVG monoline.
+- [x] Seluruh angka data telemetri menggunakan `tabular-nums`.
+- [x] Koordinat insiden kebakaran, hidran, dan barikade menempel pada jalan nyata OpenStreetMap.
+- [x] Salinan teks bersih dari kata klise dan struktur berbelit AI slop.

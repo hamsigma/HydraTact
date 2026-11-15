@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: "HydraTact Samarinda - Pelaporan Darurat Warga",
   description: "Aplikasi Pelaporan Darurat Kebakaran Zero-Hardware Tepian Mahakam Samarinda",
   manifest: "/manifest.json",
-  themeColor: "#0c0a09",
+  themeColor: "#F8F9FA",
   viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no",
 };
 
@@ -17,7 +17,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="id">
-      <body className="bg-[#07090E] text-stone-100 antialiased min-h-screen selection:bg-red-950 selection:text-red-200">
+      <body className="bg-[#F0F2F5] text-slate-900 font-sans antialiased min-h-screen selection:bg-red-100 selection:text-red-900">
         {children}
       </body>
     </html>
