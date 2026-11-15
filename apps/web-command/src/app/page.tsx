@@ -1,13 +1,83 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { TacticalMapCanvas } from "../components/TacticalMapCanvas";
+import {
+  AutoSplitMatrixPanel,
+  DEFAULT_TACTICAL_UNITS,
+  DEFAULT_ACTIVE_BARRICADES,
+  type ActiveBarricadeItem,
+  type TacticalUnitMatrixItem,
+} from "../components/AutoSplitMatrixPanel";
+import { subscribeToIncidentRealtime } from "../lib/supabase-realtime";
 
 export default function WebCommandDashboard() {
   const [selectedIncidentId, setSelectedIncidentId] = useState<string>(
     "33333333-3333-3333-3333-333333333301"
   );
   const [incidentStatus, setIncidentStatus] = useState<string>("VERIFIED");
+  const [units, setUnits] = useState<TacticalUnitMatrixItem[]>(DEFAULT_TACTICAL_UNITS);
+  const [barricades, setBarricades] = useState<ActiveBarricadeItem[]>(DEFAULT_ACTIVE_BARRICADES);
+
+  // Berlangganan Saluran Supabase Realtime CDC untuk insiden aktif
+  useEffect(() => {
+    const sub = subscribeToIncidentRealtime(selectedIncidentId, {
+      onBarricadeChange: (payload) => {
+        const row = payload.new;
+        if (!row) return;
+
+        setBarricades((prev) => {
+          const index = prev.findIndex((b) => b.id === row.id);
+          const newItem: ActiveBarricadeItem = {
+            id: row.id,
+            roadName: row.road_name,
+            feederCallSign: "UNIT TANGKI INDUK 05",
+            hoseLengthMeters: row.hose_length_meters || 100,
+            isActive: row.is_active,
+            createdAt: row.created_at,
+          };
+
+          if (index >= 0) {
+            const next = [...prev];
+            next[index] = newItem;
+            return next;
+          }
+          return [...prev, newItem];
+        });
+      },
+      onUnitChange: (payload) => {
+        const row = payload.new;
+        if (!row) return;
+
+        setUnits((prev) =>
+          prev.map((u) =>
+            u.id === row.unit_id || u.callSign.includes(row.unit_id)
+              ? {
+                  ...u,
+                  assignedRole: row.assigned_role,
+                  targetPressureBar: row.target_pressure_bar ?? u.targetPressureBar,
+                }
+              : u
+          )
+        );
+      },
+      onIncidentUpdate: (payload) => {
+        if (payload.new?.status) {
+          setIncidentStatus(payload.new.status);
+        }
+      },
+    });
+
+    return () => {
+      sub.unsubscribe();
+    };
+  }, [selectedIncidentId]);
+
+  const handleToggleBarricade = (barricadeId: string, currentActive: boolean) => {
+    setBarricades((prev) =>
+      prev.map((b) => (b.id === barricadeId ? { ...b, isActive: !currentActive } : b))
+    );
+  };
 
   return (
     <div className="flex flex-col h-screen w-screen bg-[#07090E] text-stone-100 font-sans select-none overflow-hidden">
@@ -81,37 +151,29 @@ export default function WebCommandDashboard() {
             </div>
           </div>
 
-          {/* Ringkasan Disposisi Armada */}
+          {/* Ringkasan Disposisi Armada Samping */}
           <div className="p-4 flex-1">
             <p className="text-xs font-mono font-bold tracking-widest text-stone-400 uppercase mb-3">
-              DISPOSISI ARMADA RELAWAN
+              UNIT KELUARAN AKTIF
             </p>
             <div className="space-y-3">
-              <div className="p-3 bg-[#0A0E17] border border-stone-800 text-xs font-mono">
-                <div className="flex justify-between mb-1">
-                  <span className="font-bold text-white">UNIT BALAKARCANA 01</span>
-                  <span className="text-cyan-400 font-bold">ATTACKER</span>
+              {units.map((u) => (
+                <div key={u.id} className="p-3 bg-[#0A0E17] border border-stone-800 text-xs font-mono">
+                  <div className="flex justify-between mb-1">
+                    <span className="font-bold text-white">{u.callSign}</span>
+                    <span
+                      className={`font-bold ${
+                        u.assignedRole === "ATTACKER" ? "text-cyan-400" : "text-amber-400"
+                      }`}
+                    >
+                      {u.assignedRole}
+                    </span>
+                  </div>
+                  <p className="text-stone-400 text-[11px]">
+                    Tangki {u.tankCapacityLiters}L • Jarak: {u.distanceFromFireMeters}m
+                  </p>
                 </div>
-                <p className="text-stone-400 text-[11px]">
-                  Truk Tangki 800L • Masuk Gg. 4 (Lebar 2.1m)
-                </p>
-                <p className="text-stone-500 text-[10px] mt-1 tabular-nums">
-                  TEKANAN NOZZLE: 6.8 BAR
-                </p>
-              </div>
-
-              <div className="p-3 bg-[#0A0E17] border border-stone-800 text-xs font-mono">
-                <div className="flex justify-between mb-1">
-                  <span className="font-bold text-white">UNIT TANGKI INDUK 05</span>
-                  <span className="text-amber-400 font-bold">FEEDER</span>
-                </div>
-                <p className="text-stone-400 text-[11px]">
-                  Tangki 5000L • Standby di Mulut Jl. Pelita
-                </p>
-                <p className="text-stone-500 text-[10px] mt-1 tabular-nums">
-                  RELAY SELANG: 110M MENUJU UNIT 01
-                </p>
-              </div>
+              ))}
             </div>
           </div>
         </aside>
@@ -121,62 +183,51 @@ export default function WebCommandDashboard() {
           <TacticalMapCanvas
             selectedIncidentId={selectedIncidentId}
             onSelectIncident={setSelectedIncidentId}
+            barricades={barricades}
             className="flex-1"
           />
         </main>
 
-        {/* KOLOM KANAN (Barikade Ruas Jalan, Telemetri, Kontrol FSM) */}
-        <aside className="w-88 border-l border-stone-800 bg-[#080B10] flex flex-col shrink-0 overflow-y-auto">
-          {/* Header Panel Kanan */}
+        {/* KOLOM KANAN (Matriks Auto-Split & Barikade Fuchsia) */}
+        <aside className="w-96 border-l border-stone-800 bg-[#080B10] flex flex-col shrink-0 overflow-y-auto">
           <div className="p-4 border-b border-stone-800">
             <p className="text-xs font-mono font-bold tracking-widest text-stone-400 uppercase mb-1">
-              KENDALI TAKTIS OPERATOR
+              PANEL TAKTIS ARMADA
             </p>
             <h2 className="text-sm font-bold text-white tracking-tight uppercase">
-              BARIKADE & PROTOKOL FSM
+              MATRIKS AUTO-SPLIT & BARIKADE
             </h2>
           </div>
 
-          {/* Barikade Selang Jalan Aktif */}
-          <div className="p-4 border-b border-stone-800">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-mono font-bold tracking-widest text-fuchsia-400 uppercase">
-                BARIKADE SELANG AKTIF
-              </p>
-              <span className="text-[10px] font-mono text-stone-400 tabular-nums">1 TITIK</span>
-            </div>
-            <div className="p-3 bg-fuchsia-950/20 border border-fuchsia-800/60 text-xs font-mono">
-              <p className="font-bold text-fuchsia-200">MULUT JL. PELITA GG. 4</p>
-              <p className="text-stone-400 text-[11px] mt-1">
-                ALASAN: SELANG BERTEKANAN TINGGI (110M)
-              </p>
-              <div className="mt-2 flex justify-between items-center text-[10px] text-stone-500">
-                <span>DIBUAT OLEH: FEEDER 05</span>
-                <span className="text-emerald-400 font-bold">TERPASANG</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Kontrol Transisi Status FSM Insiden */}
           <div className="p-4 flex-1">
-            <p className="text-xs font-mono font-bold tracking-widest text-stone-400 uppercase mb-3">
-              TRANSISI STATUS PROTOKOL (FSM)
-            </p>
-            <div className="space-y-2">
-              {[
-                { status: "WATER_ON_FIRE", label: "AIR MENYEMBUR KE API", color: "border-cyan-700 hover:bg-cyan-950/50" },
-                { status: "CONTROLLED", label: "API BERHASIL DIKUASAI", color: "border-amber-700 hover:bg-amber-950/50" },
-                { status: "RESOLVED", label: "PEMADAMAN SELESAI (DINGIN)", color: "border-emerald-700 hover:bg-emerald-950/50" },
-              ].map((step) => (
-                <button
-                  key={step.status}
-                  onClick={() => setIncidentStatus(step.status)}
-                  className={`w-full text-left p-3 border ${step.color} bg-[#0A0E17] text-xs font-mono transition-colors`}
-                >
-                  <p className="text-[10px] text-stone-500 uppercase">{step.status}</p>
-                  <p className="font-bold text-white mt-0.5">{step.label}</p>
-                </button>
-              ))}
+            <AutoSplitMatrixPanel
+              gangWidthMeters={2.1}
+              units={units}
+              barricades={barricades}
+              onToggleBarricade={handleToggleBarricade}
+            />
+
+            {/* Kontrol Transisi Status FSM Insiden */}
+            <div className="mt-6 pt-4 border-t border-stone-800">
+              <p className="text-xs font-mono font-bold tracking-widest text-stone-400 uppercase mb-3">
+                TRANSISI STATUS PROTOKOL (FSM)
+              </p>
+              <div className="space-y-2">
+                {[
+                  { status: "WATER_ON_FIRE", label: "AIR MENYEMBUR KE API", color: "border-cyan-700 hover:bg-cyan-950/50" },
+                  { status: "CONTROLLED", label: "API BERHASIL DIKUASAI", color: "border-amber-700 hover:bg-amber-950/50" },
+                  { status: "RESOLVED", label: "PEMADAMAN SELESAI (DINGIN)", color: "border-emerald-700 hover:bg-emerald-950/50" },
+                ].map((step) => (
+                  <button
+                    key={step.status}
+                    onClick={() => setIncidentStatus(step.status)}
+                    className={`w-full text-left p-3 border ${step.color} bg-[#0A0E17] text-xs font-mono transition-colors`}
+                  >
+                    <p className="text-[10px] text-stone-500 uppercase">{step.status}</p>
+                    <p className="font-bold text-white mt-0.5">{step.label}</p>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </aside>

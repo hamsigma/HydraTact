@@ -6,10 +6,22 @@ import {
   type WaterSourcePoint,
   type ActiveIncidentMarker,
 } from "../lib/water-sources.ts";
+import type { ActiveBarricadeItem } from "../lib/tactical-units.ts";
 
 export { DEFAULT_SAMARINDA_WATER_SOURCES, type WaterSourcePoint, type ActiveIncidentMarker };
 
 export interface TacticalMapCanvasProps {
+  incidents?: ActiveIncidentMarker[];
+  waterSources?: WaterSourcePoint[];
+  barricades?: ActiveBarricadeItem[];
+  skmTideLevelMeters?: number;
+  isHighTide?: boolean;
+  selectedIncidentId?: string | null;
+  onSelectIncident?: (id: string) => void;
+  className?: string;
+}
+
+export const TacticalMapCanvas: React.FC<TacticalMapCanvasProps> = ({
   incidents = [
     {
       id: "33333333-3333-3333-3333-333333333301",
@@ -20,6 +32,16 @@ export interface TacticalMapCanvasProps {
     },
   ],
   waterSources = DEFAULT_SAMARINDA_WATER_SOURCES,
+  barricades = [
+    {
+      id: "barricade-01",
+      roadName: "Mulut Jl. Pelita Gg. 4",
+      feederCallSign: "UNIT TANGKI INDUK 05",
+      hoseLengthMeters: 110,
+      isActive: true,
+      createdAt: new Date().toISOString(),
+    },
+  ],
   skmTideLevelMeters = 1.8,
   isHighTide = true,
   selectedIncidentId = "33333333-3333-3333-3333-333333333301",
@@ -35,6 +57,8 @@ export interface TacticalMapCanvasProps {
     if (activeFilter === "EMPTY") return ws.status === "EMPTY";
     return true;
   });
+
+  const activeBarricades = barricades.filter((b) => b.isActive);
 
   return (
     <div
@@ -95,7 +119,7 @@ export interface TacticalMapCanvasProps {
         {/* Kisi Grid Taktis Koordinat */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#141923_1px,transparent_1px),linear-gradient(to_bottom,#141923_1px,transparent_1px)] bg-[size:40px_40px] opacity-40 pointer-events-none" />
 
-        {/* Lapisan Garis Sungai Karang Mumus (SKM Polyline Simulator) */}
+        {/* Lapisan Garis Sungai Karang Mumus & Barikade Selang Fuchsia */}
         <svg
           className="absolute inset-0 w-full h-full pointer-events-none"
           viewBox="0 0 1000 800"
@@ -118,12 +142,50 @@ export interface TacticalMapCanvasProps {
             strokeOpacity="0.8"
             strokeDasharray="8 4"
           />
+
+          {/* Garis Barikade Selang Fuchsia (#D946EF, tebal 4px) dari Feeder (jalan raya) ke Attacker (gang) */}
+          {activeBarricades.map((_barricade, index) => (
+            <g key={_barricade.id || index}>
+              {/* Efek glow garis fuchsia */}
+              <line
+                x1="420"
+                y1="510"
+                x2="540"
+                y2="480"
+                stroke="#D946EF"
+                strokeWidth="8"
+                strokeOpacity="0.3"
+                strokeLinecap="round"
+              />
+              {/* Garis inti fuchsia 4px */}
+              <line
+                x1="420"
+                y1="510"
+                x2="540"
+                y2="480"
+                stroke="#D946EF"
+                strokeWidth="4"
+                strokeLinecap="round"
+              />
+              {/* Titik penanda barikade jalan ditutup */}
+              <circle cx="420" cy="510" r="5" fill="#D946EF" />
+              <text
+                x="410"
+                y="530"
+                fill="#F0ABFC"
+                fontSize="11"
+                fontFamily="monospace"
+                fontWeight="bold"
+              >
+                BARIKADE SELANG ({_barricade.hoseLengthMeters}M)
+              </text>
+            </g>
+          ))}
         </svg>
 
         {/* Titik-Titik Sumber Air (Water Sources) */}
         <div className="absolute inset-0 pointer-events-none">
           {filteredSources.map((ws, idx) => {
-            // Pemetaan koordinat Samarinda ke persentase kanvas
             const leftPct = 15 + ((idx * 29) % 70);
             const topPct = 20 + ((idx * 23) % 65);
 
@@ -199,6 +261,7 @@ export interface TacticalMapCanvasProps {
           <span className="text-emerald-400">● {waterSources.filter(s => s.status === "READY").length} READY</span>
           <span className="text-amber-400">● {waterSources.filter(s => s.status === "LOW_DISCHARGE").length} LOW</span>
           <span className="text-stone-500">● {waterSources.filter(s => s.status === "EMPTY").length} EMPTY</span>
+          <span className="text-fuchsia-400">● {activeBarricades.length} BARIKADE FUCHSIA</span>
         </div>
       </div>
     </div>
