@@ -14,8 +14,11 @@ from app.core.exceptions import (
     general_exception_handler,
     http_exception_handler,
     hydratact_exception_handler,
+    rate_limit_exceeded_handler,
     validation_exception_handler,
 )
+from app.core.limiter import limiter
+from slowapi.errors import RateLimitExceeded
 
 logging.basicConfig(
     level=logging.INFO if not settings.DEBUG else logging.DEBUG,
@@ -52,8 +55,10 @@ app = FastAPI(
 )
 
 # -----------------------------------------------------------------------------
-# CORS Middleware
+# CORS Middleware & Rate Limiting
 # -----------------------------------------------------------------------------
+app.state.limiter = limiter
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
@@ -65,6 +70,7 @@ app.add_middleware(
 # -----------------------------------------------------------------------------
 # Global Exception Handlers
 # -----------------------------------------------------------------------------
+app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)
 app.add_exception_handler(HydraTactException, hydratact_exception_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
 app.add_exception_handler(StarletteHTTPException, http_exception_handler)

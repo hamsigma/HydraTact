@@ -1,8 +1,9 @@
 import logging
 from uuid import UUID, uuid4
-from fastapi import APIRouter, HTTPException, Path, status
+from fastapi import APIRouter, HTTPException, Path, Request, status
 
 from app.core.db import get_db_pool
+from app.core.limiter import limiter
 from app.repositories.incident_fsm import transition_incident_fsm_repo
 from app.repositories.spatial import (
     fetch_incident_detail_by_id,
@@ -36,7 +37,8 @@ router = APIRouter(prefix="/incidents", tags=["Komando Insiden & Pelaporan"])
     summary="Kirim laporan darurat warga dan jalankan evaluasi konsensus spasial",
     description="Menerima titik koordinat pelapor (1-tap SOS) dan mengevaluasi konsensus spasial radius 100m serta selang waktu 3 menit.",
 )
-async def report_incident(payload: CitizenReportRequest):
+@limiter.limit("3/minute")
+async def report_incident(request: Request, payload: CitizenReportRequest):
     """Menerima laporan darurat warga dan mengevaluasi konsensus spasial anti-prank."""
     pool = get_db_pool()
     if pool is not None:
