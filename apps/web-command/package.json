@@ -8,6 +8,6 @@
     "build": "echo \"Building Next.js web-command\"",
     "lint": "echo \"Linting web-command\"",
     "typecheck": "echo \"Typechecking web-command\"",
-    "test": "node --experimental-strip-types --test src/lib/__tests__/*.test.ts"
+    "test": "node --experimental-strip-types --test src/**/__tests__/*.test.ts"
   }
 }
