@@ -6,6 +6,7 @@ from app.core.db import get_db_pool
 from app.core.limiter import limiter
 from app.repositories.incident_fsm import transition_incident_fsm_repo
 from app.repositories.spatial import (
+    fetch_active_incidents,
     fetch_incident_detail_by_id,
     process_citizen_incident_report,
 )
@@ -15,6 +16,7 @@ from app.schemas.incident import (
     FSMTransitionRequest,
     FSMTransitionResponse,
     IncidentDetailResponse,
+    IncidentListResponse,
     IncidentReportResponse,
     ManualOverrideRequest,
 )
@@ -48,6 +50,31 @@ async def report_incident(request: Request, payload: CitizenReportRequest):
 
     data = await process_citizen_incident_report(None, payload)
     return IncidentReportResponse(status="success", data=data)
+
+
+@router.get(
+    "",
+    response_model=IncidentListResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Ambil seluruh antrean insiden kebakaran aktif",
+    description="Mengambil seluruh insiden aktif dalam wilayah operasional Samarinda untuk dasbor posko.",
+)
+@router.get(
+    "/",
+    response_model=IncidentListResponse,
+    status_code=status.HTTP_200_OK,
+    include_in_schema=False,
+)
+async def list_active_incidents():
+    """Mengambil seluruh daftar antrean insiden kebakaran aktif untuk posko komando."""
+    pool = get_db_pool()
+    if pool is not None:
+        async with pool.acquire() as conn:
+            incidents = await fetch_active_incidents(conn)
+            return IncidentListResponse(status="success", data=incidents)
+
+    incidents = await fetch_active_incidents(None)
+    return IncidentListResponse(status="success", data=incidents)
 
 
 @router.get(

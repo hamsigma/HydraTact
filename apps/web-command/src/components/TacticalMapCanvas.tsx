@@ -10,7 +10,14 @@ import type { ActiveBarricadeItem } from "../lib/tactical-units";
 
 export { DEFAULT_SAMARINDA_WATER_SOURCES, type WaterSourcePoint, type ActiveIncidentMarker };
 
-export type BaseMapType = "OSM_STANDARD" | "OSM_HOT" | "CARTO_LIGHT";
+export interface DispatchedFleetRoute {
+  active: boolean;
+  unitCallSign: string;
+  origin: [number, number];
+  destination: [number, number];
+  destinationName: string;
+  etaMinutes?: number;
+}
 
 export interface TacticalMapCanvasProps {
   incidents?: ActiveIncidentMarker[];
@@ -19,36 +26,33 @@ export interface TacticalMapCanvasProps {
   skmTideLevelMeters?: number;
   isHighTide?: boolean;
   selectedIncidentId?: string | null;
+  dispatchedRoute?: DispatchedFleetRoute | null;
   onSelectIncident?: (id: string) => void;
   className?: string;
 }
-
-// Koordinat alur Sungai Karang Mumus (SKM) melintasi pusat Kota Samarinda
-const SKM_RIVER_COORDINATES: [number, number][] = [
-  [-0.485, 117.168],
-  [-0.490, 117.162],
-  [-0.496, 117.158],
-  [-0.501, 117.154],
-  [-0.506, 117.149],
-  [-0.512, 117.145],
-  [-0.518, 117.142],
-];
 
 export const TacticalMapCanvas: React.FC<TacticalMapCanvasProps> = ({
   incidents = [
     {
       id: "33333333-3333-3333-3333-333333333301",
-      name: "Gg. 4 Pelita (Titik Api Aktif)",
-      coordinates: [-0.5021, 117.1536],
+      name: "Gg. 4 Jl. Pelita (Titik Api Aktif)",
+      coordinates: [-0.4848, 117.1628], // Tepat di dalam lorong pemukiman padat Gang 4 Jl. Pelita
       status: "VERIFIED",
       reportersCount: 2,
+    },
+    {
+      id: "33333333-3333-3333-3333-333333333302",
+      name: "Gg. Madura Pasar Segiri (Siaga)",
+      coordinates: [-0.4828, 117.1480], // Gang pemukiman padat di seberang barat Pasar Segiri
+      status: "REPORTED",
+      reportersCount: 1,
     },
   ],
   waterSources = DEFAULT_SAMARINDA_WATER_SOURCES,
   barricades = [
     {
       id: "barricade-01",
-      roadName: "Mulut Jl. Pelita Gg. 4",
+      roadName: "Mulut Jl. Pelita (Arteri) -> Gg. 4",
       feederCallSign: "UNIT TANGKI INDUK 05",
       hoseLengthMeters: 110,
       isActive: true,
@@ -58,15 +62,14 @@ export const TacticalMapCanvas: React.FC<TacticalMapCanvasProps> = ({
   skmTideLevelMeters = 1.8,
   isHighTide = true,
   selectedIncidentId = "33333333-3333-3333-3333-333333333301",
+  dispatchedRoute = null,
   onSelectIncident,
   className = "",
 }) => {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapInstanceRef = useRef<any>(null);
-  const tileLayerRef = useRef<any>(null);
   const markersLayerRef = useRef<any>(null);
 
-  const [baseMap, setBaseMap] = useState<BaseMapType>("OSM_STANDARD");
   const [activeFilter, setActiveFilter] = useState<"ALL" | "READY" | "LOW" | "EMPTY">("ALL");
   const [isMapReady, setIsMapReady] = useState(false);
 
@@ -80,7 +83,7 @@ export const TacticalMapCanvas: React.FC<TacticalMapCanvasProps> = ({
 
   const activeBarricades = barricades.filter((b) => b.isActive);
 
-  // Inisialisasi Leaflet.js Real Slippy Map (Client-Side Only)
+  // Inisialisasi Leaflet Map murni dengan OpenStreetMap Standard
   useEffect(() => {
     if (typeof window === "undefined" || !mapContainerRef.current) return;
     if (mapInstanceRef.current) return;
@@ -94,27 +97,25 @@ export const TacticalMapCanvas: React.FC<TacticalMapCanvasProps> = ({
         mapInstanceRef.current.remove();
       }
 
-      // Buat Leaflet Map terpusat di Samarinda (Sektor Pelita - Citra Niaga)
+      // Default fokus pada insiden aktif pertama (Gg. 4 Jl. Pelita)
+      const initialCenter: [number, number] = [-0.4848, 117.1628];
+
       const map = L.map(mapContainerRef.current, {
-        center: [-0.5021, 117.1536],
-        zoom: 15,
+        center: initialCenter,
+        zoom: 16,
         minZoom: 11,
         maxZoom: 19,
         zoomControl: false,
       });
 
-      // Kontrol Zoom di pojok kanan bawah agar tidak menabrak HUD
       L.control.zoom({ position: "bottomright" }).addTo(map);
 
-      // Default Basemap: OpenStreetMap Standard
-      const tileLayer = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      // OpenStreetMap Standard Tiles Resmi
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         maxZoom: 19,
       }).addTo(map);
 
-      tileLayerRef.current = tileLayer;
-
-      // Buat LayerGroup untuk marker & polylines
       const markersLayer = L.layerGroup().addTo(map);
 
       mapInstanceRef.current = map;
@@ -131,46 +132,52 @@ export const TacticalMapCanvas: React.FC<TacticalMapCanvasProps> = ({
     };
   }, []);
 
-  // Update Basemap Tiles saat opsi basemap berubah
+  // Track target flyTo agar tidak memicu animasi berulang kali saat polling data setiap 4 detik
+  const lastFlownTargetRef = useRef<string>("");
+
+  // Responsif memindahkan tampilan peta (flyTo) hanya saat target insiden atau rute dispatch benar-benar berganti
   useEffect(() => {
-    if (!isMapReady || !mapInstanceRef.current) return;
+    if (!mapInstanceRef.current) return;
 
-    import("leaflet").then((L) => {
-      const map = mapInstanceRef.current;
+    let targetCoords: [number, number] | null = null;
+    let targetKey = "";
 
-      if (tileLayerRef.current) {
-        map.removeLayer(tileLayerRef.current);
+    const hasActiveTarget =
+      incidents.length > 0 &&
+      incidents.some(
+        (i) => i.status !== "RESOLVED" && i.status !== "FALSE_ALARM"
+      );
+
+    if (dispatchedRoute && dispatchedRoute.active && dispatchedRoute.destination && hasActiveTarget) {
+      targetCoords = dispatchedRoute.destination;
+      targetKey = `route:${targetCoords[0].toFixed(5)},${targetCoords[1].toFixed(5)}`;
+    } else if (selectedIncidentId && hasActiveTarget) {
+      const targetIncident = incidents.find((i) => i.id === selectedIncidentId);
+      if (targetIncident && targetIncident.coordinates) {
+        targetCoords = targetIncident.coordinates;
+        targetKey = `incident:${selectedIncidentId}:${targetCoords[0].toFixed(5)},${targetCoords[1].toFixed(5)}`;
       }
+    } else if (incidents.length === 0 && lastFlownTargetRef.current !== "standby:overview") {
+      targetCoords = [-0.4890, 117.1580];
+      targetKey = "standby:overview";
+    }
 
-      let newTileLayer: any;
+    if (targetCoords && targetKey && targetKey !== lastFlownTargetRef.current) {
+      lastFlownTargetRef.current = targetKey;
+      mapInstanceRef.current.flyTo(targetCoords, targetKey === "standby:overview" ? 14 : 16, {
+        duration: 1.2,
+        easeLinearity: 0.25,
+      });
+    }
+  }, [
+    selectedIncidentId,
+    dispatchedRoute?.active,
+    dispatchedRoute?.destination?.[0],
+    dispatchedRoute?.destination?.[1],
+    incidents,
+  ]);
 
-      if (baseMap === "OSM_STANDARD") {
-        // OpenStreetMap Standard Tiles
-        newTileLayer = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-          maxZoom: 19,
-        });
-      } else if (baseMap === "OSM_HOT") {
-        // OpenStreetMap Humanitarian Tiles (Tinggi kontras jalan & gang)
-        newTileLayer = L.tileLayer("https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png", {
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Tiles courtesy of Humanitarian OpenStreetMap Team',
-          maxZoom: 19,
-        });
-      } else {
-        // CartoDB Positron Light Minimalist
-        newTileLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
-          attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; OpenStreetMap',
-          subdomains: "abcd",
-          maxZoom: 19,
-        });
-      }
-
-      newTileLayer.addTo(map);
-      tileLayerRef.current = newTileLayer;
-    });
-  }, [baseMap, isMapReady]);
-
-  // Render Marker, Polylines, dan Garis Selang saat data berubah
+  // Render Marker, Polylines, Garis Barikade, dan Armada Meluncur
   useEffect(() => {
     if (!isMapReady || !mapInstanceRef.current || !markersLayerRef.current) return;
 
@@ -178,51 +185,173 @@ export const TacticalMapCanvas: React.FC<TacticalMapCanvasProps> = ({
       const markersLayer = markersLayerRef.current;
       markersLayer.clearLayers();
 
-      // 1. Gambar Alur Sungai Karang Mumus (SKM) - Poligon & Polyline Biru
-      const skmLine = L.polyline(SKM_RIVER_COORDINATES, {
-        color: "#0284C7",
-        weight: 6,
-        opacity: 0.65,
-        lineCap: "round",
-        lineJoin: "round",
-      }).addTo(markersLayer);
+      const hasActiveTarget =
+        incidents.length > 0 &&
+        incidents.some(
+          (i) => i.status !== "RESOLVED" && i.status !== "FALSE_ALARM"
+        );
 
-      skmLine.bindPopup(`
-        <div style="font-family: monospace; font-size: 11px;">
-          <p style="font-weight: bold; color: #0284C7; margin: 0 0 4px 0;">KORIDOR SUNGAI KARANG MUMUS</p>
-          <p style="margin: 0; color: #475569;">STATUS: ${isHighTide ? "PASANG MAKSIMAL" : "SURUT NORMAL"}</p>
-          <p style="margin: 2px 0 0 0; color: #0F172A; font-weight: bold;">ELEVASI: +${skmTideLevelMeters.toFixed(1)} METER</p>
-          <p style="margin: 2px 0 0 0; color: #059669;">KAPASITAS SEDOT: OPTIMAL (POMPA PORTABEL)</p>
-        </div>
-      `);
-
-      // 2. Garis Barikade Selang Relay Fuchsia (#C026D3)
-      activeBarricades.forEach((barricade) => {
-        // Hubungkan jalan arteri (Feeder) ke gang insiden (Attacker)
-        const barricadePoints: [number, number][] = [
-          [-0.5035, 117.1518], // Jl. Pelita Arteri
-          [-0.5021, 117.1536], // Gg. 4 Titik Api
+      // 1. Rute Gerak Armada Meluncur Menuju Lokasi Insiden (Jika Terverifikasi / Dispatch dan ada insiden aktif)
+      if (dispatchedRoute && dispatchedRoute.active && hasActiveTarget) {
+        const routePoints: [number, number][] = [
+          dispatchedRoute.origin,
+          [
+            (dispatchedRoute.origin[0] + dispatchedRoute.destination[0]) / 2,
+            (dispatchedRoute.origin[1] + dispatchedRoute.destination[1]) / 2,
+          ],
+          dispatchedRoute.destination,
         ];
 
-        const hoseLine = L.polyline(barricadePoints, {
-          color: "#C026D3",
-          weight: 5,
-          opacity: 0.85,
-          dashArray: "8, 6",
-          lineCap: "square",
+        const fleetLine = L.polyline(routePoints, {
+          color: "#0284C7",
+          weight: 4,
+          opacity: 0.9,
+          dashArray: "6, 8",
         }).addTo(markersLayer);
 
-        hoseLine.bindPopup(`
+        fleetLine.bindPopup(`
           <div style="font-family: monospace; font-size: 11px;">
-            <p style="font-weight: bold; color: #C026D3; margin: 0 0 4px 0;">BARIKADE SELANG RELAY</p>
-            <p style="margin: 0; color: #0F172A; font-weight: bold;">${barricade.roadName}</p>
-            <p style="margin: 2px 0 0 0; color: #475569;">DIBENTANGKAN: ${barricade.feederCallSign}</p>
-            <p style="margin: 2px 0 0 0; color: #C026D3; font-weight: bold;">PANJANG: ${barricade.hoseLengthMeters} METER (4 BAR)</p>
+            <p style="font-weight: bold; color: #0284C7; margin: 0 0 2px 0;">JALUR DISPATCH ARMADA MELUNCUR</p>
+            <p style="margin: 0; color: #0F172A; font-weight: bold;">${dispatchedRoute.unitCallSign}</p>
+            <p style="margin: 2px 0; color: #475569;">SASARAN: ${dispatchedRoute.destinationName}</p>
+            <p style="margin: 2px 0 0 0; color: #059669; font-weight: bold;">STATUS: MENUJU KE ARAH SANA (ETA 2.5M)</p>
           </div>
         `);
-      });
 
-      // 3. Titik-Titik Sumber Air (30+ Hydrants & Water Points)
+        // Ikon Armada Pemadam yang Meluncur
+        const fleetIcon = L.divIcon({
+          className: "custom-fleet-icon",
+          html: `
+            <div style="position: relative; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+              <div style="
+                position: absolute;
+                inset: 0;
+                border-radius: 50%;
+                border: 2px solid #0284C7;
+                background-color: rgba(2, 132, 199, 0.3);
+                animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+              "></div>
+              <div style="
+                width: 26px;
+                height: 26px;
+                border-radius: 50%;
+                background-color: #0284C7;
+                border: 2px solid #FFFFFF;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #FFFFFF;
+              ">
+                <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <rect x="2" y="5" width="12" height="10" rx="1.5" />
+                  <path d="M14 8h4.5l2.5 3.5V15h-7V8z" />
+                  <circle cx="6" cy="17.5" r="2" />
+                  <circle cx="17.5" cy="17.5" r="2" />
+                </svg>
+              </div>
+            </div>
+          `,
+          iconSize: [34, 34],
+          iconAnchor: [17, 17],
+        });
+
+        const fleetMarker = L.marker(dispatchedRoute.origin, { icon: fleetIcon }).addTo(markersLayer);
+        fleetMarker.bindPopup(`
+          <div style="font-family: monospace; font-size: 11px;">
+            <p style="font-weight: bold; color: #0284C7; margin: 0 0 2px 0;">ARMADA MELUNCUR KE SASARAN</p>
+            <p style="margin: 0; color: #0F172A; font-weight: bold;">${dispatchedRoute.unitCallSign}</p>
+            <p style="margin: 2px 0; color: #475569;">TUJUAN: ${dispatchedRoute.destinationName}</p>
+            <p style="margin: 2px 0 0 0; color: #059669; font-weight: bold;">STATUS: BERGERAK CEPAT KE TITIK API</p>
+          </div>
+        `);
+      }
+
+      // 2. Garis Barikade Selang Relay Fuchsia (#C026D3) Terkalibrasi Jalan Nyata Mengikuti Titik Api
+      const activeIncidentsExist =
+        incidents.length > 0 &&
+        incidents.some(
+          (i) => i.status !== "RESOLVED" && i.status !== "FALSE_ALARM"
+        );
+
+      if (activeIncidentsExist) {
+        activeBarricades.forEach((barricade) => {
+          let targetCoords: [number, number] | null = barricade.targetCoords || null;
+          let originCoords: [number, number] | null = barricade.originCoords || null;
+
+          if (!targetCoords) {
+            const matchedInc =
+              (barricade.incidentId && incidents.find((i) => i.id === barricade.incidentId)) ||
+              (selectedIncidentId && incidents.find((i) => i.id === selectedIncidentId)) ||
+              incidents[0];
+            if (matchedInc && matchedInc.coordinates) {
+              targetCoords = matchedInc.coordinates;
+            }
+          }
+
+          if (targetCoords) {
+            if (!originCoords) {
+              originCoords = [targetCoords[0] + 0.0008, targetCoords[1] + 0.0010];
+            }
+
+            const barricadePoints: [number, number][] = [originCoords, targetCoords];
+
+            const hoseLine = L.polyline(barricadePoints, {
+              color: "#C026D3",
+              weight: 5,
+              opacity: 0.9,
+              dashArray: "8, 6",
+              lineCap: "square",
+            }).addTo(markersLayer);
+
+            hoseLine.bindPopup(`
+              <div style="font-family: monospace; font-size: 11px;">
+                <p style="font-weight: bold; color: #C026D3; margin: 0 0 4px 0;">BARIKADE SELANG RELAY JALAN</p>
+                <p style="margin: 0; color: #0F172A; font-weight: bold;">${barricade.roadName}</p>
+                <p style="margin: 2px 0 0 0; color: #475569;">DIBENTANGKAN: ${barricade.feederCallSign}</p>
+                <p style="margin: 2px 0 0 0; color: #C026D3; font-weight: bold;">PANJANG: ${barricade.hoseLengthMeters} METER (TEKANAN 4.0 BAR)</p>
+              </div>
+            `);
+
+            // Ikon Penanda Barikade / Penutupan Jalan di Mulut Gang
+            const barricadeIcon = L.divIcon({
+              className: "custom-barricade-icon",
+              html: `
+                <div style="
+                  width: 26px;
+                  height: 26px;
+                  border-radius: 6px;
+                  background-color: #C026D3;
+                  border: 2px solid #FFFFFF;
+                  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  color: #FFFFFF;
+                  font-size: 13px;
+                  font-weight: bold;
+                ">
+                  ⛔
+                </div>
+              `,
+              iconSize: [26, 26],
+              iconAnchor: [13, 13],
+            });
+
+            L.marker(originCoords, { icon: barricadeIcon })
+              .bindPopup(`
+                <div style="font-family: monospace; font-size: 11px;">
+                  <p style="font-weight: bold; color: #C026D3; margin: 0 0 2px 0;">TITIK PANGKAL PENUTUPAN JALAN</p>
+                  <p style="margin: 0; color: #0F172A; font-weight: bold;">${barricade.roadName}</p>
+                  <p style="margin: 2px 0; color: #475569;">Posisi Parkir Truk Feeder Suplai Air</p>
+                </div>
+              `)
+              .addTo(markersLayer);
+          }
+        });
+      }
+
+      // 2. Titik-Titik Sumber Air (30 Hidran & Tandon Terkalibrasi ke Jalan Nyata - Circular Pins)
       filteredSources.forEach((ws) => {
         const isReady = ws.status === "READY";
         const isLow = ws.status === "LOW_DISCHARGE";
@@ -232,16 +361,17 @@ export const TacticalMapCanvas: React.FC<TacticalMapCanvasProps> = ({
           className: "custom-hydrant-icon",
           html: `
             <div style="
-              width: 12px;
-              height: 12px;
+              width: 14px;
+              height: 14px;
+              border-radius: 50%;
               background-color: ${color};
-              border: 2px solid #FFFFFF;
-              box-shadow: 0 1px 3px rgba(0,0,0,0.35);
+              border: 2.5px solid #FFFFFF;
+              box-shadow: 0 2px 5px rgba(0,0,0,0.35);
               cursor: pointer;
             "></div>
           `,
-          iconSize: [12, 12],
-          iconAnchor: [6, 6],
+          iconSize: [14, 14],
+          iconAnchor: [7, 7],
         });
 
         const marker = L.marker(ws.coordinates, { icon: hydrantIcon }).addTo(markersLayer);
@@ -250,36 +380,45 @@ export const TacticalMapCanvas: React.FC<TacticalMapCanvasProps> = ({
           <div style="font-family: monospace; font-size: 11px;">
             <p style="font-weight: bold; color: #0F172A; margin: 0 0 2px 0;">${ws.name}</p>
             <p style="margin: 0; color: #64748B;">TIPE: ${ws.type} • DEBIT: ${ws.dischargeLitersPerMin} L/MIN</p>
+            <p style="margin: 2px 0; color: #475569;">KOORDINAT: ${ws.coordinates[0].toFixed(4)}, ${ws.coordinates[1].toFixed(4)}</p>
             <p style="margin: 4px 0 0 0; font-weight: bold; color: ${color};">STATUS: ${ws.status}</p>
           </div>
         `);
       });
 
-      // 4. Titik Api / Insiden Aktif Berdenyut
+      // 3. Titik Api Insiden Aktif (Circular Pulsing Radar Beacon)
       incidents.forEach((inc) => {
         const isSelected = inc.id === selectedIncidentId;
 
         const fireIcon = L.divIcon({
           className: "custom-fire-icon",
           html: `
-            <div style="position: relative; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
-              <div class="tactical-pulse-ring" style="position: absolute; inset: 0; background: rgba(220, 38, 38, 0.45); border-radius: 9999px;"></div>
+            <div style="position: relative; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
               <div style="
-                width: 20px;
-                height: 20px;
+                position: absolute;
+                inset: 0;
+                border-radius: 50%;
+                border: 2px solid #DC2626;
+                background-color: rgba(220, 38, 38, 0.25);
+                animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+              "></div>
+              <div style="
+                width: 22px;
+                height: 22px;
+                border-radius: 50%;
                 background-color: #DC2626;
-                border: 2px solid ${isSelected ? "#0F172A" : "#FFFFFF"};
+                border: 2.5px solid ${isSelected ? "#0F172A" : "#FFFFFF"};
                 box-shadow: 0 2px 8px rgba(220, 38, 38, 0.6);
                 display: flex;
                 align-items: center;
                 justify-content: center;
               ">
-                <span style="width: 6px; height: 6px; background-color: #FFFFFF;"></span>
+                <span style="width: 7px; height: 7px; border-radius: 50%; background-color: #FFFFFF; display: block;"></span>
               </div>
             </div>
           `,
-          iconSize: [34, 34],
-          iconAnchor: [17, 17],
+          iconSize: [38, 38],
+          iconAnchor: [19, 19],
         });
 
         const marker = L.marker(inc.coordinates, { icon: fireIcon }).addTo(markersLayer);
@@ -292,7 +431,7 @@ export const TacticalMapCanvas: React.FC<TacticalMapCanvasProps> = ({
           <div style="font-family: monospace; font-size: 11px;">
             <p style="font-weight: bold; color: #DC2626; margin: 0 0 4px 0;">TITIK API AKTIF</p>
             <p style="font-weight: bold; color: #0F172A; margin: 0 0 2px 0;">${inc.name}</p>
-            <p style="margin: 0; color: #475569;">STATUS: ${inc.status}</p>
+            <p style="margin: 0; color: #475569;">STATUS FSM: ${inc.status}</p>
             <p style="margin: 2px 0 0 0; color: #059669; font-weight: bold;">${inc.reportersCount} LAPORAN TERVERIFIKASI</p>
           </div>
         `);
@@ -311,104 +450,77 @@ export const TacticalMapCanvas: React.FC<TacticalMapCanvasProps> = ({
     skmTideLevelMeters,
     isHighTide,
     onSelectIncident,
+    dispatchedRoute,
   ]);
 
   return (
     <div
       data-testid="tactical-map-canvas"
-      className={`relative w-full h-full min-h-[500px] bg-[#E2E8F0] border border-[#CBD5E1] overflow-hidden flex flex-col ${className}`}
+      className={`relative w-full h-full min-h-[460px] bg-[#E2E8F0] border border-slate-200 rounded-2xl overflow-hidden flex flex-col shadow-sm ${className}`}
     >
-      {/* HUD Bar Atas Peta */}
-      <div className="absolute top-3 left-3 right-3 z-[1000] flex flex-wrap items-center justify-between gap-3 bg-[#FFFFFF]/95 backdrop-blur-md border border-[#CBD5E1] p-3 shadow-sm select-none">
-        <div>
-          <p className="text-[10px] font-mono font-bold tracking-widest text-slate-500 uppercase">
-            PETA TAKTIS OPENSTREETMAP SAMARINDA • WGS 84
-          </p>
-          <div className="flex items-center gap-2 mt-0.5">
-            <span className="w-2.5 h-2.5 bg-red-600 inline-block" />
-            <span className="text-xs font-mono font-bold text-slate-900 uppercase tracking-wider">
-              {incidents.length} INSIDEN KEBAKARAN AKTIF
-            </span>
-          </div>
-        </div>
+      {/* Top Left Floating Indicator (Compact & Pill-Free) */}
+      <div className="absolute top-3 left-3 z-[1000] flex items-center gap-2.5 bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-xl px-3.5 py-2 shadow-sm select-none">
+        <span
+          className={`w-2.5 h-2.5 rounded-full inline-block ${
+            incidents.length > 0 ? "bg-red-600 animate-pulse" : "bg-emerald-500"
+          }`}
+        />
+        <span className="text-xs font-mono font-bold text-slate-900 tracking-wider">
+          {incidents.length > 0
+            ? `${incidents.length} INSIDEN AKTIF`
+            : "SIAGA HIJAU (0 INSIDEN)"}
+        </span>
+        <span className="text-slate-300">|</span>
+        <span className="text-xs font-mono font-bold text-sky-700 tabular-nums">
+          SKM {isHighTide ? "PASANG" : "SURUT"} (+{skmTideLevelMeters.toFixed(1)}M)
+        </span>
+      </div>
 
-        {/* Kontrol Layer: Basemap Switcher & Filter Sumber Air */}
-        <div className="flex flex-wrap items-center gap-4 text-xs font-mono">
-          {/* Pemilih Tipe Lapisan OpenStreetMap */}
-          <div className="flex items-center gap-1">
-            <span className="text-[10px] text-slate-500 uppercase mr-1">PETA:</span>
-            <button
-              type="button"
-              onClick={() => setBaseMap("OSM_STANDARD")}
-              className={`px-2 py-1 text-[10px] font-mono font-bold uppercase transition-colors cursor-pointer border ${
-                baseMap === "OSM_STANDARD"
-                  ? "bg-slate-900 text-white border-slate-900"
-                  : "bg-white text-slate-600 border-slate-300 hover:bg-slate-100"
-              }`}
-            >
-              OSM STANDAR
-            </button>
-            <button
-              type="button"
-              onClick={() => setBaseMap("OSM_HOT")}
-              className={`px-2 py-1 text-[10px] font-mono font-bold uppercase transition-colors cursor-pointer border ${
-                baseMap === "OSM_HOT"
-                  ? "bg-slate-900 text-white border-slate-900"
-                  : "bg-white text-slate-600 border-slate-300 hover:bg-slate-100"
-              }`}
-            >
-              OSM HUMANITARIAN
-            </button>
-            <button
-              type="button"
-              onClick={() => setBaseMap("CARTO_LIGHT")}
-              className={`px-2 py-1 text-[10px] font-mono font-bold uppercase transition-colors cursor-pointer border ${
-                baseMap === "CARTO_LIGHT"
-                  ? "bg-slate-900 text-white border-slate-900"
-                  : "bg-white text-slate-600 border-slate-300 hover:bg-slate-100"
-              }`}
-            >
-              MINIMALIS
-            </button>
-          </div>
-
-          <div className="h-6 w-px bg-slate-200 hidden sm:block" />
-
-          {/* Filter Status Sumber Air */}
-          <div className="flex items-center gap-1">
-            <span className="text-[10px] text-slate-500 uppercase mr-1">FILTER AIR:</span>
-            {(["ALL", "READY", "LOW", "EMPTY"] as const).map((mode) => (
-              <button
-                key={mode}
-                type="button"
-                onClick={() => setActiveFilter(mode)}
-                className={`px-2 py-1 text-[10px] font-mono font-bold uppercase transition-colors cursor-pointer border ${
-                  activeFilter === mode
-                    ? "bg-slate-900 text-white border-slate-900"
-                    : "bg-white text-slate-600 border-slate-300 hover:bg-slate-100"
-                }`}
-              >
-                {mode}
-              </button>
-            ))}
-          </div>
-        </div>
+      {/* Top Right Filter Buttons (Compact & Pill-Free) */}
+      <div className="absolute top-3 right-3 z-[1000] flex items-center gap-1.5 bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-xl px-3 py-1.5 shadow-sm select-none">
+        <span className="text-[10px] font-mono text-slate-500 uppercase mr-1">AIR:</span>
+        {(["ALL", "READY", "LOW", "EMPTY"] as const).map((mode) => (
+          <button
+            key={mode}
+            type="button"
+            onClick={() => setActiveFilter(mode)}
+            className={`px-2.5 py-1 text-[10px] font-mono font-bold uppercase transition-colors cursor-pointer border rounded-lg ${
+              activeFilter === mode
+                ? "bg-slate-900 text-white border-slate-900"
+                : "bg-white text-slate-600 border-slate-300 hover:bg-slate-100"
+            }`}
+          >
+            {mode}
+          </button>
+        ))}
       </div>
 
       {/* Kontainer Peta Riil Leaflet OpenStreetMap */}
       <div ref={mapContainerRef} className="w-full h-full flex-1 z-0" />
 
       {/* Footer Status Bar Bawah */}
-      <div className="z-[1000] bg-[#FFFFFF] border-t border-[#CBD5E1] px-4 py-2 flex items-center justify-between text-[11px] font-mono text-slate-600 select-none">
+      <div className="z-[1000] bg-white/95 backdrop-blur-md border-t border-slate-200 px-4 py-2 flex items-center justify-between text-[11px] font-mono text-slate-600 select-none">
         <div>
-          KOORDINAT POSKO: <span className="text-slate-900 font-bold tabular-nums">-0.5021° S, 117.1536° E</span>
-          <span className="text-slate-400 ml-2">| TILE: {baseMap}</span>
+          SEKTOR: <span className="text-slate-900 font-bold">PELITA - CITRA NIAGA</span>
+          <span className="text-slate-400 ml-2">| OPENSTREETMAP</span>
         </div>
-        <div className="flex items-center gap-4">
-          <span className="text-emerald-700 font-bold">● {waterSources.filter(s => s.status === "READY").length} READY</span>
-          <span className="text-amber-700 font-bold">● {waterSources.filter(s => s.status === "LOW_DISCHARGE").length} LOW</span>
-          <span className="text-slate-600 font-bold">● {waterSources.filter(s => s.status === "EMPTY").length} EMPTY</span>
-          <span className="text-fuchsia-700 font-bold">● {activeBarricades.length} BARIKADE SELANG</span>
+        <div className="flex items-center gap-3">
+          <span className="flex items-center text-emerald-700 font-bold">
+            <span className="w-2 h-2 rounded-full bg-emerald-600 inline-block mr-1.5" />
+            READY: {waterSources.filter((s) => s.status === "READY").length}
+          </span>
+          <span className="flex items-center text-amber-700 font-bold">
+            <span className="w-2 h-2 rounded-full bg-amber-600 inline-block mr-1.5" />
+            LOW: {waterSources.filter((s) => s.status === "LOW_DISCHARGE").length}
+          </span>
+          <span className="flex items-center text-slate-600 font-bold">
+            <span className="w-2 h-2 rounded-full bg-slate-500 inline-block mr-1.5" />
+            EMPTY: {waterSources.filter((s) => s.status === "EMPTY").length}
+          </span>
+          <span className="flex items-center text-fuchsia-700 font-bold">
+            <span className="w-2 h-2 rounded-full bg-fuchsia-600 inline-block mr-1.5" />
+            BARIKADE: {activeBarricades.length}
+          </span>
         </div>
       </div>
     </div>

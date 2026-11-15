@@ -6,6 +6,7 @@ Single Source of Truth: docs/Database.md & docs/Kontrak_API.md
 """
 
 from datetime import datetime, timezone
+import logging
 import math
 from typing import Any, Dict, List, Optional, Tuple
 from uuid import UUID, uuid4
@@ -23,6 +24,7 @@ from app.schemas.incident import (
     CitizenReportRequest,
     ConsensusData,
     IncidentDetailData,
+    IncidentListItem,
     IncidentReportData,
     IncidentUnitItem,
     RespondingUnitSummary,
@@ -32,6 +34,8 @@ from app.schemas.water import (
     WaterStatusUpdateData,
     WaterStatusUpdateRequest,
 )
+
+logger = logging.getLogger("hydratact.spatial")
 
 # Radius bumi rata-rata WGS 84 dalam meter
 EARTH_RADIUS_METERS = 6371000.0
@@ -44,6 +48,123 @@ def reset_in_memory_spatial_state():
     """Mengosongkan state cluster pelaporan in-memory (berguna untuk isolasi unit tests)."""
     global _in_memory_incident_clusters
     _in_memory_incident_clusters.clear()
+
+
+def _ensure_default_in_memory_incidents():
+    """Menginisialisasi klaster insiden default Samarinda untuk mode in-memory."""
+    global _in_memory_incident_clusters
+    if not _in_memory_incident_clusters:
+        now = datetime.now(timezone.utc)
+        _in_memory_incident_clusters.extend([
+            {
+                "incident_id": UUID("33333333-3333-3333-3333-333333333301"),
+                "incident_code": "HT-2026-089",
+                "title": "Gg. 4 Jl. Pelita",
+                "lat": -0.4848,
+                "lng": 117.1628,
+                "address": "Gg. 4 Jl. Pelita, RT 14, Kel. Pelita, Samarinda Ilir",
+                "road_width": 1.80,
+                "reporters": ["+6281234567890", "+6281987654321"],
+                "is_verified": True,
+                "status": IncidentFSMStatus.VERIFIED,
+                "created_at": now,
+                "updated_at": now,
+            },
+            {
+                "incident_id": UUID("33333333-3333-3333-3333-333333333302"),
+                "incident_code": "HT-2026-090",
+                "title": "Gg. Madura Pasar Segiri",
+                "lat": -0.4828,
+                "lng": 117.1480,
+                "address": "Gg. Madura Pasar Segiri, Samarinda Kota",
+                "road_width": 2.30,
+                "reporters": ["+6281112223334"],
+                "is_verified": False,
+                "status": IncidentFSMStatus.PENDING_VERIFICATION,
+                "created_at": now,
+                "updated_at": now,
+            },
+        ])
+
+
+async def fetch_active_incidents(
+    connection: Optional[asyncpg.Connection],
+) -> List[IncidentListItem]:
+    """Mengambil seluruh antrean insiden kebakaran aktif untuk dasbor posko komando."""
+    if connection is not None:
+        try:
+            sql = """
+                SELECT 
+                    i.id,
+                    i.incident_code,
+                    i.street_address,
+                    i.road_width_meters,
+                    i.fsm_status::text AS status,
+                    ST_Y(i.epicenter::geometry) AS lat,
+                    ST_X(i.epicenter::geometry) AS lng,
+                    i.reported_at,
+                    i.updated_at,
+                    COALESCE(COUNT(r.id), 1) AS reporters_count
+                FROM incidents i
+                LEFT JOIN incident_reports r ON r.incident_id = i.id
+                WHERE i.fsm_status NOT IN ('INCIDENT_CLOSED', 'ARCHIVED', 'CANCELLED_PRANK')
+                GROUP BY i.id
+                ORDER BY i.reported_at DESC;
+            """
+            rows = await connection.fetch(sql)
+            items = []
+            for row in rows:
+                status_enum = IncidentFSMStatus(row["status"])
+                rep_count = int(row["reporters_count"])
+                title_clean = row["street_address"].split(",")[0] if row["street_address"] else row["incident_code"]
+                items.append(
+                    IncidentListItem(
+                        incident_id=row["id"],
+                        incident_code=row["incident_code"],
+                        title=title_clean,
+                        street_address=row["street_address"] or "Samarinda",
+                        coordinates=[float(row["lat"]), float(row["lng"])],
+                        status=status_enum,
+                        reporters_count=rep_count,
+                        consensus_target=2,
+                        cluster_radius_meters=100.0,
+                        road_width_meters=float(row["road_width_meters"]),
+                        reported_at=row["reported_at"],
+                        updated_at=row["updated_at"] or row["reported_at"],
+                    )
+                )
+            if items:
+                return items
+        except Exception as exc:
+            logger.warning(f"Error fetching active incidents from DB: {exc}")
+
+    # Fallback in-memory state
+    _ensure_default_in_memory_incidents()
+    global _in_memory_incident_clusters
+    items = []
+    for cluster in _in_memory_incident_clusters:
+        status_val = cluster.get("status", IncidentFSMStatus.PENDING_VERIFICATION)
+        if isinstance(status_val, str):
+            status_val = IncidentFSMStatus(status_val)
+        rep_count = len(cluster.get("reporters", [])) or 1
+        items.append(
+            IncidentListItem(
+                incident_id=cluster["incident_id"],
+                incident_code=cluster["incident_code"],
+                title=cluster.get("title") or (cluster["address"].split(",")[0] if cluster.get("address") else cluster["incident_code"]),
+                street_address=cluster.get("address", "Samarinda"),
+                coordinates=[cluster["lat"], cluster["lng"]],
+                status=status_val,
+                reporters_count=rep_count,
+                consensus_target=2,
+                cluster_radius_meters=100.0,
+                road_width_meters=cluster.get("road_width", 2.0),
+                reported_at=cluster.get("created_at", datetime.now(timezone.utc)),
+                updated_at=cluster.get("updated_at", datetime.now(timezone.utc)),
+            )
+        )
+    return items
+
 
 
 def haversine_distance_meters(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
@@ -424,6 +545,7 @@ async def process_citizen_incident_report(
             pass
 
     # Fallback in-memory dengan evaluasi konsensus spasial dinamis (radius 100m, jeda 3 menit)
+    _ensure_default_in_memory_incidents()
     global _in_memory_incident_clusters
     matched_cluster = None
     for cluster in _in_memory_incident_clusters:
@@ -482,6 +604,7 @@ async def process_citizen_incident_report(
     new_cluster = {
         "incident_id": new_incident_id,
         "incident_code": f"HT-2026-{str(new_incident_id)[:4].upper()}",
+        "title": addr.split(",")[0] if addr else "Insiden Warga",
         "lat": lat,
         "lng": lng,
         "address": addr,
@@ -490,6 +613,7 @@ async def process_citizen_incident_report(
         "is_verified": False,
         "status": IncidentFSMStatus.PENDING_VERIFICATION,
         "created_at": datetime.now(timezone.utc),
+        "updated_at": datetime.now(timezone.utc),
     }
     _in_memory_incident_clusters.append(new_cluster)
 

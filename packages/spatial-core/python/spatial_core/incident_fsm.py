@@ -67,6 +67,9 @@ def is_valid_fsm_transition(
     Mengembalikan (is_valid, error_reason).
     """
     if current_status == target_status:
+        # Jika melalui manual override (posko konfirmasi ulang/idempoten), izinkan
+        if is_override:
+            return True, None
         return False, f"Status tujuan sama dengan status saat ini ({current_status})."
 
     if current_status == IncidentFSMStatus.ARCHIVED.value:
@@ -78,6 +81,13 @@ def is_valid_fsm_transition(
         return True, None
 
     if is_override:
+        # Posko memverifikasi insiden secara paksa (idempoten jika sudah terverifikasi)
+        if target_status == IncidentFSMStatus.VERIFIED.value and current_status in [
+            IncidentFSMStatus.PENDING_VERIFICATION.value,
+            IncidentFSMStatus.VERIFIED.value,
+        ]:
+            return True, None
+
         # Override dari PENDING_VERIFICATION langsung ke VERIFIED atau CANCELLED_PRANK
         if (
             current_status == IncidentFSMStatus.PENDING_VERIFICATION.value
@@ -85,13 +95,24 @@ def is_valid_fsm_transition(
         ):
             return True, None
 
-        # Posko membatalkan insiden kapan saja
-        if target_status in [IncidentFSMStatus.CANCELLED_PRANK.value, IncidentFSMStatus.ARCHIVED.value]:
+        # Posko membatalkan atau menutup insiden pemadaman selesai kapan saja
+        if target_status in [
+            IncidentFSMStatus.CANCELLED_PRANK.value,
+            IncidentFSMStatus.ARCHIVED.value,
+            IncidentFSMStatus.INCIDENT_CLOSED.value,
+        ]:
+            return True, None
+
+        # Posko langsung meluncurkan dispatch armada dari status pra-pemadaman
+        if target_status == IncidentFSMStatus.DISPATCHING.value and current_status in [
+            IncidentFSMStatus.PENDING_VERIFICATION.value,
+            IncidentFSMStatus.VERIFIED.value,
+        ]:
             return True, None
 
         # Langsung ke SUPPRESSION_ACTIVE jika unit sudah tiba
         if (
-            current_status == IncidentFSMStatus.VERIFIED.value
+            current_status in [IncidentFSMStatus.VERIFIED.value, IncidentFSMStatus.DISPATCHING.value]
             and target_status == IncidentFSMStatus.SUPPRESSION_ACTIVE.value
         ):
             return True, None

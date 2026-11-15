@@ -70,7 +70,7 @@ export const FSMControlPanel: React.FC<FSMControlPanelProps> = ({
               targetStatus: "VERIFIED",
               label: "VERIFIKASI PAKSA (OVERRIDE)",
               isOverride: true,
-              description: "Mengabaikan kuorum 2 pelapor dan langsung memvalidasi insiden secara otoritatif.",
+              description: "Validasi langsung tanpa menunggu kuorum 2 laporan warga.",
             })
           }
           className="min-h-[52px] p-2.5 border border-red-300 bg-red-50 hover:bg-red-100 text-red-700 font-bold text-left transition-all cursor-pointer active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-red-500"
@@ -86,7 +86,7 @@ export const FSMControlPanel: React.FC<FSMControlPanelProps> = ({
             setPendingAction({
               targetStatus: "DISPATCHED",
               label: "KERAHKAN ARMADA (DISPATCH)",
-              description: "Menginstruksikan seluruh unit posko dan relawan terdekat meluncur ke lokasi insiden.",
+              description: "Instruksikan unit pemadam dan relawan terdekat meluncur ke lokasi.",
             })
           }
           className="min-h-[52px] p-2.5 border border-sky-300 bg-sky-50 hover:bg-sky-100 text-sky-800 font-bold text-left transition-all cursor-pointer active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-sky-500"
@@ -102,7 +102,7 @@ export const FSMControlPanel: React.FC<FSMControlPanelProps> = ({
             setPendingAction({
               targetStatus: "CONTROLLED",
               label: "PENDINGINAN (CONTROLLED)",
-              description: "Menandai bahwa api utama telah padam dan fase pendinginan titik bara sedang berlangsung.",
+              description: "Tandai api utama padam. Mulai penyemprotan bara dan isolasi rambatan.",
             })
           }
           className="min-h-[52px] p-2.5 border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold text-left transition-all cursor-pointer active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-amber-500"
@@ -118,7 +118,7 @@ export const FSMControlPanel: React.FC<FSMControlPanelProps> = ({
             setPendingAction({
               targetStatus: "RESOLVED",
               label: "TUTUP INSIDEN (RESOLVED)",
-              description: "Mengakhiri status darurat insiden, membongkar selang, dan memulihkan armada ke posko.",
+              description: "Operasi selesai. Bongkar selang dan tarik armada kembali ke pangkalan.",
             })
           }
           className="min-h-[52px] p-2.5 border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-left transition-all cursor-pointer active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-emerald-500"
