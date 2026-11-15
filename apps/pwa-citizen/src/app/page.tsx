@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { HapticPressAndHoldButton } from "../components/HapticPressAndHoldButton";
+import { CitizenConsensusCard } from "../components/CitizenConsensusCard";
 import { submitEmergencyReport, type IncidentReportSuccess } from "../services/incident-service";
 
 export default function CitizenEmergencyPage() {
@@ -187,50 +188,14 @@ export default function CitizenEmergencyPage() {
             )}
           </>
         ) : (
-          /* Tampilan Status Konsensus Setelah Dilaporkan */
-          <div className="w-full bg-stone-900 border border-stone-800 p-6 text-left">
-            <p className="text-xs font-mono font-bold tracking-widest text-emerald-400 uppercase mb-2">
-              LAPORAN DITERIMA SISTEM
-            </p>
-            <h2 className="text-lg font-bold text-white mb-4">
-              {reportResult.consensus.is_verified
-                ? "TERVERIFIKASI — ARMADA MENUJU LOKASI"
-                : "MENUNGGU VERIFIKASI KONSENSUS"}
-            </h2>
-
-            <div className="space-y-3 text-xs font-mono border-t border-stone-800 pt-4">
-              <div className="flex justify-between">
-                <span className="text-stone-400">ID INSIDEN:</span>
-                <span className="text-white font-bold tracking-wider">
-                  {reportResult.incident_id.slice(0, 8)}...
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-stone-400">PELAPOR TERVERIFIKASI:</span>
-                <span className="text-white font-bold tabular-nums">
-                  {reportResult.consensus.unique_reporters_count} / 2 PELAPOR INDEPENDEN
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-stone-400">RADIUS KONSENSUS:</span>
-                <span className="text-white font-bold tabular-nums">
-                  {reportResult.consensus.cluster_radius_meters} METER
-                </span>
-              </div>
-              {reportResult.detected_gang_width_meters && (
-                <div className="flex justify-between">
-                  <span className="text-stone-400">LEBAR GANG TERDETEKSI:</span>
-                  <span className="text-amber-400 font-bold tabular-nums">
-                    {reportResult.detected_gang_width_meters} METER
-                  </span>
-                </div>
-              )}
-            </div>
-
-            <p className="mt-6 text-xs text-stone-400 leading-relaxed">
-              Tetap tenang dan utamakan keselamatan diri. Sistem posko terhubung secara otomatis ke relawan damkar terdekat.
-            </p>
-          </div>
+          /* Tampilan Status Konsensus Real-Time Setelah Dilaporkan */
+          <CitizenConsensusCard
+            incidentId={reportResult.incident_id}
+            initialStatus={reportResult.status}
+            initialReportersCount={reportResult.consensus.unique_reporters_count}
+            clusterRadiusMeters={reportResult.consensus.cluster_radius_meters}
+            createdAt={reportResult.created_at}
+          />
         )}
       </div>
 

@@ -5,7 +5,7 @@
  * dan status penyelesaian insiden kebakaran secara waktu nyata.
  *
  * File: apps/pwa-citizen/src/lib/supabase-realtime.ts
- * PIC: @Hervino (TASK-207)
+ * PIC: @Hervino (TASK-207 & TASK-304)
  */
 
-export * from "../../../web-command/src/lib/supabase-realtime.js";
+export * from "../../../web-command/src/lib/supabase-realtime.ts";
