@@ -10,6 +10,8 @@ import type { ActiveBarricadeItem } from "../lib/tactical-units";
 
 export { DEFAULT_SAMARINDA_WATER_SOURCES, type WaterSourcePoint, type ActiveIncidentMarker };
 
+export type BaseMapType = "OSM_STANDARD" | "OSM_HOT" | "CARTO_LIGHT";
+
 export interface TacticalMapCanvasProps {
   incidents?: ActiveIncidentMarker[];
   waterSources?: WaterSourcePoint[];
@@ -61,8 +63,10 @@ export const TacticalMapCanvas: React.FC<TacticalMapCanvasProps> = ({
 }) => {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapInstanceRef = useRef<any>(null);
+  const tileLayerRef = useRef<any>(null);
   const markersLayerRef = useRef<any>(null);
 
+  const [baseMap, setBaseMap] = useState<BaseMapType>("OSM_STANDARD");
   const [activeFilter, setActiveFilter] = useState<"ALL" | "READY" | "LOW" | "EMPTY">("ALL");
   const [isMapReady, setIsMapReady] = useState(false);
 
@@ -86,7 +90,6 @@ export const TacticalMapCanvas: React.FC<TacticalMapCanvasProps> = ({
     import("leaflet").then((L) => {
       if (!isSubscribed || !mapContainerRef.current) return;
 
-      // Hapus map lama jika container sudah terpasang
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
       }
@@ -95,22 +98,23 @@ export const TacticalMapCanvas: React.FC<TacticalMapCanvasProps> = ({
       const map = L.map(mapContainerRef.current, {
         center: [-0.5021, 117.1536],
         zoom: 15,
-        minZoom: 12,
-        maxZoom: 18,
+        minZoom: 11,
+        maxZoom: 19,
         zoomControl: false,
       });
 
       // Kontrol Zoom di pojok kanan bawah agar tidak menabrak HUD
       L.control.zoom({ position: "bottomright" }).addTo(map);
 
-      // Tile Layer: CartoDB Positron Light (Peta Terang Tajam & Bersih)
-      L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
-        attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; OpenStreetMap',
-        subdomains: "abcd",
+      // Default Basemap: OpenStreetMap Standard
+      const tileLayer = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         maxZoom: 19,
       }).addTo(map);
 
-      // Buat LayerGroup untuk marker & polylines agar mudah dirender ulang
+      tileLayerRef.current = tileLayer;
+
+      // Buat LayerGroup untuk marker & polylines
       const markersLayer = L.layerGroup().addTo(map);
 
       mapInstanceRef.current = map;
@@ -127,6 +131,45 @@ export const TacticalMapCanvas: React.FC<TacticalMapCanvasProps> = ({
     };
   }, []);
 
+  // Update Basemap Tiles saat opsi basemap berubah
+  useEffect(() => {
+    if (!isMapReady || !mapInstanceRef.current) return;
+
+    import("leaflet").then((L) => {
+      const map = mapInstanceRef.current;
+
+      if (tileLayerRef.current) {
+        map.removeLayer(tileLayerRef.current);
+      }
+
+      let newTileLayer: any;
+
+      if (baseMap === "OSM_STANDARD") {
+        // OpenStreetMap Standard Tiles
+        newTileLayer = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          maxZoom: 19,
+        });
+      } else if (baseMap === "OSM_HOT") {
+        // OpenStreetMap Humanitarian Tiles (Tinggi kontras jalan & gang)
+        newTileLayer = L.tileLayer("https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png", {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Tiles courtesy of Humanitarian OpenStreetMap Team',
+          maxZoom: 19,
+        });
+      } else {
+        // CartoDB Positron Light Minimalist
+        newTileLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+          attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; OpenStreetMap',
+          subdomains: "abcd",
+          maxZoom: 19,
+        });
+      }
+
+      newTileLayer.addTo(map);
+      tileLayerRef.current = newTileLayer;
+    });
+  }, [baseMap, isMapReady]);
+
   // Render Marker, Polylines, dan Garis Selang saat data berubah
   useEffect(() => {
     if (!isMapReady || !mapInstanceRef.current || !markersLayerRef.current) return;
@@ -139,7 +182,7 @@ export const TacticalMapCanvas: React.FC<TacticalMapCanvasProps> = ({
       const skmLine = L.polyline(SKM_RIVER_COORDINATES, {
         color: "#0284C7",
         weight: 6,
-        opacity: 0.6,
+        opacity: 0.65,
         lineCap: "round",
         lineJoin: "round",
       }).addTo(markersLayer);
@@ -193,7 +236,7 @@ export const TacticalMapCanvas: React.FC<TacticalMapCanvasProps> = ({
               height: 12px;
               background-color: ${color};
               border: 2px solid #FFFFFF;
-              box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+              box-shadow: 0 1px 3px rgba(0,0,0,0.35);
               cursor: pointer;
             "></div>
           `,
@@ -220,7 +263,7 @@ export const TacticalMapCanvas: React.FC<TacticalMapCanvasProps> = ({
           className: "custom-fire-icon",
           html: `
             <div style="position: relative; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
-              <div class="tactical-pulse-ring" style="position: absolute; inset: 0; background: rgba(220, 38, 38, 0.4); border-radius: 9999px;"></div>
+              <div class="tactical-pulse-ring" style="position: absolute; inset: 0; background: rgba(220, 38, 38, 0.45); border-radius: 9999px;"></div>
               <div style="
                 width: 20px;
                 height: 20px;
@@ -275,11 +318,11 @@ export const TacticalMapCanvas: React.FC<TacticalMapCanvasProps> = ({
       data-testid="tactical-map-canvas"
       className={`relative w-full h-full min-h-[500px] bg-[#E2E8F0] border border-[#CBD5E1] overflow-hidden flex flex-col ${className}`}
     >
-      {/* HUD Bar Atas Peta (Light Mode Elevasi) */}
+      {/* HUD Bar Atas Peta */}
       <div className="absolute top-3 left-3 right-3 z-[1000] flex flex-wrap items-center justify-between gap-3 bg-[#FFFFFF]/95 backdrop-blur-md border border-[#CBD5E1] p-3 shadow-sm select-none">
         <div>
           <p className="text-[10px] font-mono font-bold tracking-widest text-slate-500 uppercase">
-            PETA TAKTIS REAL-WORLD SAMARINDA • WGS 84
+            PETA TAKTIS OPENSTREETMAP SAMARINDA • WGS 84
           </p>
           <div className="flex items-center gap-2 mt-0.5">
             <span className="w-2.5 h-2.5 bg-red-600 inline-block" />
@@ -289,20 +332,47 @@ export const TacticalMapCanvas: React.FC<TacticalMapCanvasProps> = ({
           </div>
         </div>
 
-        {/* Indikator Pasang Surut Sungai Karang Mumus (SKM) & Filter */}
-        <div className="flex items-center gap-4 text-xs font-mono">
-          <div className="text-right">
-            <span className="text-slate-500 block text-[10px]">SUNGAI KARANG MUMUS:</span>
-            <span
-              className={`font-bold tabular-nums ${
-                isHighTide ? "text-sky-700" : "text-amber-700"
+        {/* Kontrol Layer: Basemap Switcher & Filter Sumber Air */}
+        <div className="flex flex-wrap items-center gap-4 text-xs font-mono">
+          {/* Pemilih Tipe Lapisan OpenStreetMap */}
+          <div className="flex items-center gap-1">
+            <span className="text-[10px] text-slate-500 uppercase mr-1">PETA:</span>
+            <button
+              type="button"
+              onClick={() => setBaseMap("OSM_STANDARD")}
+              className={`px-2 py-1 text-[10px] font-mono font-bold uppercase transition-colors cursor-pointer border ${
+                baseMap === "OSM_STANDARD"
+                  ? "bg-slate-900 text-white border-slate-900"
+                  : "bg-white text-slate-600 border-slate-300 hover:bg-slate-100"
               }`}
             >
-              {isHighTide ? "PASANG" : "SURUT"} (+{skmTideLevelMeters.toFixed(1)}M)
-            </span>
+              OSM STANDAR
+            </button>
+            <button
+              type="button"
+              onClick={() => setBaseMap("OSM_HOT")}
+              className={`px-2 py-1 text-[10px] font-mono font-bold uppercase transition-colors cursor-pointer border ${
+                baseMap === "OSM_HOT"
+                  ? "bg-slate-900 text-white border-slate-900"
+                  : "bg-white text-slate-600 border-slate-300 hover:bg-slate-100"
+              }`}
+            >
+              OSM HUMANITARIAN
+            </button>
+            <button
+              type="button"
+              onClick={() => setBaseMap("CARTO_LIGHT")}
+              className={`px-2 py-1 text-[10px] font-mono font-bold uppercase transition-colors cursor-pointer border ${
+                baseMap === "CARTO_LIGHT"
+                  ? "bg-slate-900 text-white border-slate-900"
+                  : "bg-white text-slate-600 border-slate-300 hover:bg-slate-100"
+              }`}
+            >
+              MINIMALIS
+            </button>
           </div>
 
-          <div className="h-6 w-px bg-slate-200" />
+          <div className="h-6 w-px bg-slate-200 hidden sm:block" />
 
           {/* Filter Status Sumber Air */}
           <div className="flex items-center gap-1">
@@ -325,13 +395,14 @@ export const TacticalMapCanvas: React.FC<TacticalMapCanvasProps> = ({
         </div>
       </div>
 
-      {/* Kontainer Peta Riil Leaflet */}
+      {/* Kontainer Peta Riil Leaflet OpenStreetMap */}
       <div ref={mapContainerRef} className="w-full h-full flex-1 z-0" />
 
       {/* Footer Status Bar Bawah */}
       <div className="z-[1000] bg-[#FFFFFF] border-t border-[#CBD5E1] px-4 py-2 flex items-center justify-between text-[11px] font-mono text-slate-600 select-none">
         <div>
           KOORDINAT POSKO: <span className="text-slate-900 font-bold tabular-nums">-0.5021° S, 117.1536° E</span>
+          <span className="text-slate-400 ml-2">| TILE: {baseMap}</span>
         </div>
         <div className="flex items-center gap-4">
           <span className="text-emerald-700 font-bold">● {waterSources.filter(s => s.status === "READY").length} READY</span>
