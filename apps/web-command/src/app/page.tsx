@@ -9,15 +9,25 @@ import {
   type ActiveBarricadeItem,
   type TacticalUnitMatrixItem,
 } from "../components/AutoSplitMatrixPanel";
+import { TelemetryStreamPanel } from "../components/TelemetryStreamPanel";
+import { FSMControlPanel } from "../components/FSMControlPanel";
+import {
+  DEFAULT_INCIDENT_QUEUE,
+  DEFAULT_TELEMETRY_STREAM,
+  type IncidentQueueItem,
+  type TelemetryMutationItem,
+} from "../lib/telemetry";
 import { subscribeToIncidentRealtime } from "../lib/supabase-realtime";
 
 export default function WebCommandDashboard() {
+  const [incidentsQueue, setIncidentsQueue] = useState<IncidentQueueItem[]>(DEFAULT_INCIDENT_QUEUE);
   const [selectedIncidentId, setSelectedIncidentId] = useState<string>(
     "33333333-3333-3333-3333-333333333301"
   );
   const [incidentStatus, setIncidentStatus] = useState<string>("VERIFIED");
   const [units, setUnits] = useState<TacticalUnitMatrixItem[]>(DEFAULT_TACTICAL_UNITS);
   const [barricades, setBarricades] = useState<ActiveBarricadeItem[]>(DEFAULT_ACTIVE_BARRICADES);
+  const [telemetryStream, setTelemetryStream] = useState<TelemetryMutationItem[]>(DEFAULT_TELEMETRY_STREAM);
 
   // Berlangganan Saluran Supabase Realtime CDC untuk insiden aktif
   useEffect(() => {
@@ -44,6 +54,18 @@ export default function WebCommandDashboard() {
           }
           return [...prev, newItem];
         });
+
+        // Tambahkan ke stream telemetri
+        setTelemetryStream((prev) => [
+          {
+            id: "mut-" + Date.now(),
+            timestamp: new Date().toLocaleTimeString("id-ID", { hour12: false }),
+            callSign: "UNIT TANGKI INDUK 05",
+            actionType: "HOSE_DEPLOYED",
+            description: `Barikade ${row.road_name} status: ${row.is_active ? "TERPASANG" : "DILEPAS"}`,
+          },
+          ...prev,
+        ]);
       },
       onUnitChange: (payload) => {
         const row = payload.new;
@@ -63,7 +85,11 @@ export default function WebCommandDashboard() {
       },
       onIncidentUpdate: (payload) => {
         if (payload.new?.status) {
-          setIncidentStatus(payload.new.status);
+          const newStatus = payload.new.status;
+          setIncidentStatus(newStatus);
+          setIncidentsQueue((prev) =>
+            prev.map((inc) => (inc.id === selectedIncidentId ? { ...inc, status: newStatus } : inc))
+          );
         }
       },
     });
@@ -78,6 +104,28 @@ export default function WebCommandDashboard() {
       prev.map((b) => (b.id === barricadeId ? { ...b, isActive: !currentActive } : b))
     );
   };
+
+  const handleExecuteFSMTransition = async (targetStatus: string, isOverride?: boolean) => {
+    setIncidentStatus(targetStatus);
+    setIncidentsQueue((prev) =>
+      prev.map((inc) => (inc.id === selectedIncidentId ? { ...inc, status: targetStatus as any } : inc))
+    );
+
+    setTelemetryStream((prev) => [
+      {
+        id: "mut-" + Date.now(),
+        timestamp: new Date().toLocaleTimeString("id-ID", { hour12: false }),
+        callSign: "POSKO INDUK",
+        actionType: "ROLE_REASSIGNED",
+        description: isOverride
+          ? `OVERRIDE MANUAL OLEH POSKO: Transisi paksa ke ${targetStatus}`
+          : `TRANSISI FSM PROTOKOL: Berpindah ke status ${targetStatus}`,
+      },
+      ...prev,
+    ]);
+  };
+
+  const activeIncident = incidentsQueue.find((i) => i.id === selectedIncidentId) || incidentsQueue[0];
 
   return (
     <div className="flex flex-col h-screen w-screen bg-[#07090E] text-stone-100 font-sans select-none overflow-hidden">
@@ -108,21 +156,59 @@ export default function WebCommandDashboard() {
 
       {/* Main 3-Column Tactical Workspace */}
       <div className="flex-1 flex flex-row overflow-hidden">
-        {/* KOLOM KIRI (Panel Insiden & Kondisi Pasang Surut Sungai) */}
-        <aside className="w-80 border-r border-stone-800 bg-[#080B10] flex flex-col shrink-0 overflow-y-auto">
-          {/* Header Panel Kiri */}
+        {/* KOLOM KIRI (Antrean Insiden & Kondisi Pasang Surut Sungai) */}
+        <aside className="w-84 border-r border-stone-800 bg-[#080B10] flex flex-col shrink-0 overflow-y-auto">
+          {/* Header Panel Kiri: Antrean Insiden Aktif */}
           <div className="p-4 border-b border-stone-800">
-            <p className="text-xs font-mono font-bold tracking-widest text-stone-400 uppercase mb-1">
-              INSIDEN AKTIF
-            </p>
-            <h2 className="text-base font-bold text-white tracking-tight">
-              Gg. 4 Jl. Pelita, Samarinda Kota
-            </h2>
-            <div className="mt-2 flex items-center justify-between text-xs font-mono">
-              <span className="text-stone-500">STATUS TAKTIS:</span>
-              <span className="font-bold text-red-400 tracking-wider uppercase">
-                {incidentStatus}
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs font-mono font-bold tracking-widest text-stone-400 uppercase">
+                ANTEAN INSIDEN AKTIF
+              </p>
+              <span className="text-[10px] font-mono text-red-400 font-bold tabular-nums">
+                {incidentsQueue.length} TITIK
               </span>
+            </div>
+
+            <div className="space-y-2">
+              {incidentsQueue.map((item) => {
+                const isSelected = item.id === selectedIncidentId;
+                return (
+                  <div
+                    key={item.id}
+                    onClick={() => {
+                      setSelectedIncidentId(item.id);
+                      setIncidentStatus(item.status);
+                    }}
+                    className={`p-3 border text-xs font-mono cursor-pointer transition-colors ${
+                      isSelected
+                        ? "bg-[#0A0F1D] border-red-700"
+                        : "bg-[#06080D] border-stone-850 hover:border-stone-700"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-bold text-white">{item.locationName}</span>
+                      <span
+                        className={`text-[10px] font-bold uppercase ${
+                          item.status === "VERIFIED"
+                            ? "text-emerald-400"
+                            : item.status === "REPORTED"
+                            ? "text-amber-400"
+                            : "text-cyan-400"
+                        }`}
+                      >
+                        {item.status}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between text-[10px] text-stone-400 pt-1">
+                      <span className="tabular-nums">
+                        KONSENSUS: {item.reportersCount}/{item.consensusTarget} (R{item.clusterRadiusMeters}M)
+                      </span>
+                      <span className="tabular-nums">{item.elapsedMinutes}M LALU</span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
@@ -151,30 +237,9 @@ export default function WebCommandDashboard() {
             </div>
           </div>
 
-          {/* Ringkasan Disposisi Armada Samping */}
+          {/* Telemetry Stream Kronologis */}
           <div className="p-4 flex-1">
-            <p className="text-xs font-mono font-bold tracking-widest text-stone-400 uppercase mb-3">
-              UNIT KELUARAN AKTIF
-            </p>
-            <div className="space-y-3">
-              {units.map((u) => (
-                <div key={u.id} className="p-3 bg-[#0A0E17] border border-stone-800 text-xs font-mono">
-                  <div className="flex justify-between mb-1">
-                    <span className="font-bold text-white">{u.callSign}</span>
-                    <span
-                      className={`font-bold ${
-                        u.assignedRole === "ATTACKER" ? "text-cyan-400" : "text-amber-400"
-                      }`}
-                    >
-                      {u.assignedRole}
-                    </span>
-                  </div>
-                  <p className="text-stone-400 text-[11px]">
-                    Tangki {u.tankCapacityLiters}L • Jarak: {u.distanceFromFireMeters}m
-                  </p>
-                </div>
-              ))}
-            </div>
+            <TelemetryStreamPanel mutations={telemetryStream} />
           </div>
         </aside>
 
@@ -188,46 +253,33 @@ export default function WebCommandDashboard() {
           />
         </main>
 
-        {/* KOLOM KANAN (Matriks Auto-Split & Barikade Fuchsia) */}
+        {/* KOLOM KANAN (Matriks Auto-Split & Panel Kontrol FSM) */}
         <aside className="w-96 border-l border-stone-800 bg-[#080B10] flex flex-col shrink-0 overflow-y-auto">
           <div className="p-4 border-b border-stone-800">
             <p className="text-xs font-mono font-bold tracking-widest text-stone-400 uppercase mb-1">
-              PANEL TAKTIS ARMADA
+              PANEL TAKTIS OPERATOR
             </p>
             <h2 className="text-sm font-bold text-white tracking-tight uppercase">
-              MATRIKS AUTO-SPLIT & BARIKADE
+              MATRIKS AUTO-SPLIT & KENDALI FSM
             </h2>
           </div>
 
-          <div className="p-4 flex-1">
-            <AutoSplitMatrixPanel
-              gangWidthMeters={2.1}
-              units={units}
-              barricades={barricades}
-              onToggleBarricade={handleToggleBarricade}
+          <div className="p-4 flex-1 space-y-6">
+            {/* Kendali Protokol FSM */}
+            <FSMControlPanel
+              currentStatus={incidentStatus}
+              incidentId={selectedIncidentId}
+              onExecuteTransition={handleExecuteFSMTransition}
             />
 
-            {/* Kontrol Transisi Status FSM Insiden */}
-            <div className="mt-6 pt-4 border-t border-stone-800">
-              <p className="text-xs font-mono font-bold tracking-widest text-stone-400 uppercase mb-3">
-                TRANSISI STATUS PROTOKOL (FSM)
-              </p>
-              <div className="space-y-2">
-                {[
-                  { status: "WATER_ON_FIRE", label: "AIR MENYEMBUR KE API", color: "border-cyan-700 hover:bg-cyan-950/50" },
-                  { status: "CONTROLLED", label: "API BERHASIL DIKUASAI", color: "border-amber-700 hover:bg-amber-950/50" },
-                  { status: "RESOLVED", label: "PEMADAMAN SELESAI (DINGIN)", color: "border-emerald-700 hover:bg-emerald-950/50" },
-                ].map((step) => (
-                  <button
-                    key={step.status}
-                    onClick={() => setIncidentStatus(step.status)}
-                    className={`w-full text-left p-3 border ${step.color} bg-[#0A0E17] text-xs font-mono transition-colors`}
-                  >
-                    <p className="text-[10px] text-stone-500 uppercase">{step.status}</p>
-                    <p className="font-bold text-white mt-0.5">{step.label}</p>
-                  </button>
-                ))}
-              </div>
+            {/* Matriks Auto-Split & Barikade */}
+            <div className="pt-4 border-t border-stone-800">
+              <AutoSplitMatrixPanel
+                gangWidthMeters={2.1}
+                units={units}
+                barricades={barricades}
+                onToggleBarricade={handleToggleBarricade}
+              />
             </div>
           </div>
         </aside>
