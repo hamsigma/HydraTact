@@ -9,6 +9,11 @@ BASE_DIR = Path(__file__).resolve().parent
 if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
 
+# Ensure packages/spatial-core/python is on sys.path
+spatial_core_dir = BASE_DIR.parent.parent / "packages" / "spatial-core" / "python"
+if str(spatial_core_dir) not in sys.path:
+    sys.path.insert(0, str(spatial_core_dir))
+
 from main import app
 
 

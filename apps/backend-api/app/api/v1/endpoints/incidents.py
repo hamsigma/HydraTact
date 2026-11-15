@@ -1,4 +1,5 @@
-from uuid import UUID
+import logging
+from uuid import UUID, uuid4
 from fastapi import APIRouter, HTTPException, Path, status
 
 from app.core.db import get_db_pool
@@ -7,6 +8,7 @@ from app.repositories.spatial import (
     fetch_incident_detail_by_id,
     process_citizen_incident_report,
 )
+from app.schemas.common import TacticalRole
 from app.schemas.incident import (
     CitizenReportRequest,
     FSMTransitionRequest,
@@ -16,9 +18,13 @@ from app.schemas.incident import (
     ManualOverrideRequest,
 )
 from app.schemas.unit import (
+    UnitAssignData,
     UnitAssignRequest,
     UnitAssignResponse,
 )
+from spatial_core import determine_tactical_role
+
+logger = logging.getLogger("hydratact.incidents")
 
 router = APIRouter(prefix="/incidents", tags=["Komando Insiden & Pelaporan"])
 
@@ -142,5 +148,89 @@ async def assign_unit_to_incident(
     payload: UnitAssignRequest,
     incident_id: UUID = Path(..., description="UUID unik insiden kebakaran"),
 ):
-    """Placeholder implementasi kontrak endpoint assign armada."""
-    raise NotImplementedError("Implementasi logika bisnis pada TASK berikutnya")
+    """Mendaftarkan unit dan menghitung peran otomatis berbasis lebar gang dan kapasitas tangki."""
+    pool = get_db_pool()
+    effective_width = 2.0  # default lebar gang Jl. Pelita Gg. 4
+    unit_id = uuid4()
+
+    if pool is not None:
+        try:
+            async with pool.acquire() as conn:
+                width_row = await conn.fetchval(
+                    "SELECT road_width_meters FROM incidents WHERE id = $1",
+                    incident_id,
+                )
+                if width_row:
+                    effective_width = float(width_row)
+        except Exception as exc:
+            logger.warning(f"Error fetching incident width: {exc}")
+
+    role_str = determine_tactical_role(effective_width, payload.water_capacity_liters)
+
+    if role_str == "FEEDER":
+        assigned_role = TacticalRole.FEEDER
+        db_role = "FEEDER"
+        rationale = (
+            f"Lebar akses jalan {effective_width}m (< 2.5m). Kapasitas tangki {payload.water_capacity_liters}L "
+            "(>= 3.000 L) dilarang masuk gang sempit. Dialokasikan sebagai unit FEEDER penyuplai air di jalan arteri."
+        )
+        instruction = "Kunci posisi di jalan arteri utama (lebar >= 6m). Bentangkan selang pasok ke mulut gang dan siapkan koneksi ke sumber air terdekat."
+        paired_unit = "ATK-01"
+    else:
+        assigned_role = TacticalRole.ATTACKER
+        db_role = "ATTACKER"
+        rationale = (
+            f"Lebar akses jalan {effective_width}m (< 2.5m). Unit dengan kapasitas {payload.water_capacity_liters}L "
+            "(< 1.000 L) dapat bermanuver masuk ke gang sempit sebagai unit ATTACKER titik api."
+        )
+        instruction = "Masuk mendekat ke titik api. Hubungkan nozzle pemadaman ke selang pasok unit Feeder di mulut gang."
+        paired_unit = "FDR-01"
+
+    if pool is not None:
+        try:
+            async with pool.acquire() as conn:
+                vehicle_mapping = {
+                    "LARGE_TANK": "TANKER_DOUBLE_AXLE",
+                    "MEDIUM_TANK": "TANKER_SINGLE_AXLE",
+                    "THREE_WHEELER": "PICKUP_4X4",
+                    "PORTABLE_PUMP": "PORTABLE_PORT",
+                }
+                v_type = vehicle_mapping.get(
+                    payload.vehicle_type.value if hasattr(payload.vehicle_type, "value") else str(payload.vehicle_type),
+                    "PICKUP_4X4",
+                )
+                insert_sql = """
+                    INSERT INTO incident_units (
+                        id, incident_id, unit_code, vehicle_type, water_capacity_liters,
+                        assigned_role, current_geom, last_ping_at, created_at
+                    ) VALUES (
+                        $1, $2, $3, $4::fleet_vehicle_type, $5,
+                        $6::tactical_unit_role, ST_SetSRID(ST_MakePoint($7, $8), 4326)::geography, NOW(), NOW()
+                    )
+                    RETURNING id;
+                """
+                inserted_id = await conn.fetchval(
+                    insert_sql,
+                    unit_id,
+                    incident_id,
+                    payload.unit_identifier,
+                    v_type,
+                    payload.water_capacity_liters,
+                    db_role,
+                    payload.current_location.coordinates[0],
+                    payload.current_location.coordinates[1],
+                )
+                if inserted_id:
+                    unit_id = inserted_id
+        except Exception as exc:
+            logger.warning(f"Error persisting unit assignment in db: {exc}")
+
+    data = UnitAssignData(
+        unit_id=unit_id,
+        unit_identifier=payload.unit_identifier,
+        assigned_role=assigned_role,
+        dispatch_rationale=rationale,
+        tactical_instruction=instruction,
+        paired_unit=paired_unit,
+    )
+    return UnitAssignResponse(status="success", data=data)

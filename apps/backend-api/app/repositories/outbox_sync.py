@@ -26,6 +26,7 @@ logger = logging.getLogger("hydratact.sync")
 # In-memory store untuk simulasi testing saat DB lokal offline
 _in_memory_processed_uuids: set[str] = set()
 _in_memory_water_timestamps: Dict[str, datetime] = {}
+_in_memory_barricades: Dict[str, Dict[str, Any]] = {}
 
 
 async def process_outbox_batch_sync(
@@ -166,10 +167,36 @@ async def _handle_barricade_lww(
     item: OutboxMutationItem,
     device_id: str,
 ) -> MutationResultItem:
-    """Menangani mutasi barikade selang jalan."""
+    """Menangani mutasi barikade selang jalan (pembuatan & penonaktifan)."""
     if connection is not None:
         try:
-            if item.operation == MutationOperation.DEACTIVATE_BARRICADE:
+            if item.operation == MutationOperation.CREATE_BARRICADE:
+                road_name = item.payload.get("road_name", "Mulut Jl. Pelita Gg. 4")
+                reason = item.payload.get("reason", "PRESSURIZED_HOSE_LINE")
+                hose_len = int(item.payload.get("hose_length_meters", 100))
+                incident_id = item.payload.get("incident_id")
+                if not incident_id:
+                    incident_id = await connection.fetchval(
+                        "SELECT id FROM incidents WHERE fsm_status != 'ARCHIVED' ORDER BY created_at DESC LIMIT 1"
+                    )
+                coords = item.payload.get("coordinates") or [[117.1428, -0.4952], [117.1435, -0.4947], [117.1443, -0.4938]]
+                line_wkt = f"LINESTRING({', '.join(f'{c[0]} {c[1]}' for c in coords)})"
+                sql = """
+                    INSERT INTO road_barricades (id, incident_id, road_name, path_geom, reason, hose_length_meters, is_active, created_at)
+                    VALUES ($1, $2, $3, ST_GeomFromText($4, 4326)::geography, $5::barricade_reason_type, $6, TRUE, $7)
+                    ON CONFLICT (id) DO UPDATE SET is_active = TRUE, deactivated_at = NULL;
+                """
+                await connection.execute(
+                    sql,
+                    item.target_id,
+                    incident_id,
+                    road_name,
+                    line_wkt,
+                    reason,
+                    hose_len,
+                    item.client_timestamp,
+                )
+            elif item.operation == MutationOperation.DEACTIVATE_BARRICADE:
                 await connection.execute(
                     "UPDATE road_barricades SET is_active = FALSE, deactivated_at = $1 WHERE id = $2",
                     item.client_timestamp,
@@ -182,6 +209,18 @@ async def _handle_barricade_lww(
             )
         except Exception as exc:
             logger.warning(f"Error handling barricade mutation: {exc}")
+
+    # Fallback in-memory
+    if item.operation == MutationOperation.CREATE_BARRICADE:
+        _in_memory_barricades[str(item.target_id)] = {
+            "id": item.target_id,
+            "road_name": item.payload.get("road_name", "Mulut Jl. Pelita Gg. 4"),
+            "is_active": True,
+            "created_at": item.client_timestamp,
+        }
+    elif item.operation == MutationOperation.DEACTIVATE_BARRICADE:
+        if str(item.target_id) in _in_memory_barricades:
+            _in_memory_barricades[str(item.target_id)]["is_active"] = False
 
     _in_memory_processed_uuids.add(str(item.mutation_uuid))
     return MutationResultItem(

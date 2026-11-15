@@ -26,6 +26,7 @@ from spatial_core.incident_fsm import (
     determine_dispatch_protocol,
     is_valid_fsm_transition,
 )
+from spatial_core import determine_tactical_role
 
 # Cache in-memory untuk pengujian luring/simulasi Jl. Pelita Gg. 4
 SIMULATED_INCIDENTS_CACHE: Dict[UUID, Dict[str, Any]] = {
@@ -117,6 +118,23 @@ async def transition_incident_fsm_repo(
             )
 
             protocol = determine_dispatch_protocol(effective_width, target_status_val)
+
+            # Kalkulasi ulang peran taktis unit yang dialokasikan (Dynamic Role Dispatching)
+            try:
+                units = await connection.fetch(
+                    "SELECT id, water_capacity_liters FROM incident_units WHERE incident_id = $1",
+                    incident_id,
+                )
+                for unit_row in units:
+                    new_role = determine_tactical_role(effective_width, unit_row["water_capacity_liters"])
+                    db_role = "FEEDER" if new_role in ("FEEDER", "RESERVE_FEEDER") else ("ATTACKER" if new_role == "ATTACKER" else "RESERVE")
+                    await connection.execute(
+                        "UPDATE incident_units SET assigned_role = $1::tactical_unit_role WHERE id = $2",
+                        db_role,
+                        unit_row["id"],
+                    )
+            except Exception as unit_exc:
+                logger.warning(f"Gagal mengalkulasi ulang unit dispatch: {unit_exc}")
 
             return FSMTransitionData(
                 incident_id=updated_row["id"],

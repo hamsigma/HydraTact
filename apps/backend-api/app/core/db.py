@@ -8,14 +8,18 @@ from app.core.config import settings
 logger = logging.getLogger("hydratact.db")
 
 _pool: Optional[asyncpg.Pool] = None
+_pool_init_attempted: bool = False
 
 
-async def init_db_pool() -> Optional[asyncpg.Pool]:
+async def init_db_pool(force: bool = False) -> Optional[asyncpg.Pool]:
     """Inisialisasi pool koneksi asinkron asyncpg ke basis data PostgreSQL PostGIS."""
-    global _pool
+    global _pool, _pool_init_attempted
     if _pool is not None:
         return _pool
+    if _pool_init_attempted and not force:
+        return None
 
+    _pool_init_attempted = True
     try:
         logger.info(f"Connecting to database pool at {settings.DATABASE_URL}...")
         _pool = await asyncpg.create_pool(

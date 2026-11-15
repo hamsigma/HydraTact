@@ -361,6 +361,20 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
   /api/v1/barricades:
+    get:
+      tags:
+      - Barikade Selang Jalan
+      summary: Daftar barikade jalan aktif
+      description: Mengambil seluruh barikade ruas jalan yang sedang aktif terpasang
+        bentangan selang pemadam.
+      operationId: list_barricades_api_v1_barricades_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BarricadeListResponse'
     post:
       tags:
       - Barikade Selang Jalan
@@ -578,6 +592,23 @@ components:
       - data
       title: BarricadeDeactivateResponse
       description: Respons pembukaan kembali akses jalan.
+    BarricadeListResponse:
+      properties:
+        status:
+          type: string
+          const: success
+          title: Status
+          default: success
+        data:
+          items:
+            $ref: '#/components/schemas/BarricadeData'
+          type: array
+          title: Data
+      type: object
+      required:
+      - data
+      title: BarricadeListResponse
+      description: Respons daftar seluruh barikade aktif.
     BarricadeReason:
       type: string
       enum:
