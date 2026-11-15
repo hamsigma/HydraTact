@@ -1,22 +1,22 @@
 import 'package:vector_tile_renderer/vector_tile_renderer.dart';
 
 /// Tactical Map Theme for HydraTact Samarinda
-/// Sesuai spesifikasi docs/Design.md Bagian 6.1:
-/// - Latar Dasar Daratan: #0B0E14 (TacticalColors.mapBackground)
-/// - Jaringan Jalan Arteri (>= 6 m): #2D333B (TacticalColors.mapRoadArtery)
-/// - Jaringan Gang Sempit (< 2.5 m): #484F58 (TacticalColors.mapAlley)
-/// - Koridor Sungai Karang Mumus: #0F2847 dengan tepian #1D4ED8 (TacticalColors.mapRiver, mapRiverBank)
-/// - Bangunan Permukiman Padat: #161B22 (TacticalColors.mapBuilding)
+/// Palet terang selaras web dashboard komando (TacticalMapCanvas.tsx):
+/// - Latar Dasar Daratan: #F2EFE9 (TacticalColors.mapBackground, gaya OSM Standard)
+/// - Jaringan Jalan Arteri (>= 6 m): #B5AEA2 (TacticalColors.mapRoadArtery)
+/// - Jaringan Gang Sempit (< 2.5 m): #D8D3C9 (TacticalColors.mapAlley)
+/// - Koridor Sungai Karang Mumus: #AAD3DF dengan tepian #0284C7 (TacticalColors.mapRiver, mapRiverBank)
+/// - Bangunan Permukiman Padat: #E0DFDB (TacticalColors.mapBuilding)
 class TacticalMapTheme {
   TacticalMapTheme._();
 
   static const String sourceId = 'samarinda';
 
-  /// Mapbox GL Style JSON specification for tactical dark OLED vector tiles
+  /// Mapbox GL Style JSON specification for tactical light command vector tiles
   static Map<String, dynamic> themeData({String source = sourceId}) {
     return {
       'version': 8,
-      'name': 'Tactical Samarinda OLED Dark',
+      'name': 'Tactical Samarinda Command Light',
       'sources': {
         source: {
           'type': 'vector',
@@ -28,7 +28,7 @@ class TacticalMapTheme {
           'id': 'background',
           'type': 'background',
           'paint': {
-            'background-color': '#0B0E14',
+            'background-color': '#F2EFE9',
           },
         },
         // 2. Bangunan Permukiman Padat
@@ -38,9 +38,9 @@ class TacticalMapTheme {
           'source': source,
           'source-layer': 'buildings',
           'paint': {
-            'fill-color': '#161B22',
-            'fill-opacity': 0.85,
-            'fill-outline-color': '#21262D',
+            'fill-color': '#E0DFDB',
+            'fill-opacity': 0.9,
+            'fill-outline-color': '#CFC9BE',
           },
         },
         // 3. Koridor Sungai Karang Mumus (Area/Fill jika poligon)
@@ -50,9 +50,9 @@ class TacticalMapTheme {
           'source': source,
           'source-layer': 'waterways',
           'paint': {
-            'fill-color': '#0F2847',
-            'fill-opacity': 0.9,
-            'fill-outline-color': '#1D4ED8',
+            'fill-color': '#AAD3DF',
+            'fill-opacity': 0.95,
+            'fill-outline-color': '#0284C7',
           },
         },
         // 4. Koridor Sungai Karang Mumus (Garis Aliran)
@@ -62,7 +62,7 @@ class TacticalMapTheme {
           'source': source,
           'source-layer': 'waterways',
           'paint': {
-            'line-color': '#1D4ED8',
+            'line-color': '#0284C7',
             'line-width': 5.0,
             'line-opacity': 0.95,
           },
@@ -75,7 +75,7 @@ class TacticalMapTheme {
           'source-layer': 'roads',
           'filter': ['>=', 'road_width_meters', 6.0],
           'paint': {
-            'line-color': '#2D333B',
+            'line-color': '#B5AEA2',
             'line-width': 4.0,
           },
         },
@@ -87,7 +87,7 @@ class TacticalMapTheme {
           'source-layer': 'roads',
           'filter': ['<', 'road_width_meters', 2.5],
           'paint': {
-            'line-color': '#484F58',
+            'line-color': '#D8D3C9',
             'line-width': 2.0,
           },
         },
@@ -98,7 +98,7 @@ class TacticalMapTheme {
           'source': source,
           'source-layer': 'roads',
           'paint': {
-            'line-color': '#3A424E',
+            'line-color': '#C9C3B8',
             'line-width': 2.5,
           },
         },

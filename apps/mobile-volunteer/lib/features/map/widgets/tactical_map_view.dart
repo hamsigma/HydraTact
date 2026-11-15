@@ -7,8 +7,15 @@ import '../../../core/theme/tactical_typography.dart';
 import '../services/mbtiles_service.dart';
 import '../theme/tactical_map_theme.dart';
 
+/// Tipe basemap raster OSM, selaras dengan TacticalMapCanvas web dashboard
+/// komando (OSM Standard / OSM Humanitarian / CartoDB Positron).
+enum TacticalBaseMap { osmStandard, osmHot, cartoLight }
+
 /// Tactical Map View using FlutterMap and offline MBTiles vector renderer.
 /// Sesuai docs/Design.md Bagian 6 & 7.2.
+/// Ketika tile vektor MBTiles tidak tersedia (aset belum dibundel atau di web),
+/// basemap raster OpenStreetMap tampil sebagai fallback agar tampilan peta
+/// sama seperti web dashboard komando (TacticalMapCanvas.tsx).
 class TacticalMapView extends StatefulWidget {
   const TacticalMapView({
     super.key,
@@ -23,6 +30,7 @@ class TacticalMapView extends StatefulWidget {
     this.isAttacker = true,
     this.syncStatusText = 'ONLINE (TERHUBUNG)',
     this.renderVectorTiles = true,
+    this.showOsmFallback = true,
     this.concurrency = 0,
     this.onMapReady,
   });
@@ -38,6 +46,7 @@ class TacticalMapView extends StatefulWidget {
   final bool isAttacker;
   final String syncStatusText;
   final bool renderVectorTiles;
+  final bool showOsmFallback;
   final int concurrency;
   final VoidCallback? onMapReady;
 
@@ -48,6 +57,7 @@ class TacticalMapView extends StatefulWidget {
 class _TacticalMapViewState extends State<TacticalMapView> {
   late final MapController _controller;
   dynamic _theme;
+  TacticalBaseMap _baseMap = TacticalBaseMap.osmStandard;
 
   @override
   void initState() {
@@ -58,9 +68,23 @@ class _TacticalMapViewState extends State<TacticalMapView> {
     }
   }
 
+  String _baseMapUrlTemplate() {
+    switch (_baseMap) {
+      case TacticalBaseMap.osmStandard:
+        return 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+      case TacticalBaseMap.osmHot:
+        return 'https://tile.openstreetmap.fr/hot/{z}/{x}/{y}.png';
+      case TacticalBaseMap.cartoLight:
+        return 'https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = widget.mbtilesService.vectorTileProvider;
+    final useVectorTiles =
+        widget.renderVectorTiles && provider != null && _theme != null;
+    final showRasterBaseMap = widget.showOsmFallback && !useVectorTiles;
 
     return Container(
       color: TacticalColors.surface0,
@@ -70,35 +94,64 @@ class _TacticalMapViewState extends State<TacticalMapView> {
           _buildTacticalHeader(),
           // Area Peta Utama (60% layar / flex ekspansi)
           Expanded(
-            child: FlutterMap(
-              mapController: _controller,
-              options: MapOptions(
-                initialCenter: widget.initialCenter,
-                initialZoom: widget.initialZoom,
-                minZoom: 14.0,
-                maxZoom: 18.0,
-                backgroundColor: TacticalColors.mapBackground,
-                onMapReady: widget.onMapReady,
-              ),
+            child: Stack(
               children: [
-                // Vector Tile Layer MBTiles
-                if (widget.renderVectorTiles && provider != null && _theme != null)
-                  VectorTileLayer(
-                    theme: _theme,
-                    concurrency: widget.concurrency,
-                    tileProviders: TileProviders({
-                      TacticalMapTheme.sourceId: provider,
-                    }),
+                FlutterMap(
+                  mapController: _controller,
+                  options: MapOptions(
+                    initialCenter: widget.initialCenter,
+                    initialZoom: widget.initialZoom,
+                    minZoom: 14.0,
+                    maxZoom: 18.0,
+                    backgroundColor: TacticalColors.mapBackground,
+                    onMapReady: widget.onMapReady,
                   ),
-                // Circle Layer (Cincin konsensus 100m)
-                if (widget.circleMarkers.isNotEmpty)
-                  CircleLayer(circles: widget.circleMarkers),
-                // Polyline Layer (Garis barikade selang fuchsia)
-                if (widget.polylines.isNotEmpty)
-                  PolylineLayer(polylines: widget.polylines),
-                // Marker Layer (Armada, titik api, sumber air)
-                if (widget.markers.isNotEmpty)
-                  MarkerLayer(markers: widget.markers),
+                  children: [
+                    // Basemap raster OpenStreetMap (fallback, sama dengan
+                    // web dashboard komando)
+                    if (showRasterBaseMap)
+                      TileLayer(
+                        urlTemplate: _baseMapUrlTemplate(),
+                        subdomains: _baseMap == TacticalBaseMap.cartoLight
+                            ? const ['a', 'b', 'c', 'd']
+                            : const [''],
+                        maxZoom: 18.0,
+                        userAgentPackageName: 'id.hydratact.mobile_volunteer',
+                      ),
+                    // Vector Tile Layer MBTiles
+                    if (useVectorTiles)
+                      VectorTileLayer(
+                        theme: _theme,
+                        concurrency: widget.concurrency,
+                        tileProviders: TileProviders({
+                          TacticalMapTheme.sourceId: provider,
+                        }),
+                      ),
+                    // Circle Layer (Cincin konsensus 100m)
+                    if (widget.circleMarkers.isNotEmpty)
+                      CircleLayer(circles: widget.circleMarkers),
+                    // Polyline Layer (Garis barikade selang fuchsia)
+                    if (widget.polylines.isNotEmpty)
+                      PolylineLayer(polylines: widget.polylines),
+                    // Marker Layer (Armada, titik api, sumber air)
+                    if (widget.markers.isNotEmpty)
+                      MarkerLayer(markers: widget.markers),
+                  ],
+                ),
+                // HUD Pemilih Basemap (sama seperti HUD web dashboard komando)
+                if (showRasterBaseMap)
+                  Positioned(
+                    right: 8.0,
+                    top: 8.0,
+                    child: _buildBaseMapSwitcher(),
+                  ),
+                // Atribusi sumber tile (wajib untuk OpenStreetMap / CARTO)
+                if (showRasterBaseMap)
+                  Positioned(
+                    left: 4.0,
+                    bottom: 4.0,
+                    child: _buildAttributionText(),
+                  ),
               ],
             ),
           ),
@@ -107,10 +160,78 @@ class _TacticalMapViewState extends State<TacticalMapView> {
     );
   }
 
+  Widget _buildBaseMapSwitcher() {
+    Widget option(String label, TacticalBaseMap mapType) {
+      final isSelected = _baseMap == mapType;
+      return InkWell(
+        onTap: () => setState(() => _baseMap = mapType),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 5.0),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? TacticalColors.selectedControlBg
+                : TacticalColors.surface1,
+            border: Border.all(
+              color: isSelected
+                  ? TacticalColors.selectedControlBg
+                  : TacticalColors.borderSubtle,
+              width: 1.0,
+            ),
+            borderRadius: BorderRadius.circular(2.0),
+          ),
+          child: Text(
+            label,
+            style: TacticalTypography.statusText(
+              color: isSelected
+                  ? TacticalColors.selectedControlText
+                  : TacticalColors.textSecondary,
+              fontSize: 9,
+            ).copyWith(fontWeight: FontWeight.w700, letterSpacing: 0.6),
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(3.0),
+      decoration: BoxDecoration(
+        color: TacticalColors.surface1.withValues(alpha: 0.95),
+        border: Border.all(color: TacticalColors.borderSubtle, width: 1.0),
+        borderRadius: BorderRadius.circular(2.0),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          option('OSM STANDAR', TacticalBaseMap.osmStandard),
+          const SizedBox(width: 3.0),
+          option('OSM HOT', TacticalBaseMap.osmHot),
+          const SizedBox(width: 3.0),
+          option('MINIMALIS', TacticalBaseMap.cartoLight),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAttributionText() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
+      color: TacticalColors.surface1.withValues(alpha: 0.90),
+      child: Text(
+        _baseMap == TacticalBaseMap.cartoLight
+            ? '© CARTO © OpenStreetMap contributors'
+            : '© OpenStreetMap contributors',
+        style: TacticalTypography.statusText(
+          color: TacticalColors.textMuted,
+          fontSize: 8,
+        ),
+      ),
+    );
+  }
+
   Widget _buildTacticalHeader() {
     final roleBgColor = widget.isAttacker
-        ? const Color(0x33EF4444) // dark red background
-        : const Color(0x33F59E0B); // dark amber background
+        ? TacticalColors.attackerSoftBg
+        : TacticalColors.feederSoftBg;
     final roleTextColor = widget.isAttacker
         ? TacticalColors.attacker
         : TacticalColors.feeder;

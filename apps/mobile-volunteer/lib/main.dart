@@ -1,8 +1,6 @@
-import 'dart:ffi';
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:isar/isar.dart';
 import 'package:latlong2/latlong.dart';
+import 'core/bootstrap/isar_core_loader.dart';
 import 'core/database/isar_service.dart';
 import 'core/network/api_client.dart';
 import 'core/network/models/enums.dart';
@@ -15,15 +13,8 @@ import 'features/tactical_view/screens/tactical_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Inisialisasi library IsarCore pada platform Windows jika berkas isar.dll tersedia secara lokal
-  if (Platform.isWindows) {
-    final localDll = File('isar.dll');
-    if (localDll.existsSync()) {
-      await Isar.initializeIsarCore(libraries: {
-        Abi.windowsX64: localDll.absolute.path,
-      });
-    }
-  }
+  // Inisialisasi IsarCore pada platform desktop (no-op pada web)
+  await initializeIsarCoreForPlatform();
 
   runApp(const HydraTactVolunteerApp());
 }
@@ -51,8 +42,12 @@ class _HydraTactVolunteerAppState extends State<HydraTactVolunteerApp> {
   }
 
   Future<void> _bootstrapServices() async {
-    // 1. Inisialisasi peta MBTiles luring
-    await _mbtilesService.initialize();
+    // 1. Inisialisasi peta MBTiles luring (tetap lanjut meski aset .mbtiles belum tersedia)
+    try {
+      await _mbtilesService.initialize();
+    } catch (e) {
+      debugPrint('[Bootstrap] MBTiles belum tersedia, peta berjalan tanpa tile luring: $e');
+    }
 
     // 2. Inisialisasi database Isar luring
     _isarService = IsarService();

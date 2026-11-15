@@ -66,21 +66,21 @@ void main() {
       final layers = spec['layers'] as List<dynamic>;
       expect(layers, isNotEmpty);
 
-      // Verify background color
+      // Verify background color (light OSM-standard land tone)
       final bgLayer = layers.firstWhere((l) => l['id'] == 'background');
-      expect(bgLayer['paint']['background-color'], equals('#0B0E14'));
+      expect(bgLayer['paint']['background-color'], equals('#F2EFE9'));
 
       // Verify artery road color
       final arteryLayer = layers.firstWhere((l) => l['id'] == 'roads-artery');
-      expect(arteryLayer['paint']['line-color'], equals('#2D333B'));
+      expect(arteryLayer['paint']['line-color'], equals('#B5AEA2'));
 
       // Verify narrow alley color
       final alleyLayer = layers.firstWhere((l) => l['id'] == 'roads-alley');
-      expect(alleyLayer['paint']['line-color'], equals('#484F58'));
+      expect(alleyLayer['paint']['line-color'], equals('#D8D3C9'));
 
       // Verify river corridor color
       final riverLayer = layers.firstWhere((l) => l['id'] == 'waterways-line');
-      expect(riverLayer['paint']['line-color'], equals('#1D4ED8'));
+      expect(riverLayer['paint']['line-color'], equals('#0284C7'));
 
       // Verify ThemeReader compiles successfully
       final compiledTheme = TacticalMapTheme.buildTheme();
@@ -143,6 +143,7 @@ void main() {
                 initialCenter: const LatLng(-0.4942, 117.1441),
                 initialZoom: 16.0,
                 renderVectorTiles: false,
+                showOsmFallback: false,
               ),
             ),
           ),

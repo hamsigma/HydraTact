@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'cached_water_source.dart';
+part of 'cached_water_source_io.dart';
 
 // **************************************************************************
 // IsarCollectionGenerator

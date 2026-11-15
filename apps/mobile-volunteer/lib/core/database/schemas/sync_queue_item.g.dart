@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'sync_queue_item.dart';
+part of 'sync_queue_item_io.dart';
 
 // **************************************************************************
 // IsarCollectionGenerator
