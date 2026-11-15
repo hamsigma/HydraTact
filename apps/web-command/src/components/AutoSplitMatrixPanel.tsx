@@ -6,7 +6,7 @@ import {
   DEFAULT_ACTIVE_BARRICADES,
   type TacticalUnitMatrixItem,
   type ActiveBarricadeItem,
-} from "../lib/tactical-units.ts";
+} from "../lib/tactical-units";
 
 export {
   DEFAULT_TACTICAL_UNITS,
@@ -16,6 +16,14 @@ export {
 };
 
 export interface AutoSplitMatrixPanelProps {
+  gangWidthMeters?: number;
+  units?: TacticalUnitMatrixItem[];
+  barricades?: ActiveBarricadeItem[];
+  onToggleBarricade?: (id: string, currentActive: boolean) => void;
+  className?: string;
+}
+
+export const AutoSplitMatrixPanel: React.FC<AutoSplitMatrixPanelProps> = ({
   gangWidthMeters = 2.1,
   units = DEFAULT_TACTICAL_UNITS,
   barricades = DEFAULT_ACTIVE_BARRICADES,

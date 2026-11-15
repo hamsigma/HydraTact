@@ -5,8 +5,8 @@ import {
   DEFAULT_SAMARINDA_WATER_SOURCES,
   type WaterSourcePoint,
   type ActiveIncidentMarker,
-} from "../lib/water-sources.ts";
-import type { ActiveBarricadeItem } from "../lib/tactical-units.ts";
+} from "../lib/water-sources";
+import type { ActiveBarricadeItem } from "../lib/tactical-units";
 
 export { DEFAULT_SAMARINDA_WATER_SOURCES, type WaterSourcePoint, type ActiveIncidentMarker };
 
