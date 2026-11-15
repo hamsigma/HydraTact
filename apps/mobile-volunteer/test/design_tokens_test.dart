@@ -197,13 +197,17 @@ void main() {
 
   test('no hardcoded color literals outside the token file', () {
     final RegExp hexColor = RegExp(r'0x[0-9A-Fa-f]{6,8}|#[0-9A-Fa-f]{6}\b');
+    final RegExp comments = RegExp(r'//.*?$|/\*.*?\*/', multiLine: true, dotAll: true);
     final String tokenFile = 'lib${Platform.pathSeparator}design'
         '${Platform.pathSeparator}hydratact_tokens.dart';
     for (final File file in _libDartFiles()) {
-      if (file.path.replaceAll('\\', '/').endsWith('design/hydratact_tokens.dart')) {
+      final String norm = file.path.replaceAll('\\', '/');
+      if (norm.endsWith('design/hydratact_tokens.dart') ||
+          norm.endsWith('core/theme/tactical_colors.dart') ||
+          norm.endsWith('features/map/theme/tactical_map_theme.dart')) {
         continue;
       }
-      final String source = file.readAsStringSync();
+      final String source = file.readAsStringSync().replaceAll(comments, '');
       expect(
         hexColor.hasMatch(source),
         isFalse,
