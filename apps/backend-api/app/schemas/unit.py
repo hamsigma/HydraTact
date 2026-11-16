@@ -23,6 +23,8 @@ class UnitAssignData(BaseModel):
     dispatch_rationale: str = Field(..., description="Dasar evaluasi matematis lebar gang vs kapasitas tangki")
     tactical_instruction: str = Field(..., description="Instruksi taktis operasional langsung untuk pengemudi/komandan unit")
     paired_unit: Optional[str] = Field(None, description="Kode panggil armada pasangan relai (Attacker <-> Feeder)")
+    arterial_staging_point: Optional[GeoPoint] = Field(None, description="Titik siaga armada di jalan arteri")
+    attack_entry_point: Optional[GeoPoint] = Field(None, description="Titik masuk serang gang armada penyerang")
 
 
 class UnitAssignResponse(BaseModel):
@@ -33,8 +35,10 @@ class UnitAssignResponse(BaseModel):
 
 class PressureRequest(BaseModel):
     """Sinyal permintaan tekanan pompa air dari unit penyerang (Attacker) ke unit pemasok (Feeder)."""
-    target_bar: float = Field(5.0, ge=1.0, le=25.0, description="Target tekanan suplai dalam satuan Bar", examples=[5.0])
+    target_bar: float = Field(5.0, ge=0.0, le=25.0, description="Target tekanan suplai dalam satuan Bar", examples=[5.0])
     to_unit_id: UUID = Field(..., description="UUID unit feeder yang memasok air")
+    nozzle_flow_rate_lpm: Optional[float] = Field(None, ge=0.0, description="Debit aliran nozzle dalam liter/menit")
+    hose_length_meters: Optional[float] = Field(0.0, ge=0.0, description="Panjang bentang selang relay dalam meter")
     notes: Optional[str] = Field(None, description="Catatan operasional kondisi nozzle/selang")
 
 
@@ -43,8 +47,13 @@ class PressureRequestData(BaseModel):
     request_id: UUID = Field(..., description="UUID log permintaan tekanan")
     from_unit_id: UUID = Field(..., description="UUID unit penyerang")
     to_unit_id: UUID = Field(..., description="UUID unit pemasok")
-    target_bar: float = Field(..., description="Tekanan yang diminta")
+    target_bar: float = Field(..., description="Tekanan yang diminta di nozzle")
+    effective_pump_bar: float = Field(..., description="Tekanan yang harus dipompa oleh feeder terkompensasi friksi")
+    pressure_loss_bar: float = Field(0.0, description="Estimasi kehilangan tekanan pada bentang selang")
+    is_safe_range: bool = Field(True, description="Apakah tekanan berada dalam batas aman operasi (4 - 14 Bar)")
+    warning: Optional[str] = Field(None, description="Peringatan keselamatan jika di luar batas aman")
     requested_at: datetime = Field(..., description="Stempel waktu pengiriman sinyal")
+
 
 
 class PressureRequestResponse(BaseModel):

@@ -20,7 +20,12 @@ import {
   type ResolvedIncidentHistoryItem,
   type TelemetryMutationItem,
 } from "../lib/telemetry";
-import { DEFAULT_SAMARINDA_WATER_SOURCES, type WaterSourcePoint } from "../lib/water-sources";
+import {
+  DEFAULT_SAMARINDA_WATER_SOURCES,
+  findNearestWaterSources,
+  evaluateTidalSuctionViability,
+  type WaterSourcePoint,
+} from "../lib/water-sources";
 import { subscribeToIncidentRealtime } from "../lib/supabase-realtime";
 import {
   fetchActiveIncidents,
@@ -349,6 +354,31 @@ export default function WebCommandDashboard() {
     );
   };
 
+  const handleAdjustPressure = (unitId: string, newTargetBar: number) => {
+    setUnits((prev) =>
+      prev.map((u) => {
+        if (u.id === unitId) {
+          return {
+            ...u,
+            targetPressureBar: newTargetBar,
+            waterPressureBar: newTargetBar === 0 ? 0 : +(newTargetBar * 0.95).toFixed(1),
+          };
+        }
+        return u;
+      })
+    );
+    setTelemetryStream((prev) => [
+      {
+        id: "mut-" + Date.now(),
+        timestamp: new Date().toLocaleTimeString("id-ID", { hour12: false }),
+        callSign: units.find((u) => u.id === unitId)?.callSign || "UNIT TAKTIS",
+        actionType: "PRESSURE_REQUEST",
+        description: `Target tekanan pompa disesuaikan ke ${newTargetBar.toFixed(1)} Bar (${newTargetBar === 0 ? "EMERGENCY CUT-OFF" : "OPERASIONAL SIAGA"}).`,
+      },
+      ...prev,
+    ]);
+  };
+
   // Verifikasi Pemadaman Selesai: Titik api padam total, titik menghilang dari radar taktis & masuk ke riwayat
   const handleVerifyCompletion = async (incidentIdToResolve?: string) => {
     const targetId = incidentIdToResolve || selectedIncidentId;
@@ -602,6 +632,21 @@ export default function WebCommandDashboard() {
     return matchesStatus && matchesSearch;
   });
 
+  const currentIncidentCoords = activeIncident
+    ? activeIncident.coordinates || incidentCoordinates[activeIncident.id] || [-0.4848, 117.1628]
+    : [-0.4848, 117.1628];
+
+  const topNearestWaterSources = useMemo(() => {
+    return findNearestWaterSources(
+      currentIncidentCoords[0],
+      currentIncidentCoords[1],
+      waterSources,
+      3
+    );
+  }, [currentIncidentCoords, waterSources]);
+
+  const tidalStatus = useMemo(() => evaluateTidalSuctionViability(), []);
+
   return (
     <div className="flex h-screen w-screen bg-[#F0F2F5] text-slate-900 font-sans overflow-hidden">
       {/* 1. Sidebar Navigasi Ramping Gelap (76px Dark Icon Rail) */}
@@ -631,11 +676,11 @@ export default function WebCommandDashboard() {
 
         {/* Tab 1: OVERVIEW & KOMANDO TAKTIS (BENTO GRID REFERENCE) */}
         {activeTab === "COMMAND" && (
-          <div className="flex-1 flex flex-col gap-5 overflow-hidden">
+          <div className="flex-1 flex flex-col gap-6 overflow-y-auto pr-1">
             {/* Baris Atas Hero Bento: Peta Leaflet + 3 Kartu Status Pastel (Lingkaran) */}
-            <div className="grid grid-cols-12 gap-5 h-[460px] shrink-0">
+            <div className="grid grid-cols-12 gap-5 shrink-0 min-h-[490px]">
               {/* Kiri: Kartu Hero Peta Leaflet Berukuran Besar (Span 8) */}
-              <div className="col-span-8 bg-white rounded-2xl border border-slate-200/90 shadow-xs p-4 flex flex-col overflow-hidden">
+              <div className="col-span-8 bg-white rounded-2xl border border-slate-200/90 shadow-xs p-4 flex flex-col overflow-hidden h-[490px]">
                 <div className="flex items-center justify-between mb-2.5 shrink-0">
                   <div className="flex items-center gap-2">
                     <span
@@ -672,7 +717,7 @@ export default function WebCommandDashboard() {
                 </div>
 
                 {/* Leaflet Map Canvas */}
-                <div className="flex-1 relative rounded-xl overflow-hidden border border-slate-100">
+                <div className="flex-1 min-h-0 relative rounded-xl overflow-hidden border border-slate-100">
                   <TacticalMapCanvas
                     selectedIncidentId={selectedIncidentId}
                     onSelectIncident={handleSelectIncident}
@@ -686,7 +731,7 @@ export default function WebCommandDashboard() {
               </div>
 
               {/* Kanan: 3 Kartu Status Pastel Vertikal dengan Ikon Lingkaran (Span 4) */}
-              <div className="col-span-4 flex flex-col justify-between">
+              <div className="col-span-4 flex flex-col justify-between h-[490px]">
                 <div className="flex items-center justify-between mb-2 shrink-0">
                   <h3 className="text-sm font-bold text-slate-900 tracking-tight uppercase flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-slate-900 inline-block" />
@@ -698,12 +743,12 @@ export default function WebCommandDashboard() {
                   </span>
                 </div>
 
-                <div className="flex flex-col gap-3 flex-1 justify-between">
+                <div className="flex flex-col gap-2.5 flex-1 justify-between min-h-0">
                   {/* Kartu Pastel 1: Soft Lavender (Armada Taktis) */}
-                  <div className="bg-[#F3E8FF] rounded-2xl p-4 border border-[#E9D5FF] flex items-center justify-between shadow-xs">
-                    <div className="flex items-center gap-3.5">
-                      <div className="w-11 h-11 rounded-full bg-purple-200/80 text-purple-900 flex items-center justify-center font-bold text-sm shrink-0">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="bg-[#F3E8FF] rounded-2xl p-3 border border-[#E9D5FF] flex items-center justify-between shadow-xs">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-purple-200/80 text-purple-900 flex items-center justify-center font-bold text-sm shrink-0">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                         </svg>
                       </div>
@@ -711,22 +756,22 @@ export default function WebCommandDashboard() {
                         <span className="text-[10px] font-mono font-bold text-purple-700 tracking-wider uppercase block">
                           ARMADA TAKTIS
                         </span>
-                        <p className="text-base font-bold font-mono text-purple-950 mt-0.5 tabular-nums">
+                        <p className="text-sm font-bold font-mono text-purple-950 mt-0.5 tabular-nums">
                           {units.length} Unit ({units.filter((u) => u.assignedRole === "ATTACKER").length} ATK • {units.filter((u) => u.assignedRole === "FEEDER").length} FDR)
                         </p>
                       </div>
                     </div>
                     <div className="text-right font-mono">
                       <span className="text-[10px] text-purple-600 block">TEKANAN</span>
-                      <span className="text-sm text-purple-950 font-bold tabular-nums">4.0 Bar</span>
+                      <span className="text-xs text-purple-950 font-bold tabular-nums">4.0 Bar</span>
                     </div>
                   </div>
 
                   {/* Kartu Pastel 2: Soft Mint (Logistik Air Siaga) */}
-                  <div className="bg-[#ECFDF5] rounded-2xl p-4 border border-[#A7F3D0] flex items-center justify-between shadow-xs">
-                    <div className="flex items-center gap-3.5">
-                      <div className="w-11 h-11 rounded-full bg-emerald-200/80 text-emerald-900 flex items-center justify-center font-bold text-sm shrink-0">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="bg-[#ECFDF5] rounded-2xl p-3 border border-[#A7F3D0] flex items-center justify-between shadow-xs">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-emerald-200/80 text-emerald-900 flex items-center justify-center font-bold text-sm shrink-0">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
                         </svg>
                       </div>
@@ -734,56 +779,81 @@ export default function WebCommandDashboard() {
                         <span className="text-[10px] font-mono font-bold text-emerald-700 tracking-wider uppercase block">
                           LOGISTIK AIR
                         </span>
-                        <p className="text-base font-bold font-mono text-emerald-950 mt-0.5 tabular-nums">
+                        <p className="text-sm font-bold font-mono text-emerald-950 mt-0.5 tabular-nums">
                           {waterSources.length} Titik ({waterSources.filter((s) => s.status === "READY").length} Siaga • {waterSources.filter((s) => s.status === "LOW_DISCHARGE").length} Low)
                         </p>
                       </div>
                     </div>
                     <div className="text-right font-mono">
                       <span className="text-[10px] text-emerald-600 block">CAKUPAN</span>
-                      <span className="text-sm text-emerald-950 font-bold tabular-nums">100% GIS</span>
+                      <span className="text-xs text-emerald-950 font-bold tabular-nums">100% GIS</span>
                     </div>
                   </div>
 
                   {/* Kartu Pastel 3: Soft Amber (Sungai Karang Mumus) */}
-                  <div className="bg-[#FFFBEB] rounded-2xl p-4 border border-[#FDE68A] flex items-center justify-between shadow-xs">
-                    <div className="flex items-center gap-3.5">
-                      <div className="w-11 h-11 rounded-full bg-amber-200/80 text-amber-900 flex items-center justify-center font-bold text-sm shrink-0">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="bg-[#FFFBEB] rounded-2xl p-3 border border-[#FDE68A] flex items-center justify-between shadow-xs">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-amber-200/80 text-amber-900 flex items-center justify-center font-bold text-sm shrink-0">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                         </svg>
                       </div>
                       <div>
                         <span className="text-[10px] font-mono font-bold text-amber-700 tracking-wider uppercase block">
-                          SUNGAI SKM
+                          SUNGAI SKM ({tidalStatus.tidalPhase})
                         </span>
-                        <p className="text-base font-bold font-mono text-amber-950 mt-0.5 tabular-nums">
-                          +1.80 M (Pasang Maksimal)
+                        <p className="text-sm font-bold font-mono text-amber-950 mt-0.5 tabular-nums">
+                          {tidalStatus.waterElevationMeters >= 0 ? "+" : ""}{tidalStatus.waterElevationMeters.toFixed(2)} M ({tidalStatus.isViable ? "Siaga Hisap" : "Surut Kritis"})
                         </p>
                       </div>
                     </div>
                     <div className="text-right font-mono">
-                      <span className="text-[10px] text-amber-600 block">KAPASITAS</span>
-                      <span className="text-sm text-amber-950 font-bold">OPTIMAL</span>
+                      <span className="text-[10px] text-amber-600 block">STATUS</span>
+                      <span className={`text-xs font-bold uppercase ${tidalStatus.isViable ? "text-amber-950" : "text-rose-700"}`}>
+                        {tidalStatus.isViable ? "OPTIMAL" : "ALIHKAN"}
+                      </span>
                     </div>
                   </div>
 
                   {/* Sub-banner: Status Gang & Auto-Split */}
-                  <div className="bg-white rounded-xl p-3 border border-slate-200/80 shadow-xs flex items-center justify-between text-xs font-mono">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block animate-pulse" />
-                      <span className="text-slate-600">LEBAR GANG 2.1M (&lt; 2.5M)</span>
+                  <div className="bg-white rounded-xl px-3 py-2 border border-slate-200/80 shadow-xs flex items-center justify-between text-xs font-mono">
+                    <span className="font-semibold text-slate-700">LEBAR GANG 2.1M (&lt; 2.5M)</span>
+                    <span className="text-amber-700 font-bold uppercase">AUTO-SPLIT AKTIF</span>
+                  </div>
+
+                  {/* Rekomendasi 3 Titik Air Terdekat (Haversine Sorting) */}
+                  <div className="bg-white rounded-xl p-2.5 border border-slate-200/80 shadow-xs font-mono text-xs">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-[10px] font-bold tracking-widest text-slate-500 uppercase">
+                        PASOKAN AIR TERDEKAT (TOP 3)
+                      </span>
+                      <span className="text-[10px] text-emerald-700 font-bold">
+                        HAVERSINE ETA
+                      </span>
                     </div>
-                    <span className="text-amber-700 font-bold">AUTO-SPLIT AKTIF</span>
+                    <div className="space-y-1">
+                      {topNearestWaterSources.map((ws, idx) => (
+                        <div key={ws.id} className="flex items-center justify-between text-[11px] px-2 py-1 bg-slate-50 border border-slate-100 rounded">
+                          <div className="truncate mr-2">
+                            <span className="font-bold text-slate-900">{idx + 1}. {ws.name}</span>
+                            <span className="text-slate-500 block text-[10px]">{ws.type} • {ws.dischargeLitersPerMin} L/min</span>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <span className="font-bold text-emerald-800 block tabular-nums">{ws.distanceMeters.toFixed(0)}m</span>
+                            <span className="text-[10px] text-slate-500 tabular-nums">~{ws.estimatedTravelMinutes} mnt</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Baris Bawah: Tabel Antrean Insiden & Kartu Gelap Kontras (Matching Bottom Row) */}
-            <div className="grid grid-cols-12 gap-5 flex-1 overflow-hidden">
+            <div className="grid grid-cols-12 gap-5 shrink-0 min-h-[400px]">
               {/* Kiri: Tabel Antrean Insiden & Riwayat Selesai (Span 7) */}
-              <div className="col-span-7 bg-white rounded-2xl border border-slate-200/90 shadow-xs p-5 flex flex-col overflow-hidden">
+              <div className="col-span-7 bg-white rounded-2xl border border-slate-200/90 shadow-xs p-5 flex flex-col overflow-hidden min-h-[400px]">
                 <div className="flex items-center justify-between mb-3 shrink-0">
                   <div className="flex items-center gap-2">
                     {/* Segmented Control: Antrean Aktif vs Riwayat Selesai (Bukan Pill/Oval Badge) */}
@@ -977,8 +1047,8 @@ export default function WebCommandDashboard() {
                     : incidentsQueue;
 
                 return (
-                  <div className="col-span-5 bg-white rounded-2xl border border-slate-200/90 shadow-xs p-5 flex flex-col justify-between overflow-hidden">
-                    <div className="flex-1 flex flex-col overflow-hidden">
+                  <div className="col-span-5 bg-white rounded-2xl border border-slate-200/90 shadow-xs p-5 flex flex-col justify-between overflow-hidden min-h-[400px]">
+                    <div className="flex-1 flex flex-col overflow-hidden min-h-0">
                       {/* Top Header: Title & Action (Matching AI Notification Center & See All) */}
                       <div className="flex items-center justify-between mb-3 shrink-0">
                         <div className="flex items-center gap-2">
@@ -1278,6 +1348,7 @@ export default function WebCommandDashboard() {
                     units={units}
                     barricades={barricades}
                     onToggleBarricade={handleToggleBarricade}
+                    onAdjustPressure={handleAdjustPressure}
                   />
                 </div>
 
@@ -1467,12 +1538,12 @@ export default function WebCommandDashboard() {
                           </td>
                           <td className="p-3.5">
                             <span
-                              className={`font-bold px-2 py-0.5 border text-[11px] rounded-md ${
+                              className={`font-mono font-bold text-xs uppercase tracking-wider ${
                                 ws.status === "READY"
-                                  ? "bg-emerald-50 border-emerald-300 text-emerald-800"
+                                  ? "text-emerald-700"
                                   : ws.status === "LOW_DISCHARGE"
-                                  ? "bg-amber-50 border-amber-300 text-amber-800"
-                                  : "bg-rose-50 border-rose-300 text-rose-700"
+                                  ? "text-amber-700"
+                                  : "text-rose-700"
                               }`}
                             >
                               {ws.status}

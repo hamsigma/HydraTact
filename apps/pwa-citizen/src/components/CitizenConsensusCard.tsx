@@ -92,22 +92,15 @@ export const CitizenConsensusCard: React.FC<CitizenConsensusCardProps> = ({
             : "bg-amber-50/80 border-amber-200 text-amber-950"
         }`}
       >
-        <div className="flex items-center gap-2 mb-1.5">
-          <span
-            className={`w-2 h-2 rounded-full inline-block ${
-              isVerified ? "bg-emerald-600" : "bg-amber-500 animate-pulse"
-            }`}
-          />
-          <p
-            className={`text-[10px] font-mono font-bold tracking-widest uppercase ${
-              isVerified ? "text-emerald-700" : "text-amber-800"
-            }`}
-          >
-            {isVerified
-              ? "TERVERIFIKASI OTOMATIS • KONSENSUS TERCAPAI"
-              : "MENUNGGU VERIFIKASI KONSENSUS SPASIAL"}
-          </p>
-        </div>
+        <p
+          className={`text-xs font-mono font-bold tracking-widest uppercase mb-1.5 ${
+            isVerified ? "text-emerald-800" : "text-amber-800"
+          }`}
+        >
+          {isVerified
+            ? "STATUS: TERVERIFIKASI • KONSENSUS TERCAPAI"
+            : "STATUS: MENUNGGU VERIFIKASI KONSENSUS SPASIAL"}
+        </p>
 
         <h2 className="text-base font-black tracking-tight text-slate-900 uppercase">
           {isVerified

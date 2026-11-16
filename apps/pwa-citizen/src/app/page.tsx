@@ -143,23 +143,30 @@ export default function CitizenEmergencyPage() {
               KOORDINAT GPS:
             </span>
             {gpsStatus === "LOCKED" && coords ? (
-              <span className="font-bold text-emerald-700 tabular-nums flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
+              <span className="font-bold text-emerald-700 tabular-nums">
                 TERKUNCI (±{coords.accuracy}m)
               </span>
             ) : gpsStatus === "SEARCHING" ? (
-              <span className="font-bold text-amber-600 flex items-center gap-1.5 animate-pulse">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+              <span className="font-bold text-amber-600 animate-pulse">
                 MENCARI GPS...
               </span>
             ) : (
-              <span className="font-bold text-slate-600 tabular-nums flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+              <span className="font-bold text-slate-600 tabular-nums">
                 MANUAL SAMARINDA (±5.0m)
               </span>
             )}
           </div>
         </header>
+
+        {/* Banner Peringatan Penutupan Ruas Jalan / Barikade Selang Relay */}
+        <div className="w-full mt-3 p-3 bg-fuchsia-50/80 border border-fuchsia-200 text-left font-mono text-xs">
+          <p className="font-bold text-fuchsia-950 uppercase tracking-wider mb-0.5">
+            PERINGATAN STERILISASI JALAN (#C026D3)
+          </p>
+          <p className="text-[11px] text-fuchsia-800 leading-relaxed">
+            Armada induk menggelar selang relay bertekanan tinggi melintasi badan jalan. Kendaraan dilarang melindas selang demi keselamatan pasokan air.
+          </p>
+        </div>
 
         {/* Konten Utama */}
         <div className="my-auto py-2 flex flex-col items-center text-center">
@@ -187,8 +194,7 @@ export default function CitizenEmergencyPage() {
                   className="w-full bg-[#F8FAFC] border border-slate-300 rounded-xl focus:border-red-600 focus:bg-white focus:ring-4 focus:ring-red-100/80 focus:outline-none text-slate-900 px-4 py-3.5 font-mono text-base tracking-wider placeholder:text-slate-400 transition-all"
                 />
                 {phoneError && (
-                  <p className="mt-2 text-xs font-mono font-bold text-red-600 flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-red-600 shrink-0" />
+                  <p className="mt-2 text-xs font-mono font-bold text-red-600">
                     {phoneError}
                   </p>
                 )}

@@ -10,7 +10,7 @@ from app.repositories.spatial import (
     fetch_incident_detail_by_id,
     process_citizen_incident_report,
 )
-from app.schemas.common import TacticalRole
+from app.schemas.common import GeoPoint, TacticalRole
 from app.schemas.incident import (
     CitizenReportRequest,
     FSMTransitionRequest,
@@ -25,7 +25,7 @@ from app.schemas.unit import (
     UnitAssignRequest,
     UnitAssignResponse,
 )
-from spatial_core import determine_tactical_role
+from spatial_core import determine_tactical_role, evaluate_road_access_role
 
 logger = logging.getLogger("hydratact.incidents")
 
@@ -194,26 +194,30 @@ async def assign_unit_to_incident(
         except Exception as exc:
             logger.warning(f"Error fetching incident width: {exc}")
 
-    role_str = determine_tactical_role(effective_width, payload.water_capacity_liters)
+    eval_res = evaluate_road_access_role(
+        road_width_meters=effective_width,
+        tank_capacity_liters=payload.water_capacity_liters,
+        incident_coords=(117.1628, -0.4848),
+        arterial_coords=(117.1639, -0.4839),
+    )
+    role_str = eval_res["assigned_role"]
+    rationale = eval_res["dispatch_rationale"]
+    instruction = eval_res["tactical_instruction"]
+    staging_pt = GeoPoint(type="Point", coordinates=eval_res["arterial_staging_point"])
+    attack_pt = GeoPoint(type="Point", coordinates=eval_res["attack_entry_point"])
 
     if role_str == "FEEDER":
         assigned_role = TacticalRole.FEEDER
         db_role = "FEEDER"
-        rationale = (
-            f"Lebar akses jalan {effective_width}m (< 2.5m). Kapasitas tangki {payload.water_capacity_liters}L "
-            "(>= 3.000 L) dilarang masuk gang sempit. Dialokasikan sebagai unit FEEDER penyuplai air di jalan arteri."
-        )
-        instruction = "Kunci posisi di jalan arteri utama (lebar >= 6m). Bentangkan selang pasok ke mulut gang dan siapkan koneksi ke sumber air terdekat."
         paired_unit = "ATK-01"
-    else:
+    elif role_str == "ATTACKER":
         assigned_role = TacticalRole.ATTACKER
         db_role = "ATTACKER"
-        rationale = (
-            f"Lebar akses jalan {effective_width}m (< 2.5m). Unit dengan kapasitas {payload.water_capacity_liters}L "
-            "(< 1.000 L) dapat bermanuver masuk ke gang sempit sebagai unit ATTACKER titik api."
-        )
-        instruction = "Masuk mendekat ke titik api. Hubungkan nozzle pemadaman ke selang pasok unit Feeder di mulut gang."
         paired_unit = "FDR-01"
+    else:
+        assigned_role = TacticalRole.DIRECT_ATTACK if hasattr(TacticalRole, "DIRECT_ATTACK") else TacticalRole.ATTACKER
+        db_role = role_str
+        paired_unit = None
 
     if pool is not None:
         try:
@@ -261,5 +265,7 @@ async def assign_unit_to_incident(
         dispatch_rationale=rationale,
         tactical_instruction=instruction,
         paired_unit=paired_unit,
+        arterial_staging_point=staging_pt,
+        attack_entry_point=attack_pt,
     )
     return UnitAssignResponse(status="success", data=data)

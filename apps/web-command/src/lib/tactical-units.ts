@@ -29,6 +29,14 @@ export interface ActiveBarricadeItem {
   targetCoords?: [number, number];
 }
 
+export const MIN_SAFE_PRESSURE_BAR = 4.0;
+export const MAX_SAFE_PRESSURE_BAR = 14.0;
+export const HOSE_FRICTION_COEFFICIENT_BAR_PER_METER = 0.002;
+
+export function calculateHosePressureLoss(hoseLengthMeters: number): number {
+  return Math.round(hoseLengthMeters * HOSE_FRICTION_COEFFICIENT_BAR_PER_METER * 100) / 100;
+}
+
 export const DEFAULT_TACTICAL_UNITS: TacticalUnitMatrixItem[] = [
   {
     id: "unit-01",

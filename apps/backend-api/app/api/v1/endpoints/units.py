@@ -12,6 +12,7 @@ from app.schemas.unit import (
     PressureRequestResponse,
     UnitTelemetryUpdateRequest,
 )
+from spatial_core import calculate_relay_hose_pressure
 
 logger = logging.getLogger("hydratact.units")
 router = APIRouter(prefix="/units", tags=["Koordinasi Armada & Tekanan Air"])
@@ -33,6 +34,11 @@ async def request_water_pressure(
     now_utc = datetime.now(timezone.utc)
     pool = get_db_pool()
 
+    hydraulic_calc = calculate_relay_hose_pressure(
+        target_nozzle_bar=payload.target_bar,
+        hose_length_meters=payload.hose_length_meters or 0.0,
+    )
+
     if pool is not None:
         try:
             async with pool.acquire() as conn:
@@ -41,6 +47,10 @@ async def request_water_pressure(
                     "from_unit_id": str(unit_id),
                     "to_unit_id": str(payload.to_unit_id),
                     "target_bar": payload.target_bar,
+                    "effective_pump_bar": hydraulic_calc["required_feeder_pump_bar"],
+                    "pressure_loss_bar": hydraulic_calc["pressure_loss_bar"],
+                    "is_safe_range": hydraulic_calc["is_safe_range"],
+                    "warning": hydraulic_calc["warning"],
                     "notes": payload.notes,
                 }
                 sql = """
@@ -65,6 +75,10 @@ async def request_water_pressure(
         from_unit_id=unit_id,
         to_unit_id=payload.to_unit_id,
         target_bar=payload.target_bar,
+        effective_pump_bar=hydraulic_calc["required_feeder_pump_bar"],
+        pressure_loss_bar=hydraulic_calc["pressure_loss_bar"],
+        is_safe_range=hydraulic_calc["is_safe_range"],
+        warning=hydraulic_calc["warning"],
         requested_at=now_utc,
     )
     return PressureRequestResponse(status="success", data=data)

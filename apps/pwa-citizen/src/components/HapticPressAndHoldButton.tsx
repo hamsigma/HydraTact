@@ -84,8 +84,8 @@ export const HapticPressAndHoldButton: React.FC<HapticPressAndHoldButtonProps> =
           setIsPressing(false);
           startTimeRef.current = null;
 
-          // Umpan balik haptic ganda tegas (100 ms aktif, 50 ms jeda, 150 ms aktif)
-          triggerHaptic([100, 50, 150]);
+          // Umpan balik haptic ganda tegas (50 ms aktif, 100 ms jeda, 200 ms aktif)
+          triggerHaptic([50, 100, 200]);
 
           onTrigger();
         } else {
