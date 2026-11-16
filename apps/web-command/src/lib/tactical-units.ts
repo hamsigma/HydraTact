@@ -56,11 +56,14 @@ export const DEFAULT_TACTICAL_UNITS: TacticalUnitMatrixItem[] = [
 
 export const DEFAULT_ACTIVE_BARRICADES: ActiveBarricadeItem[] = [
   {
-    id: "barricade-01",
-    roadName: "Mulut Jl. Pelita Gg. 4",
+    id: "barricade-33333333-3333-3333-3333-333333333301",
+    incidentId: "33333333-3333-3333-3333-333333333301",
+    roadName: "Mulut Masuk Gang - Gg. 4 Jl. Pelita",
     feederCallSign: "UNIT TANGKI INDUK 05",
     hoseLengthMeters: 110,
     isActive: true,
     createdAt: new Date().toISOString(),
+    originCoords: [-0.4840, 117.1638],
+    targetCoords: [-0.4848, 117.1628],
   },
 ];

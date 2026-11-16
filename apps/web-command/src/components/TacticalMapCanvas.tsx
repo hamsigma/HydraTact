@@ -191,8 +191,23 @@ export const TacticalMapCanvas: React.FC<TacticalMapCanvasProps> = ({
           (i) => i.status !== "RESOLVED" && i.status !== "FALSE_ALARM"
         );
 
+      // Pastikan target rute benar-benar mengacu pada insiden aktif yang masih ada di antrean
+      const targetMatchesActiveIncident =
+        dispatchedRoute &&
+        dispatchedRoute.active &&
+        incidents.some(
+          (inc) =>
+            inc.status !== "RESOLVED" &&
+            inc.status !== "FALSE_ALARM" &&
+            inc.coordinates &&
+            Math.hypot(
+              inc.coordinates[0] - dispatchedRoute.destination[0],
+              inc.coordinates[1] - dispatchedRoute.destination[1]
+            ) < 0.005
+        );
+
       // 1. Rute Gerak Armada Meluncur Menuju Lokasi Insiden (Jika Terverifikasi / Dispatch dan ada insiden aktif)
-      if (dispatchedRoute && dispatchedRoute.active && hasActiveTarget) {
+      if (targetMatchesActiveIncident && dispatchedRoute) {
         const routePoints: [number, number][] = [
           dispatchedRoute.origin,
           [
@@ -274,7 +289,7 @@ export const TacticalMapCanvas: React.FC<TacticalMapCanvasProps> = ({
           (i) => i.status !== "RESOLVED" && i.status !== "FALSE_ALARM"
         );
 
-      if (activeIncidentsExist) {
+      if (activeIncidentsExist && activeBarricades.length > 0) {
         activeBarricades.forEach((barricade) => {
           let targetCoords: [number, number] | null = barricade.targetCoords || null;
           let originCoords: [number, number] | null = barricade.originCoords || null;
@@ -283,7 +298,7 @@ export const TacticalMapCanvas: React.FC<TacticalMapCanvasProps> = ({
             const matchedInc =
               (barricade.incidentId && incidents.find((i) => i.id === barricade.incidentId)) ||
               (selectedIncidentId && incidents.find((i) => i.id === selectedIncidentId)) ||
-              incidents[0];
+              incidents.find((i) => i.status !== "RESOLVED" && i.status !== "FALSE_ALARM");
             if (matchedInc && matchedInc.coordinates) {
               targetCoords = matchedInc.coordinates;
             }

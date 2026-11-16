@@ -161,6 +161,10 @@ export async function fetchActiveIncidents(
     );
 
     // Fallback data bawaan jika API belum menyala
+    if (typeof window !== "undefined" && localStorage.getItem("hydratact_dummy_cleared") === "true") {
+      return { incidents: [], rawItems: [], isLive: false };
+    }
+
     return {
       incidents: DEFAULT_INCIDENT_QUEUE,
       rawItems: [
