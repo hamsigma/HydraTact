@@ -146,6 +146,8 @@ async def fetch_active_incidents(
         status_val = cluster.get("status", IncidentFSMStatus.PENDING_VERIFICATION)
         if isinstance(status_val, str):
             status_val = IncidentFSMStatus(status_val)
+        if status_val in (IncidentFSMStatus.INCIDENT_CLOSED, IncidentFSMStatus.ARCHIVED, IncidentFSMStatus.CANCELLED_PRANK):
+            continue
         rep_count = len(cluster.get("reporters", [])) or 1
         items.append(
             IncidentListItem(

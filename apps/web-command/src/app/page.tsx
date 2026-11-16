@@ -30,22 +30,17 @@ import {
 
 export default function WebCommandDashboard() {
   const [activeTab, setActiveTab] = useState<SidebarTab>("COMMAND");
-  const [incidentsQueue, setIncidentsQueue] = useState<IncidentQueueItem[]>(DEFAULT_INCIDENT_QUEUE);
-  const [selectedIncidentId, setSelectedIncidentId] = useState<string>(
-    "33333333-3333-3333-3333-333333333301"
-  );
+  const [incidentsQueue, setIncidentsQueue] = useState<IncidentQueueItem[]>([]);
+  const [selectedIncidentId, setSelectedIncidentId] = useState<string>("");
   const selectedIncidentIdRef = React.useRef(selectedIncidentId);
   useEffect(() => {
     selectedIncidentIdRef.current = selectedIncidentId;
   }, [selectedIncidentId]);
-  const [incidentCoordinates, setIncidentCoordinates] = useState<Record<string, [number, number]>>({
-    "33333333-3333-3333-3333-333333333301": [-0.4848, 117.1628],
-    "33333333-3333-3333-3333-333333333302": [-0.4828, 117.148],
-  });
+  const [incidentCoordinates, setIncidentCoordinates] = useState<Record<string, [number, number]>>({});
   const [isBackendLive, setIsBackendLive] = useState<boolean>(false);
-  const [incidentStatus, setIncidentStatus] = useState<string>("VERIFIED");
+  const [incidentStatus, setIncidentStatus] = useState<string>("SEMUA_SELESAI");
   const [units, setUnits] = useState<TacticalUnitMatrixItem[]>(DEFAULT_TACTICAL_UNITS);
-  const [barricades, setBarricades] = useState<ActiveBarricadeItem[]>(DEFAULT_ACTIVE_BARRICADES);
+  const [barricades, setBarricades] = useState<ActiveBarricadeItem[]>([]);
   const [telemetryStream, setTelemetryStream] = useState<TelemetryMutationItem[]>(DEFAULT_TELEMETRY_STREAM);
   const [waterSources, setWaterSources] = useState<WaterSourcePoint[]>(DEFAULT_SAMARINDA_WATER_SOURCES);
 
@@ -64,6 +59,26 @@ export default function WebCommandDashboard() {
   // Rute Pergerakan Armada Meluncur ke Titik Insiden Terverifikasi
   const [dispatchedFleetRoute, setDispatchedFleetRoute] = useState<DispatchedFleetRoute | null>(null);
 
+  // Ref untuk melacak daftar ID insiden yang telah selesai / diarsipkan agar tidak bangkit kembali dalam interval polling
+  const resolvedIdsRef = React.useRef<Set<string>>(
+    new Set(DEFAULT_RESOLVED_HISTORY.map((h) => h.id))
+  );
+
+  // Inisialisasi daftar insiden selesai & pembersihan dummy dari localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("hydratact_resolved_ids");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) {
+            parsed.forEach((id: string) => resolvedIdsRef.current.add(id));
+          }
+        }
+      } catch (e) {}
+    }
+  }, []);
+
   // 1. Sinkronisasi Antrean Insiden Aktif dari Backend API (PWA Citizen Ingestion)
   useEffect(() => {
     let isMounted = true;
@@ -76,7 +91,7 @@ export default function WebCommandDashboard() {
 
       if (result.incidents.length > 0) {
         // Hanya masukkan insiden yang belum selesai / belum diarsipkan ke riwayat
-        const resolvedIds = new Set(resolvedHistory.map((h) => h.id));
+        const resolvedIds = resolvedIdsRef.current;
         const activeOnly = result.incidents.filter(
           (inc) =>
             inc.status !== "RESOLVED" &&
@@ -88,6 +103,7 @@ export default function WebCommandDashboard() {
         // Jika seluruh insiden aktif telah tuntas / tidak ada titik api aktif
         if (activeOnly.length === 0) {
           setDispatchedFleetRoute(null);
+          setBarricades([]);
           setSelectedIncidentId("");
           selectedIncidentIdRef.current = "";
           setIncidentStatus("SEMUA_SELESAI");
@@ -161,6 +177,7 @@ export default function WebCommandDashboard() {
       } else {
         setIncidentsQueue([]);
         setDispatchedFleetRoute(null);
+        setBarricades([]);
         setSelectedIncidentId("");
         selectedIncidentIdRef.current = "";
         setIncidentStatus("SEMUA_SELESAI");
@@ -274,8 +291,56 @@ export default function WebCommandDashboard() {
           destinationName: inc.locationName,
           etaMinutes: 2.5,
         });
+      } else {
+        setDispatchedFleetRoute(null);
       }
     }
+  };
+
+  // Membersihkan seluruh data dummy pelaporan dan menyetel posko ke kondisi Siaga Hijau murni
+  const handleClearDummyData = () => {
+    DEFAULT_INCIDENT_QUEUE.forEach((item) => resolvedIdsRef.current.add(item.id));
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("hydratact_dummy_cleared", "true");
+        localStorage.setItem(
+          "hydratact_resolved_ids",
+          JSON.stringify(Array.from(resolvedIdsRef.current))
+        );
+      } catch (e) {}
+    }
+    setIncidentsQueue([]);
+    setSelectedIncidentId("");
+    selectedIncidentIdRef.current = "";
+    setDispatchedFleetRoute(null);
+    setBarricades([]);
+    setIncidentStatus("SEMUA_SELESAI");
+  };
+
+  // Menstimulasikan panggilan darurat baru untuk pengujian fungsional posko
+  const handleInjectSimulationIncident = () => {
+    const simId = "sim-" + Date.now();
+    const simIncident: IncidentQueueItem = {
+      id: simId,
+      locationName: "Gg. 4 Jl. Pelita, Samarinda Kota",
+      coordinates: [-0.4848, 117.1628],
+      status: "REPORTED",
+      reportersCount: 2,
+      consensusTarget: 2,
+      clusterRadiusMeters: 100,
+      reportedAt: new Date().toISOString(),
+      elapsedMinutes: 1,
+    };
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.removeItem("hydratact_dummy_cleared");
+      } catch (e) {}
+    }
+    setIncidentsQueue((prev) => [simIncident, ...prev]);
+    setSelectedIncidentId(simId);
+    selectedIncidentIdRef.current = simId;
+    setIncidentCoordinates((prev) => ({ ...prev, [simId]: [-0.4848, 117.1628] }));
+    setIncidentStatus("REPORTED");
   };
 
   const handleToggleBarricade = (barricadeId: string, currentActive: boolean) => {
@@ -311,8 +376,17 @@ export default function WebCommandDashboard() {
       coordinates: targetCoords,
     };
 
-    // 1. Masukkan ke riwayat selesai
+    // 1. Masukkan ke riwayat selesai & catat ID agar tidak pernah dibangkitkan kembali
     setResolvedHistory((prev) => [historyItem, ...prev]);
+    resolvedIdsRef.current.add(targetId);
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem(
+          "hydratact_resolved_ids",
+          JSON.stringify(Array.from(resolvedIdsRef.current))
+        );
+      } catch (e) {}
+    }
 
     // 2. Hapus titik dari antrean aktif (otomatis menghilang dari peta radar)
     const remaining = incidentsQueue.filter((i) => i.id !== targetId);
@@ -321,7 +395,7 @@ export default function WebCommandDashboard() {
     // 3. Matikan jalur armada meluncur jika seluruh insiden tuntas ATAU menuju ke insiden ini
     if (remaining.length === 0) {
       setDispatchedFleetRoute(null);
-      setBarricades((prev) => prev.map((b) => ({ ...b, isActive: false })));
+      setBarricades([]);
     } else if (
       dispatchedFleetRoute &&
       (Math.hypot(
@@ -412,6 +486,8 @@ export default function WebCommandDashboard() {
           assignedRole: idx === 0 ? "FEEDER" : "ATTACKER",
         }))
       );
+    } else {
+      setDispatchedFleetRoute(null);
     }
 
     // 3. Hubungkan ke backend API
@@ -738,10 +814,23 @@ export default function WebCommandDashboard() {
                       </button>
                     </div>
                   </div>
-                  <div className="text-xs font-mono text-slate-500">
-                    {incidentQueueTab === "ACTIVE"
-                      ? "RADIUS KONSENSUS: 100 METER"
-                      : "ARSIP OPERASI PEMADAMAN"}
+                  <div className="flex items-center gap-2 text-xs font-mono text-slate-500">
+                    {incidentQueueTab === "ACTIVE" ? (
+                      <>
+                        <span>RADIUS KONSENSUS: 100M</span>
+                        {incidentsQueue.length > 0 && (
+                          <button
+                            type="button"
+                            onClick={handleClearDummyData}
+                            className="text-[10px] font-bold text-slate-600 hover:text-red-700 bg-slate-100 hover:bg-red-50 border border-slate-200 hover:border-red-200 rounded-lg px-2 py-0.5 transition-colors cursor-pointer"
+                          >
+                            BERSIHKAN DATA DUMMY
+                          </button>
+                        )}
+                      </>
+                    ) : (
+                      "ARSIP OPERASI PEMADAMAN"
+                    )}
                   </div>
                 </div>
 
@@ -755,8 +844,17 @@ export default function WebCommandDashboard() {
                         </div>
                         <p className="font-bold text-sm">Semua Titik Api Berhasil Dipadamkan</p>
                         <p className="text-slate-500 mt-1">
-                          Tidak ada antrean insiden aktif saat ini. Buka tab &quot;RIWAYAT SELESAI&quot; untuk melihat arsip insiden tuntas.
+                          Sektor dalam kondisi siaga hijau. Tidak ada antrean insiden aktif saat ini.
                         </p>
+                        <div className="mt-3.5 flex items-center justify-center gap-2">
+                          <button
+                            type="button"
+                            onClick={handleInjectSimulationIncident}
+                            className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-[10px] font-mono font-bold transition-all cursor-pointer active:scale-95 shadow-xs"
+                          >
+                            + SIMULASIKAN LAPORAN DARURAT
+                          </button>
+                        </div>
                       </div>
                     ) : (
                       incidentsQueue.map((item) => {
@@ -1083,8 +1181,8 @@ export default function WebCommandDashboard() {
                           })
                         )}
 
-                        {/* Item 2: Barikade Selang Relay 110m (Muncul pada tab TODAY) */}
-                        {notificationFilterTab === "TODAY" && barricades[0] && (
+                        {/* Item 2: Barikade Selang Relay 110m (Muncul pada tab TODAY jika ada barikade aktif) */}
+                        {notificationFilterTab === "TODAY" && barricades.some((b) => b.isActive) && (
                           <div className="p-3 rounded-xl border border-slate-200/80 bg-slate-50/40 flex items-start gap-3">
                             <div className="w-9 h-9 rounded-full bg-fuchsia-50 border border-fuchsia-200 text-fuchsia-600 flex items-center justify-center shrink-0">
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
