@@ -121,10 +121,29 @@ export const TacticalMapCanvas: React.FC<TacticalMapCanvasProps> = ({
       mapInstanceRef.current = map;
       markersLayerRef.current = markersLayer;
       setIsMapReady(true);
+
+      setTimeout(() => {
+        if (mapInstanceRef.current) {
+          mapInstanceRef.current.invalidateSize();
+        }
+      }, 100);
     });
+
+    let resizeObserver: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== "undefined" && mapContainerRef.current) {
+      resizeObserver = new ResizeObserver(() => {
+        if (mapInstanceRef.current) {
+          mapInstanceRef.current.invalidateSize();
+        }
+      });
+      resizeObserver.observe(mapContainerRef.current);
+    }
 
     return () => {
       isSubscribed = false;
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+      }
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
@@ -471,7 +490,7 @@ export const TacticalMapCanvas: React.FC<TacticalMapCanvasProps> = ({
   return (
     <div
       data-testid="tactical-map-canvas"
-      className={`relative w-full h-full min-h-[460px] bg-[#E2E8F0] border border-slate-200 rounded-2xl overflow-hidden flex flex-col shadow-sm ${className}`}
+      className={`relative w-full h-full min-h-[300px] bg-[#E2E8F0] border border-slate-200 rounded-2xl overflow-hidden flex flex-col shadow-sm ${className}`}
     >
       {/* Top Left Floating Indicator (Compact & Pill-Free) */}
       <div className="absolute top-3 left-3 z-[1000] flex items-center gap-2.5 bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-xl px-3.5 py-2 shadow-sm select-none">
