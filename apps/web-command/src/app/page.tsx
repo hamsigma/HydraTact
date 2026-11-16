@@ -20,7 +20,12 @@ import {
   type ResolvedIncidentHistoryItem,
   type TelemetryMutationItem,
 } from "../lib/telemetry";
-import { DEFAULT_SAMARINDA_WATER_SOURCES, type WaterSourcePoint } from "../lib/water-sources";
+import {
+  DEFAULT_SAMARINDA_WATER_SOURCES,
+  findNearestWaterSources,
+  evaluateTidalSuctionViability,
+  type WaterSourcePoint,
+} from "../lib/water-sources";
 import { subscribeToIncidentRealtime } from "../lib/supabase-realtime";
 import {
   fetchActiveIncidents,
@@ -349,6 +354,31 @@ export default function WebCommandDashboard() {
     );
   };
 
+  const handleAdjustPressure = (unitId: string, newTargetBar: number) => {
+    setUnits((prev) =>
+      prev.map((u) => {
+        if (u.id === unitId) {
+          return {
+            ...u,
+            targetPressureBar: newTargetBar,
+            waterPressureBar: newTargetBar === 0 ? 0 : +(newTargetBar * 0.95).toFixed(1),
+          };
+        }
+        return u;
+      })
+    );
+    setTelemetryStream((prev) => [
+      {
+        id: "mut-" + Date.now(),
+        timestamp: new Date().toLocaleTimeString("id-ID", { hour12: false }),
+        callSign: units.find((u) => u.id === unitId)?.callSign || "UNIT TAKTIS",
+        actionType: "PRESSURE_REQUEST",
+        description: `Target tekanan pompa disesuaikan ke ${newTargetBar.toFixed(1)} Bar (${newTargetBar === 0 ? "EMERGENCY CUT-OFF" : "OPERASIONAL SIAGA"}).`,
+      },
+      ...prev,
+    ]);
+  };
+
   // Verifikasi Pemadaman Selesai: Titik api padam total, titik menghilang dari radar taktis & masuk ke riwayat
   const handleVerifyCompletion = async (incidentIdToResolve?: string) => {
     const targetId = incidentIdToResolve || selectedIncidentId;
@@ -602,6 +632,21 @@ export default function WebCommandDashboard() {
     return matchesStatus && matchesSearch;
   });
 
+  const currentIncidentCoords = activeIncident
+    ? activeIncident.coordinates || incidentCoordinates[activeIncident.id] || [-0.4848, 117.1628]
+    : [-0.4848, 117.1628];
+
+  const topNearestWaterSources = useMemo(() => {
+    return findNearestWaterSources(
+      currentIncidentCoords[0],
+      currentIncidentCoords[1],
+      waterSources,
+      3
+    );
+  }, [currentIncidentCoords, waterSources]);
+
+  const tidalStatus = useMemo(() => evaluateTidalSuctionViability(), []);
+
   return (
     <div className="flex h-screen w-screen bg-[#F0F2F5] text-slate-900 font-sans overflow-hidden">
       {/* 1. Sidebar Navigasi Ramping Gelap (76px Dark Icon Rail) */}
@@ -755,26 +800,51 @@ export default function WebCommandDashboard() {
                       </div>
                       <div>
                         <span className="text-[10px] font-mono font-bold text-amber-700 tracking-wider uppercase block">
-                          SUNGAI SKM
+                          SUNGAI SKM ({tidalStatus.tidalPhase})
                         </span>
                         <p className="text-base font-bold font-mono text-amber-950 mt-0.5 tabular-nums">
-                          +1.80 M (Pasang Maksimal)
+                          {tidalStatus.waterElevationMeters >= 0 ? "+" : ""}{tidalStatus.waterElevationMeters.toFixed(2)} M ({tidalStatus.isViable ? "Siaga Hisap" : "Surut Kritis"})
                         </p>
                       </div>
                     </div>
                     <div className="text-right font-mono">
-                      <span className="text-[10px] text-amber-600 block">KAPASITAS</span>
-                      <span className="text-sm text-amber-950 font-bold">OPTIMAL</span>
+                      <span className="text-[10px] text-amber-600 block">STATUS</span>
+                      <span className={`text-sm font-bold uppercase ${tidalStatus.isViable ? "text-amber-950" : "text-rose-700"}`}>
+                        {tidalStatus.isViable ? "OPTIMAL" : "ALIHKAN"}
+                      </span>
                     </div>
                   </div>
 
                   {/* Sub-banner: Status Gang & Auto-Split */}
                   <div className="bg-white rounded-xl p-3 border border-slate-200/80 shadow-xs flex items-center justify-between text-xs font-mono">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block animate-pulse" />
-                      <span className="text-slate-600">LEBAR GANG 2.1M (&lt; 2.5M)</span>
+                    <span className="font-semibold text-slate-700">LEBAR GANG 2.1M (&lt; 2.5M)</span>
+                    <span className="text-amber-700 font-bold uppercase">AUTO-SPLIT AKTIF</span>
+                  </div>
+
+                  {/* Rekomendasi 3 Titik Air Terdekat (Haversine Sorting) */}
+                  <div className="bg-white rounded-xl p-3 border border-slate-200/80 shadow-xs font-mono text-xs">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[10px] font-bold tracking-widest text-slate-500 uppercase">
+                        PASOKAN AIR TERDEKAT (TOP 3)
+                      </span>
+                      <span className="text-[10px] text-emerald-700 font-bold">
+                        HAVERSINE ETA
+                      </span>
                     </div>
-                    <span className="text-amber-700 font-bold">AUTO-SPLIT AKTIF</span>
+                    <div className="space-y-1.5">
+                      {topNearestWaterSources.map((ws, idx) => (
+                        <div key={ws.id} className="flex items-center justify-between text-[11px] p-1.5 bg-slate-50 border border-slate-100 rounded">
+                          <div className="truncate mr-2">
+                            <span className="font-bold text-slate-900">{idx + 1}. {ws.name}</span>
+                            <span className="text-slate-500 block text-[10px]">{ws.type} • {ws.dischargeLitersPerMin} L/min</span>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <span className="font-bold text-emerald-800 block tabular-nums">{ws.distanceMeters.toFixed(0)}m</span>
+                            <span className="text-[10px] text-slate-500 tabular-nums">~{ws.estimatedTravelMinutes} mnt</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1278,6 +1348,7 @@ export default function WebCommandDashboard() {
                     units={units}
                     barricades={barricades}
                     onToggleBarricade={handleToggleBarricade}
+                    onAdjustPressure={handleAdjustPressure}
                   />
                 </div>
 
@@ -1467,12 +1538,12 @@ export default function WebCommandDashboard() {
                           </td>
                           <td className="p-3.5">
                             <span
-                              className={`font-bold px-2 py-0.5 border text-[11px] rounded-md ${
+                              className={`font-mono font-bold text-xs uppercase tracking-wider ${
                                 ws.status === "READY"
-                                  ? "bg-emerald-50 border-emerald-300 text-emerald-800"
+                                  ? "text-emerald-700"
                                   : ws.status === "LOW_DISCHARGE"
-                                  ? "bg-amber-50 border-amber-300 text-amber-800"
-                                  : "bg-rose-50 border-rose-300 text-rose-700"
+                                  ? "text-amber-700"
+                                  : "text-rose-700"
                               }`}
                             >
                               {ws.status}

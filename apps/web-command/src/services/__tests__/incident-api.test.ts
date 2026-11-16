@@ -45,14 +45,26 @@ test("Incident API Service Specification", async (t) => {
     assert.ok(result.data);
   });
 
-  await t.test("4. assignArmadaUnit mengalokasikan FEEDER untuk tangki >= 3000L", async () => {
-    const result = await assignArmadaUnit("33333333-3333-3333-3333-333333333301", {
+  await t.test("4. assignArmadaUnit mengalokasikan FEEDER untuk tangki >= 3000L dan ATTACKER untuk tangki < 3000L", async () => {
+    const feederResult = await assignArmadaUnit("33333333-3333-3333-3333-333333333301", {
       unitIdentifier: "UNIT 01 CITRA NIAGA",
       waterCapacityLiters: 4000,
       vehicleType: "LARGE_TANK",
     }, "http://127.0.0.1:59999/api/v1");
 
-    assert.equal(result.success, true);
-    assert.equal(result.data.data.assigned_role, "FEEDER");
+    assert.equal(feederResult.success, true);
+    assert.equal(feederResult.data.data.assigned_role, "FEEDER");
+    assert.ok(feederResult.data.data.arterial_staging_point);
+    assert.ok(feederResult.data.data.attack_entry_point);
+
+    const attackerResult = await assignArmadaUnit("33333333-3333-3333-3333-333333333301", {
+      unitIdentifier: "UNIT 04 TOSSA PORTABLE",
+      waterCapacityLiters: 800,
+      vehicleType: "PORTABLE_PUMP",
+    }, "http://127.0.0.1:59999/api/v1");
+
+    assert.equal(attackerResult.success, true);
+    assert.equal(attackerResult.data.data.assigned_role, "ATTACKER");
+    assert.ok(attackerResult.data.data.attack_entry_point);
   });
 });

@@ -319,15 +319,22 @@ export async function assignArmadaUnit(
     console.warn(
       `[HydraTact Command] Gagal memanggil endpoint unit assign (${error.message}), alokasi lokal disetujui.`
     );
+    const isFeeder = params.waterCapacityLiters >= 3000;
     return {
       success: true,
       data: {
         status: "success",
         data: {
           unit_identifier: params.unitIdentifier,
-          assigned_role:
-            params.waterCapacityLiters >= 3000 ? "FEEDER" : "ATTACKER",
-          dispatch_rationale: "Alokasi otomatis berbasis lebar gang Samarinda",
+          assigned_role: isFeeder ? "FEEDER" : "ATTACKER",
+          dispatch_rationale: isFeeder
+            ? "Lebar akses jalan < 2.5m. Unit berkapasitas besar dialokasikan sebagai FEEDER di jalan arteri."
+            : "Lebar akses jalan < 2.5m. Unit lincah dialokasikan sebagai ATTACKER masuk gang sempit.",
+          tactical_instruction: isFeeder
+            ? "Kunci posisi di jalan arteri utama. Bentangkan selang pasok ke mulut gang."
+            : "Masuk mendekat ke titik api. Hubungkan nozzle ke selang pasok Feeder.",
+          arterial_staging_point: [117.1639, -0.4839],
+          attack_entry_point: [117.1628, -0.4848],
         },
       },
     };

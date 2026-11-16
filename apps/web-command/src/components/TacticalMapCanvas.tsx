@@ -519,21 +519,17 @@ export const TacticalMapCanvas: React.FC<TacticalMapCanvasProps> = ({
           SEKTOR: <span className="text-slate-900 font-bold">PELITA - CITRA NIAGA</span>
           <span className="text-slate-400 ml-2">| OPENSTREETMAP</span>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="flex items-center text-emerald-700 font-bold">
-            <span className="w-2 h-2 rounded-full bg-emerald-600 inline-block mr-1.5" />
+        <div className="flex items-center gap-3 font-mono text-[11px]">
+          <span className="text-emerald-700 font-bold">
             READY: {waterSources.filter((s) => s.status === "READY").length}
           </span>
-          <span className="flex items-center text-amber-700 font-bold">
-            <span className="w-2 h-2 rounded-full bg-amber-600 inline-block mr-1.5" />
+          <span className="text-amber-700 font-bold">
             LOW: {waterSources.filter((s) => s.status === "LOW_DISCHARGE").length}
           </span>
-          <span className="flex items-center text-slate-600 font-bold">
-            <span className="w-2 h-2 rounded-full bg-slate-500 inline-block mr-1.5" />
+          <span className="text-slate-600 font-bold">
             EMPTY: {waterSources.filter((s) => s.status === "EMPTY").length}
           </span>
-          <span className="flex items-center text-fuchsia-700 font-bold">
-            <span className="w-2 h-2 rounded-full bg-fuchsia-600 inline-block mr-1.5" />
+          <span className="text-fuchsia-700 font-bold">
             BARIKADE: {activeBarricades.length}
           </span>
         </div>

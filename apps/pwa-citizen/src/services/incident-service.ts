@@ -17,6 +17,7 @@ export interface ReportIncidentParams {
   reporterPhone: string;
   location: CitizenLocation;
   holdDurationMs: number;
+  photoHash?: string;
   apiBaseUrl?: string;
 }
 
@@ -72,6 +73,7 @@ export async function submitEmergencyReport(
       coordinates: [params.location.longitude, params.location.latitude], // [lon, lat]
     },
     gps_accuracy_meters: accuracyClamped,
+    photo_hash: params.photoHash,
     haptic_hold_duration_ms: holdDurationClamped,
     client_timestamp: new Date().toISOString(),
   };

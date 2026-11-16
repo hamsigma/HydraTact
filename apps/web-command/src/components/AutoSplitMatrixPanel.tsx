@@ -20,6 +20,7 @@ export interface AutoSplitMatrixPanelProps {
   units?: TacticalUnitMatrixItem[];
   barricades?: ActiveBarricadeItem[];
   onToggleBarricade?: (id: string, currentActive: boolean) => void;
+  onAdjustPressure?: (unitId: string, newTargetBar: number) => void;
   className?: string;
 }
 
@@ -28,6 +29,7 @@ export const AutoSplitMatrixPanel: React.FC<AutoSplitMatrixPanelProps> = ({
   units = DEFAULT_TACTICAL_UNITS,
   barricades = DEFAULT_ACTIVE_BARRICADES,
   onToggleBarricade,
+  onAdjustPressure,
   className = "",
 }) => {
   return (
@@ -87,13 +89,46 @@ export const AutoSplitMatrixPanel: React.FC<AutoSplitMatrixPanelProps> = ({
                   <div>
                     <span>TEKANAN: </span>
                     <span className="text-emerald-700 font-bold tabular-nums">
-                      {unit.waterPressureBar} BAR
+                      {unit.waterPressureBar.toFixed(1)} BAR
                     </span>
                   </div>
                   <div>
                     <span>STATUS: </span>
                     <span className="text-slate-800 font-bold">{unit.status}</span>
                   </div>
+                </div>
+
+                {/* Kontrol Interaksi Tekanan Pompa Dua Arah */}
+                <div className="mt-2.5 pt-2 border-t border-slate-100">
+                  <div className="flex items-center justify-between text-[10px] text-slate-500 mb-1.5">
+                    <span>TARGET NOZZLE: <strong className="text-slate-800">{unit.targetPressureBar.toFixed(1)} BAR</strong></span>
+                    <span className="tabular-nums">RENTANG AMAN: 4.0 - 14.0 BAR</span>
+                  </div>
+                  {onAdjustPressure && (
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => onAdjustPressure(unit.id, Math.max(0, +(unit.targetPressureBar - 1).toFixed(1)))}
+                        className="flex-1 py-1 px-2 border border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-800 font-mono text-[10px] font-bold uppercase transition-colors"
+                      >
+                        -1 BAR
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onAdjustPressure(unit.id, Math.min(16, +(unit.targetPressureBar + 1).toFixed(1)))}
+                        className="flex-1 py-1 px-2 border border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-800 font-mono text-[10px] font-bold uppercase transition-colors"
+                      >
+                        +1 BAR
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onAdjustPressure(unit.id, 0)}
+                        className="py-1 px-2 border border-red-300 bg-red-50 hover:bg-red-100 text-red-700 font-mono text-[10px] font-bold uppercase transition-colors"
+                      >
+                        CUT-OFF (0 BAR)
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             );

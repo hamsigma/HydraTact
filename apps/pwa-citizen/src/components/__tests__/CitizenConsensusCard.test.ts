@@ -11,6 +11,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { subscribeToIncidentRealtime } from "../../lib/supabase-realtime.ts";
+import { evaluateConsensus } from "../../../../../packages/spatial-core/src/index.ts";
 
 describe("TASK-304: Citizen Realtime Consensus Card Specification", () => {
   const incidentId = "incident-test-304";
@@ -98,4 +99,56 @@ describe("TASK-304: Citizen Realtime Consensus Card Specification", () => {
 
     sub.unsubscribe();
   });
+
+  it("4. Mesin Konsensus Anti-Prank: 1 laporan fiktif ditahan (PENDING), 2 laporan diverifikasi, bypass via foto GPS valid", () => {
+    const target: [number, number] = [117.1628, -0.4848];
+    const now = new Date("2026-11-16T12:00:00Z");
+
+    // Skenario A: 1 Laporan tanpa foto (potensi prank) -> PENDING_CONFIRMATION
+    const singleReport = [
+      {
+        reporterPhone: "+6281200000001",
+        coordinates: target,
+        timestamp: now,
+      },
+    ];
+    const resA = evaluateConsensus(singleReport, target, now);
+    assert.equal(resA.isVerified, false);
+    assert.equal(resA.consensusStatus, "PENDING_CONFIRMATION");
+    assert.equal(resA.allowManualOverride, true);
+
+    // Skenario B: 2 Laporan dalam radius 100m dan jendela 180s -> VERIFIED
+    const clusterReports = [
+      {
+        reporterPhone: "+6281200000001",
+        coordinates: target,
+        timestamp: now,
+      },
+      {
+        reporterPhone: "+6281200000002",
+        coordinates: [117.1630, -0.4847] as [number, number],
+        timestamp: new Date(now.getTime() - 40000),
+      },
+    ];
+    const resB = evaluateConsensus(clusterReports, target, now);
+    assert.equal(resB.isVerified, true);
+    assert.equal(resB.consensusStatus, "VERIFIED");
+    assert.equal(resB.uniqueReportersCount, 2);
+
+    // Skenario C: 1 Laporan dengan GPS Presisi (< 15m) + Foto Valid -> Auto-Bypass VERIFIED
+    const bypassReport = [
+      {
+        reporterPhone: "+6281200000009",
+        coordinates: target,
+        timestamp: now,
+        gpsAccuracyMeters: 8.5,
+        photoHash: "sha256-a1b2c3d4e5f67890",
+      },
+    ];
+    const resC = evaluateConsensus(bypassReport, target, now);
+    assert.equal(resC.isVerified, true);
+    assert.equal(resC.isHighConfidenceBypass, true);
+    assert.equal(resC.consensusStatus, "VERIFIED");
+  });
 });
+
