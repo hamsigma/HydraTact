@@ -353,4 +353,8 @@ from .incident_fsm import (
     execute_fsm_transition,
 )
 
+from .bearing import (
+    calculate_compass_bearing,
+)
+
 
