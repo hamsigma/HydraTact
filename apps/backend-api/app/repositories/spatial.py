@@ -196,9 +196,38 @@ def calculate_estimated_travel_minutes(distance_meters: float, avg_speed_kmh: fl
 
 # Data fallback titik sumber air Kota Samarinda (30 Titik Terverifikasi) saat database luring
 FALLBACK_WATER_SOURCES: List[Dict[str, Any]] = [
-    # 1. Sektor Komersial Citra Niaga & Pasar Pagi (Samarinda Kota)
+    # Titik Kunci Skenario Pelita Gang 4 (sesuai supabase/seed.sql)
     {
         "id": UUID("22222222-2222-2222-2222-222222222201"),
+        "code": "HYD-PLT-01",
+        "name": "Hidran PDAM Jl. Pelita Utama (Depan Gang 2)",
+        "source_type": WaterSourceType.PDAM_HYDRANT,
+        "lat": -0.4936,
+        "lng": 117.1446,
+        "capacity_liters": None,
+        "pressure_bar": 5.20,
+        "discharge_lpm": 1200,
+        "road_access_meters": 6.0,
+        "operational_status": WaterSourceStatus.READY,
+        "last_verified_at": datetime.now(timezone.utc),
+    },
+    {
+        "id": UUID("22222222-2222-2222-2222-222222222202"),
+        "code": "HYD-PLT-02",
+        "name": "Hidran PDAM Mulut Jl. Pelita Gang 4",
+        "source_type": WaterSourceType.PDAM_HYDRANT,
+        "lat": -0.4945,
+        "lng": 117.1438,
+        "capacity_liters": None,
+        "pressure_bar": 4.80,
+        "discharge_lpm": 1100,
+        "road_access_meters": 5.5,
+        "operational_status": WaterSourceStatus.READY,
+        "last_verified_at": datetime.now(timezone.utc),
+    },
+    # 1. Sektor Komersial Citra Niaga & Pasar Pagi (Samarinda Kota)
+    {
+        "id": UUID("22222222-2222-2222-2222-222222222211"),
         "code": "HYD-CNG-01",
         "name": "Hidran PDAM Jl. Niaga Utara (Citra Niaga)",
         "source_type": WaterSourceType.PDAM_HYDRANT,
@@ -212,7 +241,7 @@ FALLBACK_WATER_SOURCES: List[Dict[str, Any]] = [
         "last_verified_at": datetime.now(timezone.utc),
     },
     {
-        "id": UUID("22222222-2222-2222-2222-222222222202"),
+        "id": UUID("22222222-2222-2222-2222-222222222212"),
         "code": "HYD-CNG-02",
         "name": "Hidran PDAM Jl. Niaga Timur No. 2",
         "source_type": WaterSourceType.PDAM_HYDRANT,
@@ -1053,8 +1082,31 @@ async def fetch_incident_detail_by_id(
             pass
 
     # Fallback untuk simulasi Jl. Pelita Gg. 4
+    pelita_id_str = "33333333-3333-3333-3333-333333333301"
+    pelita_units = [
+        IncidentUnitItem(
+            unit_id=UUID("55555555-5555-5555-5555-555555555501"),
+            unit_identifier="ATK-04",
+            vehicle_type=VehicleType.THREE_WHEELER,
+            water_capacity_liters=600,
+            assigned_role=TacticalRole.ATTACKER,
+            current_location=GeoPoint(type="Point", coordinates=(117.1442, -0.4940)),
+        ),
+        IncidentUnitItem(
+            unit_id=UUID("55555555-5555-5555-5555-555555555502"),
+            unit_identifier="FDR-02",
+            vehicle_type=VehicleType.LARGE_TANK,
+            water_capacity_liters=5000,
+            assigned_role=TacticalRole.FEEDER,
+            current_location=GeoPoint(type="Point", coordinates=(117.1438, -0.4945)),
+        ),
+    ]
+
     for cluster in _in_memory_incident_clusters:
         if cluster["incident_id"] == incident_id:
+            assigned = cluster.get("allocated_units")
+            if assigned is None and str(incident_id) == pelita_id_str:
+                assigned = pelita_units
             return IncidentDetailData(
                 incident_id=incident_id,
                 incident_code=cluster["incident_code"],
@@ -1065,10 +1117,10 @@ async def fetch_incident_detail_by_id(
                 reported_at=cluster["created_at"],
                 verified_at=datetime.now(timezone.utc) if cluster.get("is_verified") else None,
                 closed_at=datetime.now(timezone.utc) if cluster.get("status") == IncidentFSMStatus.INCIDENT_CLOSED else None,
-                allocated_units=[],
+                allocated_units=assigned or [],
             )
 
-    if str(incident_id) == "33333333-3333-3333-3333-333333333301":
+    if str(incident_id) == pelita_id_str:
         return IncidentDetailData(
             incident_id=incident_id,
             incident_code="HT-2026-089",
@@ -1079,24 +1131,7 @@ async def fetch_incident_detail_by_id(
             reported_at=datetime.now(timezone.utc),
             verified_at=datetime.now(timezone.utc),
             closed_at=None,
-            allocated_units=[
-                IncidentUnitItem(
-                    unit_id=UUID("55555555-5555-5555-5555-555555555501"),
-                    unit_identifier="ATK-04",
-                    vehicle_type=VehicleType.THREE_WHEELER,
-                    water_capacity_liters=600,
-                    assigned_role=TacticalRole.ATTACKER,
-                    current_location=GeoPoint(type="Point", coordinates=(117.1442, -0.4940)),
-                ),
-                IncidentUnitItem(
-                    unit_id=UUID("55555555-5555-5555-5555-555555555502"),
-                    unit_identifier="FDR-02",
-                    vehicle_type=VehicleType.LARGE_TANK,
-                    water_capacity_liters=5000,
-                    assigned_role=TacticalRole.FEEDER,
-                    current_location=GeoPoint(type="Point", coordinates=(117.1438, -0.4945)),
-                ),
-            ],
+            allocated_units=pelita_units,
         )
     return None
 
