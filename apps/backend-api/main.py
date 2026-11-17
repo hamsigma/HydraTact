@@ -33,6 +33,7 @@ from app.core.exceptions import (
 )
 from app.core.limiter import limiter
 from app.core.metrics import generate_prometheus_metrics_text, record_request_metric
+from app.core.security_headers import SecurityHeadersMiddleware
 from slowapi.errors import RateLimitExceeded
 
 logging.basicConfig(
@@ -89,6 +90,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(SecurityHeadersMiddleware)
 
 # -----------------------------------------------------------------------------
 # Global Exception Handlers
