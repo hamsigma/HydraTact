@@ -13,9 +13,11 @@ if _SPATIAL_CORE_DIR.exists() and str(_SPATIAL_CORE_DIR) not in sys.path:
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 import logging
-from fastapi import FastAPI
+import time
+from fastapi import FastAPI, Request, Response
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import PlainTextResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.api.v1.router import api_v1_router
@@ -30,6 +32,7 @@ from app.core.exceptions import (
     validation_exception_handler,
 )
 from app.core.limiter import limiter
+from app.core.metrics import generate_prometheus_metrics_text, record_request_metric
 from slowapi.errors import RateLimitExceeded
 
 logging.basicConfig(
@@ -67,9 +70,17 @@ app = FastAPI(
 )
 
 # -----------------------------------------------------------------------------
-# CORS Middleware & Rate Limiting
+# CORS Middleware & Rate Limiting & Metrics Middleware
 # -----------------------------------------------------------------------------
 app.state.limiter = limiter
+
+@app.middleware("http")
+async def metrics_middleware(request: Request, call_next):
+    start_time = time.perf_counter()
+    response = await call_next(request)
+    duration = time.perf_counter() - start_time
+    record_request_metric(request.method, request.url.path, response.status_code, duration)
+    return response
 
 app.add_middleware(
     CORSMiddleware,
@@ -108,6 +119,12 @@ async def root():
     }
 
 
+@app.get("/metrics", response_class=PlainTextResponse, tags=["Observability"])
+async def prometheus_metrics():
+    """Prometheus metrics endpoint untuk scrape metrik operasional HTTP & dispatching."""
+    return generate_prometheus_metrics_text()
+
+
 @app.get("/health", tags=["System"])
 async def health_check():
     """Pemeriksaan kesehatan sistem, latensi koneksi basis data Supabase PostGIS, dan spatial engine."""
@@ -127,3 +144,15 @@ async def health_check():
         "spatial_engine": "ready",
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
+
+
+@app.get("/health/liveness", tags=["System"])
+async def liveness_probe():
+    """Kubernetes / Docker liveness probe: memastikan proses FastAPI tetap responsif."""
+    return {"status": "alive", "timestamp": datetime.now(timezone.utc).isoformat()}
+
+
+@app.get("/health/readiness", tags=["System"])
+async def readiness_probe():
+    """Kubernetes / Docker readiness probe: memastikan aplikasi siap menerima lalu lintas."""
+    return {"status": "ready", "spatial_engine": "initialized"}
