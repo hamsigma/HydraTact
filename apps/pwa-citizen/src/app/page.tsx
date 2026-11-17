@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { HapticPressAndHoldButton } from "../components/HapticPressAndHoldButton";
 import { CitizenConsensusCard } from "../components/CitizenConsensusCard";
 import { submitEmergencyReport, type IncidentReportSuccess } from "../services/incident-service";
+import { registerServiceWorker } from "../services/sw-register";
 
 export default function CitizenEmergencyPage() {
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -14,8 +15,10 @@ export default function CitizenEmergencyPage() {
   const [reportResult, setReportResult] = useState<IncidentReportSuccess["data"] | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Minta izin geolokasi otomatis saat pertama kali dimuat
+  // Minta izin geolokasi otomatis dan daftarkan Service Worker saat pertama kali dimuat
   useEffect(() => {
+    registerServiceWorker().catch(() => {});
+
     if (typeof window === "undefined" || !("geolocation" in navigator)) {
       setGpsStatus("DENIED");
       return;
