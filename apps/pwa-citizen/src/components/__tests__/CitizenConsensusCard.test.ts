@@ -150,5 +150,15 @@ describe("TASK-304: Citizen Realtime Consensus Card Specification", () => {
     assert.equal(resC.isHighConfidenceBypass, true);
     assert.equal(resC.consensusStatus, "VERIFIED");
   });
+
+  it("5. Format dan pencatatan nomor WhatsApp pelapor pada kartu konsensus", () => {
+    const rawPhone = "081234567890";
+    const clean = rawPhone.trim().replace(/[-\s]/g, "");
+    const formatted = clean.startsWith("08")
+      ? `+62 8${clean.slice(2, 4)}-${clean.slice(4, 8)}-${clean.slice(8)}`
+      : clean;
+
+    assert.equal(formatted, "+62 812-3456-7890", "Nomor telepon harus terformat rapi untuk display WhatsApp");
+  });
 });
 

@@ -28,6 +28,7 @@ describe("Citizen Incident Reporting Service (TASK-302)", () => {
 
     assert.equal(result.status, "success");
     assert.ok(result.data.incident_id);
+    assert.equal(result.data.reporter_phone, "+6281234567890");
     assert.equal(result.data.status, "REPORTED");
     assert.equal(result.data.consensus.unique_reporters_count, 1);
     assert.equal(result.data.consensus.cluster_radius_meters, 100.0);

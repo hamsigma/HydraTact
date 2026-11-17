@@ -230,6 +230,7 @@ export default function CitizenEmergencyPage() {
             <div className="w-full">
               <CitizenConsensusCard
                 incidentId={reportResult.incident_id}
+                reporterPhone={reportResult.reporter_phone || phoneNumber}
                 initialStatus={reportResult.status}
                 initialReportersCount={reportResult.consensus.unique_reporters_count}
                 clusterRadiusMeters={reportResult.consensus.cluster_radius_meters}

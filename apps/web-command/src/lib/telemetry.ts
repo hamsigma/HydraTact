@@ -13,6 +13,7 @@ export interface IncidentQueueItem {
   reportersCount: number;
   consensusTarget: number;
   clusterRadiusMeters: number;
+  reporterPhone?: string;
   reportedAt: string;
   elapsedMinutes: number;
 }
@@ -49,6 +50,7 @@ export const DEFAULT_INCIDENT_QUEUE: IncidentQueueItem[] = [
     reportersCount: 2,
     consensusTarget: 2,
     clusterRadiusMeters: 100,
+    reporterPhone: "+6281255881234",
     reportedAt: new Date(Date.now() - 8 * 60 * 1000).toISOString(),
     elapsedMinutes: 8,
   },
@@ -60,6 +62,7 @@ export const DEFAULT_INCIDENT_QUEUE: IncidentQueueItem[] = [
     reportersCount: 1,
     consensusTarget: 2,
     clusterRadiusMeters: 100,
+    reporterPhone: "+6285249117890",
     reportedAt: new Date(Date.now() - 2 * 60 * 1000).toISOString(),
     elapsedMinutes: 2,
   },

@@ -25,6 +25,7 @@ export interface IncidentReportSuccess {
   status: "success";
   data: {
     incident_id: string;
+    reporter_phone?: string;
     status: "REPORTED" | "VERIFIED";
     consensus: {
       is_verified: boolean;
@@ -105,6 +106,7 @@ export async function submitEmergencyReport(
     const rawData = data?.data || data;
     const normalizedData = {
       incident_id: String(rawData.incident_id),
+      reporter_phone: rawData.reporter_phone || formattedPhone,
       status: (rawData.incident_status === "PENDING_VERIFICATION"
         ? "REPORTED"
         : rawData.incident_status === "VERIFIED"
@@ -132,6 +134,7 @@ export async function submitEmergencyReport(
         status: "success",
         data: {
           incident_id: "local-sim-" + Date.now(),
+          reporter_phone: formattedPhone,
           status: "REPORTED",
           consensus: {
             is_verified: false,

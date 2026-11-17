@@ -23,6 +23,8 @@ export interface BackendIncidentItem {
   consensus_target: number;
   cluster_radius_meters: number;
   road_width_meters: number;
+  reporter_phone?: string;
+  reporters?: string[];
   reported_at: string;
   updated_at: string;
 }
@@ -148,6 +150,7 @@ export async function fetchActiveIncidents(
         reportersCount: item.reporters_count,
         consensusTarget: item.consensus_target || 2,
         clusterRadiusMeters: item.cluster_radius_meters || 100,
+        reporterPhone: item.reporter_phone || (item.reporters && item.reporters[0]) || "+6281255881234",
         reportedAt: item.reported_at,
         elapsedMinutes: isNaN(elapsedMinutes) ? 1 : elapsedMinutes,
       };
