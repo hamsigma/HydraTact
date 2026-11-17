@@ -8,4 +8,5 @@ export * from "./consensus.ts";
 export * from "./dispatch.ts";
 export * from "./snapping.ts";
 export * from "./incident_fsm.ts";
+export * from "./bearing.ts";
 
